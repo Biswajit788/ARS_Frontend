@@ -1,4 +1,7 @@
 import React, { Component } from "react";
+import Logo from '../aasets/logo.jpg';
+import '../index.css';
+import { projects, departments} from './pages/data';
 
 export default class SignUp extends Component {
   constructor(props) {
@@ -7,15 +10,20 @@ export default class SignUp extends Component {
       fname: "",
       lname: "",
       email: "",
+      uid: "",
       password: "",
+      project: "",
+      dept: "",
+      role:"User",
+      desgn:"",
     };
     this.handleSubmit = this.handleSubmit.bind(this);
   }
   handleSubmit(e) {
     e.preventDefault();
-    const { fname, lname, email, password } = this.state;
-    console.log(fname, lname, email, password);
-    fetch("http://localhost:5000/register", {
+    const { fname, lname, email, uid, password, project, dept, role, desgn } = this.state;
+    // console.log(fname, lname, email, uid, password);
+    fetch("http://10.3.0.57:5000/register", {
       method: "POST",
       crossDomain: true,
       headers: {
@@ -27,68 +35,143 @@ export default class SignUp extends Component {
         fname,
         email,
         lname,
+        uid,
         password,
+        project,
+        dept,
+        role,
+        desgn,
       }),
     })
       .then((res) => res.json())
       .then((data) => {
-        console.log(data, "userRegister");
+        if (data.status === "ok") {
+          alert("User created successfully");
+          window.location.href = "/";
+        }
+        else if(data.status === "error"){
+          alert("User Id already registered !!");
+        }
+        // console.log(data, "UserRegister");
       });
   }
   render() {
     return (
-      <form onSubmit={this.handleSubmit}>
-        <h3>Sign Up</h3>
+      
+      <div className="auth-wrapper">
+        <div className="auth-inner">
+          <form className="row" onSubmit={this.handleSubmit}>
+            <div className="logo">
+              <img src={Logo} alt="Neepco Ltd." width="80px" height="80px" />
+              <h5>Sign Up</h5>
+              <hr />
+            </div>
+            <div className="mb-3 col-md-6">
+              <label>First name</label>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="First name"
+                onChange={(e) => this.setState({ fname: e.target.value })}
+                required
+              />
+            </div>
 
-        <div className="mb-3">
-          <label>First name</label>
-          <input
-            type="text"
-            className="form-control"
-            placeholder="First name"
-            onChange={(e) => this.setState({ fname: e.target.value })}
-          />
-        </div>
+            <div className="mb-3 col-md-6">
+              <label>Last name</label>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Last name"
+                onChange={(e) => this.setState({ lname: e.target.value })}
+                required
+              />
+            </div>
 
-        <div className="mb-3">
-          <label>Last name</label>
-          <input
-            type="text"
-            className="form-control"
-            placeholder="Last name"
-            onChange={(e) => this.setState({ lname: e.target.value })}
-          />
-        </div>
+            <div className="mb-3">
+              <label>Designation</label>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Enter Designation"
+                onChange={(e) => this.setState({ desgn: e.target.value })}
+                required
+              />
+            </div>
 
-        <div className="mb-3">
-          <label>Email address</label>
-          <input
-            type="email"
-            className="form-control"
-            placeholder="Enter email"
-            onChange={(e) => this.setState({ email: e.target.value })}
-          />
-        </div>
+            <div className="mb-3">
+              <label>Email address</label>
+              <input
+                type="email"
+                className="form-control"
+                placeholder="Enter email address"
+                onChange={(e) => this.setState({ email: e.target.value })}
+                required
+              />
+            </div>
 
-        <div className="mb-3">
-          <label>Password</label>
-          <input
-            type="password"
-            className="form-control"
-            placeholder="Enter password"
-            onChange={(e) => this.setState({ password: e.target.value })}
-          />
-        </div>
+            <div className="mb-3">
+              <label>Place of Posting</label>
+              <select
+                className="form-select"
+                onChange={(e) => this.setState({ project: e.target.value })}
+                required
+              >
+                <option value="">Please select</option>
+                {projects.map((project) =>
+                    <option key={project} value={project}>{project}</option>
+                )}
+              </select>
+            </div>
 
-        <div className="d-grid">
-          <button type="submit" className="btn btn-primary">
-            Sign Up
-          </button>
+            <div className="mb-3">
+              <label>Department</label>
+              <select
+                className="form-select"
+                onChange={(e) => this.setState({ dept: e.target.value })}
+                required
+              >
+                <option value="">Please Select</option>
+                {departments.map((department) =>
+                    <option key={department} value={department}>{department}</option>
+                )}
+              </select>
+            </div>
+
+            <div className="mb-3">
+              <label>Username</label>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Enter 4-digit Employee Code"
+                maxLength={4}
+                onChange={(e) => this.setState({ uid: e.target.value })}
+                required
+              />
+            </div>
+
+            <div className="mb-3">
+              <label>Password</label>
+              <input
+                type="password"
+                className="form-control"
+                placeholder="Enter password"
+                onChange={(e) => this.setState({ password: e.target.value })}
+                required
+              />
+            </div>
+
+            <div className="d-grid">
+              <button type="submit" className="btn btn-primary">
+                Sign Up
+              </button>
+            </div>
+            <p className="forgot-password text-right">
+              Already registered <a href="/sign-in">sign in?</a>
+            </p>
+          </form>
         </div>
-        <p className="forgot-password text-right">
-          Already registered <a href="/sign-in">sign in?</a>
-        </p>
-      </form>
+      </div >
     );
   }
 }

@@ -1,0 +1,15 @@
+.titleReport{
+    font-size: 22px;
+    letter-spacing: 1.5px;
+    color: #000;
+    background-clip: text;
+    background: linear-gradient(to right, #FFF 20%,
+    #FF0 40%, #FF0 60%, #FFF 80%);
+    animation: animate 3s linear infinite;
+    background-size: 400% auto;
+}
+@keyframes animate {
+    to{
+        background-position: 400% center;
+    }
+}

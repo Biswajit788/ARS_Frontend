@@ -1,0 +1,47 @@
+
+@media (max-width: 768px){
+    .rowstyle {
+        display: flex;
+        flex-direction: row !important;
+    }
+}
+
+.form-title{
+    color: blue;
+    font-weight: 400;
+}
+
+.smaller-input{
+    font-size: 15px;
+}
+
+.left-btn{
+    display: flex;
+    justify-content: space-around;
+}
+
+
+.button{
+    margin: auto;
+    width: 200px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.form-error{
+    color: red;
+    padding: 5px;
+    font-size: 14;
+}
+
+button:disabled{
+    opacity: 0.35;
+}
+
+label{
+    font-size: 15px;
+    font-family: 'Courier New', Courier, monospace;
+    white-space: normal;
+    display: inline;
+    vertical-align: baseline;
+}

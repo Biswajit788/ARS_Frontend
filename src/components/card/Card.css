@@ -1,0 +1,13 @@
+.card{
+    display: flex;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+.card-header{
+    color: rgba(56, 2, 83, 0.884);
+    font-size: 20px;
+    font-weight: 400;
+}
+.card-body p{
+    font-size: 14px;
+}
