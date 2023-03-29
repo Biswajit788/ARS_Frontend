@@ -24,7 +24,6 @@ import { ToastContainer, toast } from 'react-toastify';
 import Swal from 'sweetalert2';
 import 'react-toastify/dist/ReactToastify.css';
 import moment from 'moment';
-import { ContentCopy } from '@mui/icons-material';
 
 const DataTable = () => {
 

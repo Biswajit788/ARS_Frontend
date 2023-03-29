@@ -232,7 +232,7 @@ function ProcurementForm() {
                     words_string += "Hundred ";
                 }
             }
-            words_string = '(' + 'Rupees' + ' ' + words_string.split("  ").join(" ") + 'Only' + ')';
+            words_string = 'Rupees' + ' ' + words_string.split("  ").join(" ") + 'Only';
         }
         //return words_string;
         subject.next(words_string);
@@ -243,7 +243,7 @@ function ProcurementForm() {
             <Header />
             <div class="container mt-4">
                 <div className="mb-5 title text-center">
-                    <p className="h5 text-primary">Procurement Form</p>
+                    <p className="h6 text-primary font-monospace">Fill in all the Procurement details</p>
                 </div>
                 <Form onSubmit={handleSubmit}>
                     <ul class="nav nav-tabs nav-justified mb-3" id="ex1" role="tablist">
@@ -424,7 +424,7 @@ function ProcurementForm() {
                                     <FloatingLabel
                                         className='text-muted'
                                         controlId="floatingInput"
-                                        label="Item Model No."
+                                        label="Item Model No. (Optional)"
                                     >
                                         <Form.Control
                                             className='text-uppercase'
@@ -447,7 +447,7 @@ function ProcurementForm() {
                                     <FloatingLabel
                                         className='text-muted'
                                         controlId="floatingInput"
-                                        label="Item Serial No."
+                                        label="Item Serial No. (Optional)"
                                     >
                                         <Form.Control
                                             as="textarea"
@@ -464,7 +464,7 @@ function ProcurementForm() {
                                     {errors.serial && touched.serial ? (
                                         <span className='form-error'>{errors.serial}</span>
                                     ) : null}
-                                    <span className='text-info font-monospace'>NB: For more than 1 serial no. use "," separator
+                                    <span className='text-danger font-monospace'><b>NB:</b> For more than 1 serial no. use "," separator
                                         (Ex; XXXAB,YYYBD)
                                     </span>
                                 </Col>
@@ -474,7 +474,7 @@ function ProcurementForm() {
                                     <FloatingLabel
                                         className='text-muted'
                                         controlId="floatingInput"
-                                        label="Item Part No."
+                                        label="Item Part No. (Optional)"
                                     >
                                         <Form.Control
                                             className='text-uppercase'
@@ -497,7 +497,7 @@ function ProcurementForm() {
                                     <FloatingLabel
                                         className='text-muted'
                                         controlId="floatingInput"
-                                        label="Enter Asset ID Number"
+                                        label="Enter Asset ID Number (Optional)"
                                     >
                                         <Form.Control
                                             className='text-uppercase'
@@ -517,7 +517,7 @@ function ProcurementForm() {
                             </Row>
                             <Row className='mb-3 pb-5 smaller-input'>
                                 <Col sm={6}>
-                                    <FloatingLabel className='text-muted' controlId="floatingTextarea2" label="Additional Item Information (If any)">
+                                    <FloatingLabel className='text-muted' controlId="floatingTextarea2" label="Additional Item Information (If any) (Optional)">
                                         <Form.Control
                                             as="textarea"
                                             className='text-capitalize'
@@ -563,7 +563,7 @@ function ProcurementForm() {
                             </Row>
                             <Row className='mb-3 smaller-input'>
                                 <Col sm={6}>
-                                    <FloatingLabel className='text-muted' controlId="floatingTextarea2" label="Address of Vendor/Supplier">
+                                    <FloatingLabel className='text-muted' controlId="floatingTextarea2" label="Address of Vendor/Supplier (Optional)">
                                         <Form.Control
                                             as="textarea"
                                             className='text-capitalize'
@@ -607,7 +607,7 @@ function ProcurementForm() {
                                         <FloatingLabel
                                             className='text-muted'
                                             controlId="floatingInput"
-                                            label="If MSE? Registration Number"
+                                            label="If MSE? Registration Number (Optional)"
                                         >
                                             <Form.Control
                                                 className='text-uppercase'
@@ -674,7 +674,7 @@ function ProcurementForm() {
                                     <FloatingLabel
                                         className='text-muted'
                                         controlId="floatingInput"
-                                        label="PAN Number"
+                                        label="PAN Number (Optional)"
                                     >
                                         <Form.Control
                                             className='text-uppercase'
@@ -794,7 +794,7 @@ function ProcurementForm() {
                                     <FloatingLabel
                                         className='text-muted'
                                         controlId="floatingInput"
-                                        label="Contract Price (in Rs)"
+                                        label="Contract Price (in Rs.)"
                                     >
                                         <Form.Control
                                             name="price"
@@ -810,7 +810,7 @@ function ProcurementForm() {
                                     {errors.price && touched.price ? (
                                         <span className='form-error'>{errors.price}</span>
                                     ) : null}
-                                    <span className="text-primary fw-bold font-monospace" id="wordInNum"></span>
+                                    <span className="text-success fw-bold font-monospace" id="wordInNum"></span>
                                 </Col>
                                 <Col sm={3}>
                                     <FloatingLabel controlId="floatingSelect" label="Select Work Category">
@@ -878,7 +878,7 @@ function ProcurementForm() {
                             </Row>
                             <Row className='mt-3 mb-3 smaller-input'>
                                 <Col sm={6}>
-                                    <FloatingLabel className='text-muted' controlId="floatingTextarea2" label="Remarks (if any)">
+                                    <FloatingLabel className='text-muted' controlId="floatingTextarea2" label="Remarks (if any) (Optional)">
                                         <Form.Control
                                             as="textarea"
                                             className='text-capitalize'

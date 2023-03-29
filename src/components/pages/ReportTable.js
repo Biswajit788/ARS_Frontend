@@ -4,6 +4,7 @@ import MaterialReactTable from 'material-react-table';
 import { Box, Button } from '@mui/material';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { ExportToCsv } from 'export-to-csv';
+import moment from 'moment';
 
 const ReportTable = () => {
 
@@ -248,18 +249,22 @@ const ReportTable = () => {
             enableColumnFilterModes: false,
         },
         {
-            accessorKey: 'createdAt',
+            accessorFn: (row) => moment(row.createdAt).format("DD-MM-YYYY hh:mm:ss"),
+            id: 'createdAt',
             header: 'Created on',
-            size: 100,
-            enableSorting: false,
-            enableColumnFilterModes: false,
+            enableColumnOrdering: false,
+            enableEditing: false, //disable editing on this column
+            size: 200,
+            enableSorting: true,
         },
         {
-            accessorKey: 'updatedAt',
+            accessorFn: (row) => moment(row.updatedAt).format("DD-MM-YYYY hh:mm:ss"),
+            id: 'updatedAt',
             header: 'Updated on',
-            size: 100,
+            enableColumnOrdering: false,
+            enableEditing: false, //disable editing on this column
+            size: 200,
             enableSorting: false,
-            enableColumnFilterModes: false,
         },
     ]
 
@@ -271,6 +276,7 @@ const ReportTable = () => {
         useBom: true,
         useKeysAsHeaders: false,
         headers: columns.map((c) => c.header),
+        filename: 'Gen_report',
     };
 
     const csvExporter = new ExportToCsv(csvOptions);
@@ -295,7 +301,7 @@ const ReportTable = () => {
                 }}
                 muiTableHeadCellProps={{
                     sx: {
-                        fontSize: '16px',
+                        fontSize: '14px',
                         background: '#FAF395',
                         verticalAlign: 'center',
                     },
@@ -304,7 +310,7 @@ const ReportTable = () => {
                     elevation: 0,
                     sx: {
                         borderRadius: '0',
-                        border: '2px dashed #e0e0e0',
+                        border: '1px dotted #e0e0e0',
                     }
                 }}
                 enableStickyHeader
