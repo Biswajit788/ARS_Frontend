@@ -12,7 +12,7 @@ class dashboard_component extends React.Component{
       <>
           <Navbar />
           <div className="container">
-            <Card />
+          {/* <Card /> */}
             <DashTable />
           </div>
           <Footer />

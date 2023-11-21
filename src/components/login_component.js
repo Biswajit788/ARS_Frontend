@@ -49,7 +49,7 @@ export default class Login extends Component {
             icon: 'success'
           }).then(function(){
             window.localStorage.setItem("token", data.tokenAssign);
-            window.location.href = "/dashboard";
+            window.location.href = "/homepage";
           })
         }
         else {

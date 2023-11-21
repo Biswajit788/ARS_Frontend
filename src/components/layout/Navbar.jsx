@@ -31,8 +31,16 @@ export default class Navbar extends Component {
             .then((res) => res.json())
             .then((data) => {
                 if (data.status === "expired") {
-                    alert('Session expired. Please login again!')
-                    window.location.href = "/";
+                    Swal.fire({
+                        text: 'Session Expired!',
+                    }).then((result) => {
+                        window.location.href="/sign-in";
+                        /* if(result.isConfirmed){
+                            window.location.href="/sign-in";
+                        } */
+                    })
+                    /* alert('Session expired.')
+                    window.location.href = "/"; */
                 }
                 this.setState({ userData: data.data });
             });
@@ -91,7 +99,7 @@ export default class Navbar extends Component {
 
                         <div className="collapse navbar-collapse" id="navbarSupportedContent">
                             <a href="#" className="navbar-brand mt-2 mt-lg-0">
-                                <NavLink to="/dashboard">
+                                <NavLink to="/homepage">
                                     <img
                                         src={Logo}
                                         height="70"
@@ -103,11 +111,16 @@ export default class Navbar extends Component {
                             <ul className="navbar-nav me-auto mb-2 mb-lg-0">
 
                                 <li className="nav-item">
-                                    <NavLink to="/dashboard" className="text-decoration-none">
+                                    <NavLink to="/homepage" className="text-decoration-none">
                                         <a href="#" className="nav-link">
                                             <i className="fa fa-home" aria-hidden="true"></i>&nbsp;&nbsp;
-                                            Dashboard
+                                            Home
                                         </a>
+                                    </NavLink>
+                                </li>
+                                <li className="nav-item">
+                                    <NavLink to="/dashboard" className="text-decoration-none">
+                                        <a href="#" className="nav-link">Procurement Item</a>
                                     </NavLink>
                                 </li>
                                 <li className="nav-item dropdown">

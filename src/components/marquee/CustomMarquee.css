@@ -1,0 +1,24 @@
+.marquee-container{
+    display: flex;
+}
+
+.marquee-container .card{
+    width: 320px;
+    display: flex;
+    flex-direction:column ;
+    margin-left: 1rem;
+    margin-right: 1rem;
+    text-align: center;
+    align-items: center;
+}
+
+.marquee-container img{
+    margin: 10px 10px 10px 10px;
+}
+
+.marquee-container p{
+    margin: 10px 20px 10px 20px;
+    text-align: justify;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+}

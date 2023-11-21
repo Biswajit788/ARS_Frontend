@@ -128,7 +128,7 @@ function ProcurementForm() {
                             text: 'New Item created Successfully',
                             showConfirmButton: true,
                         }).then((result) => {
-                            if(result.isConfirmed){
+                            if (result.isConfirmed) {
                                 window.location.href = "/additem";
                             }
                         })
@@ -137,7 +137,7 @@ function ProcurementForm() {
                         Swal.fire({
                             icon: 'error',
                             title: 'Oops...',
-                            text: `Order No- `+data.message+` already exist. Try another!`,
+                            text: `Order No- ` + data.message + ` already exist. Try another!`,
                         })
                     }
                 });
@@ -701,7 +701,7 @@ function ProcurementForm() {
                             aria-labelledby="ex3-tab-4"
                         >
                             <Row className='mt-5 mb-3 smaller-input'>
-                                <Col sm={6}>
+                                <Col sm={8}>
                                     <FloatingLabel className='text-wrap' controlId="floatingSelect" label="Whether this Procurement made outside GEM, even when it is available in GEM?">
                                         <Form.Select
                                             name="condition4"
@@ -723,7 +723,7 @@ function ProcurementForm() {
                                 </Col>
                             </Row>
                             <Row className='mb-3 smaller-input'>
-                                <Col sm={6}>
+                                <Col sm={8}>
                                     {values.condition4 === "Yes" && (
                                         <FloatingLabel className='text-muted' controlId="floatingTextarea2" label="Reason of procurement outside GEM Portal">
                                             <Form.Control
@@ -855,7 +855,7 @@ function ProcurementForm() {
                                 )}
                             </Row>
                             <Row className='mb-3 smaller-input'>
-                                <Col sm={4}>
+                                <Col sm={3}>
                                     <FloatingLabel controlId="floatingSelect" label="Mode of Procurement">
                                         <Form.Select
                                             name="mode"
@@ -873,6 +873,27 @@ function ProcurementForm() {
                                     </FloatingLabel>
                                     {errors.mode && touched.mode ? (
                                         <span className='form-error'>{errors.mode}</span>
+                                    ) : null}
+                                </Col>
+                                <Col sm={3}>
+                                    <FloatingLabel
+                                        className='text-muted'
+                                        controlId="floatingInput"
+                                        label="Item Location in office"
+                                    >
+                                        <Form.Control
+                                            name="itemLoc"
+                                            placeholder="Item Location"
+                                            values={values.itemLoc}
+                                            onChange={handleChange}
+                                            onKeyUp={handleKeyUp}
+                                            onBlur={handleBlur}
+                                            autoComplete="on"
+                                            isValid={touched.itemLoc && !errors.ItemLoc}
+                                        />
+                                    </FloatingLabel>
+                                    {errors.itemLoc && touched.itemLoc ? (
+                                        <span className='form-error'>{errors.itemLoc}</span>
                                     ) : null}
                                 </Col>
                             </Row>

@@ -1,0 +1,16 @@
+.customizeCarousel {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.customizeCarousel img{
+    border-radius: 5px;
+}
+.carousel-caption {
+    background-color: darkolivegreen;
+    background-clip: border-box;
+    border-radius: .5rem;
+    opacity: 70%;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+}

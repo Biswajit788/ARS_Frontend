@@ -70,11 +70,12 @@ export const categories = [
 ];
 
 export const modes = [
-  'GEM',
+  'GeM',
   'LPC',
   'Offer Basis',
   'Direct Purchase',
-  'GepNIC'
+  'GepNIC',
+  'Limited Tender'
 ];
 
 export const work_categories = [

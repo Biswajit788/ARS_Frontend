@@ -88,7 +88,7 @@ const DataTable = () => {
   };
 
   const handleSaveRowEdits = async ({ exitEditingMode, row, values }) => {
-    if (!window.confirm(`Item with Row ID No.  ${row.getValue('_id')}  will be updated, Please confirm update?`)) {
+    if (!window.confirm(`Item with Row ID No.  ${row.getValue('_id')}  will be updated.`)) {
       toast.info('You cancel Update action', {
         position: "top-center",
         autoClose: 1000
@@ -158,7 +158,7 @@ const DataTable = () => {
       Swal.fire({
         icon: 'warning',
         title: 'Confirm Delete?',
-        text: `Row ID No.  ${row.getValue('_id')} will be deleted. Please confirm?`,
+        text: `Row ID No.  ${row.getValue('_id')} will be deleted.`,
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
         cancelButtonColor: '#d33',
