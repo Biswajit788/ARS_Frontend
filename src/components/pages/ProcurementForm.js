@@ -11,38 +11,39 @@ import './ProcurementForm.css';
 import { useFormik } from 'formik';
 import { formInputSchema } from '../schemas';
 import { projects, departments, conditions, categories, work_categories, modes } from './data';
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import Swal from 'sweetalert2';
 import 'react-toastify/dist/ReactToastify.css';
-import { Subject, asObservable } from 'rxjs';
+import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
 const initialValues = {
     project: "",
     dept: "",
-    description: "",
+    description: "0",
     qty: "",
-    model: "NIL",
-    serial: "NIL",
-    part_no: "NIL",
-    asset_id: "NIL",
+    model: "0",
+    serial: "0",
+    part_no: "0",
+    asset_id: "0",
     additional_info: "",
     supplier: "",
     vendoradd: "",
     condition1: "",
-    reg_no: "NIL",
-    condition2: "NA",
-    condition5: "NIL",
-    pan: "NIL",
+    reg_no: "0",
+    condition2: "0",
+    condition5: "0",
+    pan: "0",
     condition4: "",
-    reason: "NA",
+    reason: "0",
     order_no: "",
     order_dt: "",
     price: "",
     category: "",
-    cate_others: "NA",
+    cate_others: "0",
     mode: "",
-    remarks: "",
+    itemLoc: "0",
+    remarks: "0",
     created_by: "",
 };
 
@@ -77,11 +78,10 @@ function ProcurementForm() {
         onSubmit: async (values, actions) => {
             console.log("🚀 ~ file: BasicTable.jsx ~ line 35 ~ onSubmit:async ~ actions", actions)
             console.log("🚀 ~ file: BasicTable.jsx ~ line 33 ~ BasicTable ~ FormSubmission ~ values",
-                values
-            );
+                values)
             const { project, dept, description, supplier, order_no, order_dt, price, condition1,
                 condition2, condition4, reg_no, pan, category, cate_others, reason, remarks,
-                qty, model, serial, part_no, asset_id, additional_info, vendoradd, condition5, mode, created_by } = values;
+                qty, model, serial, part_no, asset_id, additional_info, vendoradd, condition5, mode, itemLoc, created_by } = values;
 
             fetch("http://10.3.0.57:5000/create", {
                 method: "POST",
@@ -116,6 +116,7 @@ function ProcurementForm() {
                     category,
                     cate_others,
                     mode,
+                    itemLoc,
                     remarks,
                     created_by: usrData.uid
                 }),
@@ -241,15 +242,15 @@ function ProcurementForm() {
     return (
         <>
             <Header />
-            <div class="container mt-4">
+            <div className="container mt-4">
                 <div className="mb-5 title text-center">
                     <p className="h6 text-primary font-monospace">Fill in all the Procurement details</p>
                 </div>
                 <Form onSubmit={handleSubmit}>
-                    <ul class="nav nav-tabs nav-justified mb-3" id="ex1" role="tablist">
-                        <li class="nav-item" role="presentation">
+                    <ul className="nav nav-tabs nav-justified mb-3" id="ex1" role="tablist">
+                        <li className="nav-item" role="presentation">
                             <a
-                                class="nav-link active"
+                                className="nav-link active"
                                 id="ex3-tab-1"
                                 data-mdb-toggle="tab"
                                 href="#ex3-tabs-1"
@@ -258,9 +259,9 @@ function ProcurementForm() {
                                 aria-selected="true"
                             >Project Information</a>
                         </li>
-                        <li class="nav-item" role="presentation">
+                        <li className="nav-item" role="presentation">
                             <a
-                                class="nav-link"
+                                className="nav-link"
                                 id="ex3-tab-2"
                                 data-mdb-toggle="tab"
                                 href="#ex3-tabs-2"
@@ -269,9 +270,9 @@ function ProcurementForm() {
                                 aria-selected="false"
                             >Item Details</a>
                         </li>
-                        <li class="nav-item" role="presentation">
+                        <li className="nav-item" role="presentation">
                             <a
-                                class="nav-link"
+                                className="nav-link"
                                 id="ex3-tab-3"
                                 data-mdb-toggle="tab"
                                 href="#ex3-tabs-3"
@@ -280,9 +281,9 @@ function ProcurementForm() {
                                 aria-selected="false"
                             >Vendor/Contractor Details</a>
                         </li>
-                        <li class="nav-item" role="presentation">
+                        <li className="nav-item" role="presentation">
                             <a
-                                class="nav-link"
+                                className="nav-link"
                                 id="ex3-tab-4"
                                 data-mdb-toggle="tab"
                                 href="#ex3-tabs-4"
@@ -293,10 +294,10 @@ function ProcurementForm() {
                         </li>
                     </ul>
 
-                    <div class="tab-content" id="ex2-content">
+                    <div className="tab-content" id="ex2-content">
                         {/* Tab 1 Content Starts here */}
                         <div
-                            class="tab-pane fade show active"
+                            className="tab-pane fade show active"
                             id="ex3-tabs-1"
                             role="tabpanel"
                             aria-labelledby="ex3-tab-1"
@@ -374,7 +375,7 @@ function ProcurementForm() {
                         </div>
                         {/* Tab 2 Content Starts here */}
                         <div
-                            class="tab-pane fade"
+                            className="tab-pane fade"
                             id="ex3-tabs-2"
                             role="tabpanel"
                             aria-labelledby="ex3-tab-2"
@@ -464,7 +465,7 @@ function ProcurementForm() {
                                     {errors.serial && touched.serial ? (
                                         <span className='form-error'>{errors.serial}</span>
                                     ) : null}
-                                    <span className='text-danger font-monospace'><b>NB:</b> For more than 1 serial no. use "," separator
+                                    <span className='text-warning bg-dark font-monospace'><b>NB:</b> For more than 1 serial no. use "," separator
                                         (Ex; XXXAB,YYYBD)
                                     </span>
                                 </Col>
@@ -500,7 +501,6 @@ function ProcurementForm() {
                                         label="Enter Asset ID Number (Optional)"
                                     >
                                         <Form.Control
-                                            className='text-uppercase'
                                             name="asset_id"
                                             placeholder="Enter Asset ID"
                                             values={values.asset_id}
@@ -538,7 +538,7 @@ function ProcurementForm() {
                         </div>
                         {/* Tab 3 Content Starts here */}
                         <div
-                            class="tab-pane fade"
+                            className="tab-pane fade"
                             id="ex3-tabs-3"
                             role="tabpanel"
                             aria-labelledby="ex3-tab-3"
@@ -695,7 +695,7 @@ function ProcurementForm() {
                         </div>
                         {/* Tab 4 Content Starts here */}
                         <div
-                            class="tab-pane fade"
+                            className="tab-pane fade"
                             id="ex3-tabs-4"
                             role="tabpanel"
                             aria-labelledby="ex3-tab-4"
@@ -886,9 +886,8 @@ function ProcurementForm() {
                                             placeholder="Item Location"
                                             values={values.itemLoc}
                                             onChange={handleChange}
-                                            onKeyUp={handleKeyUp}
                                             onBlur={handleBlur}
-                                            autoComplete="on"
+                                            autoComplete="off"
                                             isValid={touched.itemLoc && !errors.ItemLoc}
                                         />
                                     </FloatingLabel>

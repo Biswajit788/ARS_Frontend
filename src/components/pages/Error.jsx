@@ -4,15 +4,18 @@ import Navbar from '../layout/Navbar'
 import Footer from '../layout/Footer'
 
 export default function Error() {
-return (
-    <>
-    <Navbar />
-    <div className='container'>
-        <div className='errorMessage'>
-            <span>404! Page not Found</span>
-        </div>
-    </div>
-    <Footer />
-    </>
-)
+    return (
+        <>
+            <Navbar />
+            <div className='errorMessage'>
+                <div className='error-code'>
+                    <h4>404 Error</h4>
+                </div>
+                <div className='error-message'>
+                    <p>--- &nbsp;The requested page could not be found.&nbsp; ---</p>
+                </div>  
+            </div>
+            <Footer />
+        </>
+    )
 }

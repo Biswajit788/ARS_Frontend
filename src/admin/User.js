@@ -325,7 +325,7 @@ const User = () => {
                     }}
                     columns={columns}
                     data={tableData}
-                    initialState={{columnVisibility: {_id: false}}}
+                    initialState={{columnVisibility: {_id: false}, density: 'compact'}}
                     editingMode="modal" //default
                     enableColumnOrdering
                     enableEditing

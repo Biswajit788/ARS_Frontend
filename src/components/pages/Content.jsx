@@ -28,7 +28,7 @@ function Content() {
       );
       setUserList(data.data);
     } catch (e) {
-      console.log("🚀 ~ file: Content.jsx ~ line 21 ~ getUserData ~ e", e)
+      //console.log("🚀 ~ file: Content.jsx ~ line 21 ~ getUserData ~ e", e)
     }
   };
 

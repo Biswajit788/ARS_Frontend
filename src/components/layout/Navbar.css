@@ -2,16 +2,16 @@
     background-image: linear-gradient(white, skyblue);
 }
 
+.navbar .nav-item .nav-link:hover{
+    color: #060eec;
+}
+
 .navbar .dropdown{
     margin-right: 20px;
 }
 
 .userName{
     margin-right: 10px;
-}
-
-.nav-link:hover{
-    color: blue;
 }
 
 .nav-item{

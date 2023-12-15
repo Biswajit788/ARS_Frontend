@@ -11,4 +11,8 @@
 }
 .card-body p{
     font-size: 14px;
+    text-align: justify;
+}
+.modal-body{
+    text-align: justify;
 }

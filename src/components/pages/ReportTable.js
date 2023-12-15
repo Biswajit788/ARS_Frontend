@@ -1,14 +1,42 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import MaterialReactTable from 'material-react-table';
 import { Box, Button } from '@mui/material';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { ExportToCsv } from 'export-to-csv';
 import moment from 'moment';
+import 'react-date-range/dist/styles.css'; // main style file
+import 'react-date-range/dist/theme/default.css'; // theme css file
+import { DateRangePicker } from 'react-date-range';
 
 const ReportTable = () => {
 
     const [tableData, setTableData] = useState([]);
+    const [allTableData, setAllTableData] = useState([]);
+    const [startDate, setStartDate] = useState(new Date());
+    const [endDate, setEndDate] = useState(new Date());
+    const [open, setOpen] = useState(false);
+
+    const refOne = useRef(null)
+
+    const handleSelect = (date) => {
+
+        let filtered = allTableData.filter((tableData) => {
+            let tableDataDate = new Date(tableData["order_dt"]);
+            return tableDataDate >= date.selection.startDate &&
+                tableDataDate <= date.selection.endDate;
+        })
+        setStartDate(date.selection.startDate);
+        setEndDate(date.selection.endDate);
+
+        setTableData(filtered);
+    }
+
+    const selectionRange = {
+        startDate: startDate,
+        endDate: endDate,
+        key: 'selection',
+    }
 
     const getTableData = async () => {
         try {
@@ -28,6 +56,7 @@ const ReportTable = () => {
                         url: "http://10.3.0.57:5000/admin/items"
                     });
                     setTableData(response.data);
+                    setAllTableData(response.data);
                 } catch (e) {
                     console.log("🚀 ~ file: Content.jsx ~ line 21 ~ getUserData ~ e", e)
                 }
@@ -42,6 +71,7 @@ const ReportTable = () => {
                         }
                     });
                     setTableData(response.data);
+                    setAllTableData(response.data);
                 } catch (e) {
                     console.log("🚀 ~ file: Content.jsx ~ line 21 ~ getUserData ~ e", e)
                 }
@@ -54,7 +84,22 @@ const ReportTable = () => {
 
     useEffect(() => {
         getTableData();
+        document.addEventListener("keydown", hideOnEscape, true)
+        document.addEventListener("click", hideOnClickOutside, true)
     }, [])
+
+    const hideOnEscape = (e) => {
+        console.log(e.key);
+        if (e.key === "Escape") {
+            setOpen(false)
+        }
+    }
+
+    const hideOnClickOutside = (e) => {
+        if (refOne.current && !refOne.current.contains(e.target)) {
+            setOpen(false)
+        }
+    }
 
     const columns = [
         {
@@ -62,98 +107,100 @@ const ReportTable = () => {
             header: 'System Generated ID',
             size: 300,
             enableSorting: false,
-            enableColumnFilterModes: false,
+            //enableColumnFilterModes: false,
         },
         {
             accessorKey: 'project',
             header: 'Project',
             size: 100,
             enableSorting: false,
-            enableColumnFilterModes: false,
+            //enableColumnFilterModes: false,
         },
         {
             accessorKey: 'dept',
             header: 'Department',
             size: 80,
             enableSorting: false,
-            enableColumnFilterModes: false,
+            //enableColumnFilterModes: false,
         },
         {
             accessorKey: 'description',
             header: 'Description',
             size: 300,
             enableSorting: false,
-            enableColumnFilterModes: false,
+            //enableColumnFilterModes: false,
         },
         {
             accessorKey: 'qty',
             header: 'Quantity',
             size: 100,
             enableSorting: false,
-            enableColumnFilterModes: false,
+            //enableColumnFilterModes: false,
         },
         {
             accessorKey: 'model',
             header: 'Model',
             size: 100,
             enableSorting: false,
-            enableColumnFilterModes: false,
+            //enableColumnFilterModes: false,
         },
         {
             accessorKey: 'serial',
             header: 'Serial Num',
             size: 100,
             enableSorting: false,
-            enableColumnFilterModes: false,
+            //enableColumnFilterModes: false,
         },
         {
             accessorKey: 'part_no',
             header: 'Part Num',
             size: 100,
             enableSorting: false,
-            enableColumnFilterModes: false,
+            //enableColumnFilterModes: false,
         },
         {
             accessorKey: 'asset_id',
             header: 'Asset ID',
             size: 100,
             enableSorting: false,
-            enableColumnFilterModes: false,
+            //enableColumnFilterModes: false,
         },
         {
             accessorKey: 'additional_info',
             header: 'Item Additional Info.',
             size: 100,
             enableSorting: false,
-            enableColumnFilterModes: false,
+            //enableColumnFilterModes: false,
         },
         {
             accessorKey: 'supplier',
             header: 'Supplier Name',
             size: 100,
             enableSorting: false,
-            enableColumnFilterModes: false,
+            //enableColumnFilterModes: false,
         },
         {
             accessorKey: 'vendoradd',
             header: 'Supplier Address',
             size: 100,
             enableSorting: false,
-            enableColumnFilterModes: false,
+            //enableColumnFilterModes: false,
         },
         {
             accessorKey: 'order_no',
             header: 'WO Number',
             size: 80,
             enableSorting: true,
-            enableColumnFilterModes: false,
+            //enableColumnFilterModes: false,
         },
         {
-            accessorKey: 'order_dt',
-            header: 'WO Dated',
+            accessorFn: (row) => moment(row.order_dt).format("DD-MM-YYYY"),
+            id: 'order_dt',
+            //accessorKey: 'order_dt',
+            header: 'WO Dated (dd-mm-yyyy)',
             size: 120,
             enableSorting: true,
-            columnFilterModeOptions: ['between', 'betweenInclusive'],
+            //columnFilterModeOptions: ['between', 'betweenInclusive'],
         },
         {
             accessorKey: 'price',
@@ -161,106 +208,118 @@ const ReportTable = () => {
             size: 80,
             enableEditing: false,
             enableSorting: false,
-            enableColumnFilterModes: false,
+            Cell: ({ cell }) =>
+                cell.getValue().toLocaleString('en-US', {
+                    style: 'currency',
+                    currency: 'INR',
+                }),
         },
         {
             accessorKey: 'condition1',
             header: 'Whether the Contractor is MSE or not? (Yes/No)',
             size: 300,
             enableSorting: false,
-            enableColumnFilterModes: false,
+            //enableColumnFilterModes: false,
         },
         {
             accessorKey: 'condition2',
             header: 'If MSE Whether belong to SC/ST?',
             size: 300,
             enableSorting: false,
-            enableColumnFilterModes: false,
+            //enableColumnFilterModes: false,
         },
         {
             accessorKey: 'condition4',
             header: 'Whether Item purchased outside GEM? (Yes/No)',
             size: 300,
             enableSorting: false,
-            enableColumnFilterModes: false,
+            //enableColumnFilterModes: false,
         },
         {
             accessorKey: 'condition5',
             header: 'If MSE Whether Women or Not?',
             size: 300,
             enableSorting: false,
-            enableColumnFilterModes: false,
+            //enableColumnFilterModes: false,
         },
         {
             accessorKey: 'reg_no',
             header: 'Registration No.',
             size: 80,
             enableSorting: false,
-            enableColumnFilterModes: false,
+            //enableColumnFilterModes: false,
         },
-        
+
         {
             accessorKey: 'pan',
             header: 'PAN Number',
             size: 100,
             enableSorting: false,
-            enableColumnFilterModes: false,
+            //enableColumnFilterModes: false,
         },
         {
             accessorKey: 'category',
             header: 'Work Category',
             size: 100,
             enableSorting: false,
-            enableColumnFilterModes: false,
+            //enableColumnFilterModes: false,
         },
         {
             accessorKey: 'cate_others',
             header: 'Work Category (if Selected Others)',
             size: 100,
             enableSorting: false,
-            enableColumnFilterModes: false,
+            //enableColumnFilterModes: false,
         },
         {
             accessorKey: 'mode',
             header: 'Mode of Procurement',
             size: 100,
             enableSorting: false,
-            enableColumnFilterModes: false,
+            //enableColumnFilterModes: false,
+        },
+        {
+            accessorKey: 'itemLoc',
+            header: 'Item Physical Location',
+            size: 100,
+            enableSorting: false,
+            //enableColumnFilterModes: false,
         },
         {
             accessorKey: 'reason',
             header: 'Reason of purchase outside GEM?',
             size: 300,
             enableSorting: false,
-            enableColumnFilterModes: false,
+            //enableColumnFilterModes: false,
         },
         {
             accessorKey: 'remarks',
             header: 'Remarks (if any)',
             size: 300,
             enableSorting: false,
-            enableColumnFilterModes: false,
+            //enableColumnFilterModes: false,
         },
         {
             accessorKey: 'created_by',
             header: 'Creator ID',
             size: 100,
             enableSorting: false,
-            enableColumnFilterModes: false,
+            //enableColumnFilterModes: false,
         },
         {
             accessorFn: (row) => moment(row.createdAt).format("DD-MM-YYYY hh:mm:ss"),
             id: 'createdAt',
-            header: 'Created on',
+            header: 'Created on (dd-mm-yyyy)',
             enableColumnOrdering: false,
             enableEditing: false, //disable editing on this column
-            size: 200,
+            size: 80,
             enableSorting: true,
+            sortingFn: 'datetime',
         },
         {
             accessorFn: (row) => moment(row.updatedAt).format("DD-MM-YYYY hh:mm:ss"),
             id: 'updatedAt',
-            header: 'Updated on',
+            header: 'Last Updated on',
             enableColumnOrdering: false,
             enableEditing: false, //disable editing on this column
             size: 200,
@@ -291,6 +350,33 @@ const ReportTable = () => {
 
     return (
         <>
+            <div className="mb-3 row">
+                <label for="inputPassword" className="col-sm-3 col-form-label text-end">Filter By Date Range:</label>
+                <div className=" col-sm-4">
+                    <input
+                        className='form-control text-success'
+                        value={`${startDate.toLocaleDateString("es-CL")}  to  ${endDate.toLocaleDateString("es-CL")}`}
+                        onClick={() => setOpen(open => !open)}
+                        style={{ textAlign: 'center' }}
+                        readOnly
+                    />
+                    <span className='fw-lighter fst-italic text-primary' style={{ fontSize: 14 + 'px' }}>Press Esc or CLick Outside to hide the Date-Range menu.</span>
+                </div>
+            </div>
+            <div ref={refOne}>
+                {open &&
+                    <div>
+                        <DateRangePicker
+                            ranges={[selectionRange]}
+                            onChange={handleSelect}
+                            showDateDisplay={true}
+                            direction='horizontal'
+                            months={1}
+                        />
+                    </div>
+                }
+            </div>
+            <br />
             <MaterialReactTable
                 columns={columns}
                 data={tableData}
@@ -314,7 +400,8 @@ const ReportTable = () => {
                     }
                 }}
                 enableStickyHeader
-                enableColumnFilterModes
+                ////enableColumnFilterModes
+                initialState={{ density: 'compact' }}
                 enableRowSelection
                 positionToolbarAlertBanner="bottom"
                 renderTopToolbarCustomActions={({ table }) => (

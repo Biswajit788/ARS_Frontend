@@ -1,10 +1,21 @@
-.container .errorMessage{
-    display: flex;
-    height: 500px;
-    align-items: center;
-    justify-content: center;
+.errorMessage{
+    margin-top: 15%;
+    height: 300px;
+    display: block;
+    text-align: center;
+    justify-items: center;
 }
 
-.errorMessage span{
+.errorMessage .error-code h4{
+    font-family: Georgia, 'Times New Roman', Times, serif;
     font-size: 3rem;
+    text-align: center;
+    color: brown;
+}
+
+.errorMessage .error-message p{
+    text-align: center;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+    font-style: italic;
 }

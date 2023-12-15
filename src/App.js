@@ -9,11 +9,11 @@ import Home from "./components/pages/Home";
 import Dashboard from "./components/pages/Dashboard";
 import AddItem from "./components/pages/ProcurementForm";
 import Report from "./components/pages/Report";
-import Error from './components/pages/Error';
+import Error from "./components/pages/Error";
 import UserList from './admin/User';
-import PrivateRoutes from './utils/PrivateRoutes';
-import AdminRoutes from "./utils/ProtectedRoutes";
 import TestPage from "./components/pages/TestPage";
+import PrivateRoute from './utils/PrivateRoute';
+import AdminRoute from './utils/AdminRoute';
 
 function App() {
   return (
@@ -23,16 +23,14 @@ function App() {
         <Route path="/sign-in" element={<Login />} />
         <Route path="/sign-up" element={<SignUp />} />
         
-        <Route element={<PrivateRoutes />}>
-          <Route path="/homepage" element={<Home />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/additem" element={<AddItem />} />
-          <Route path="/report" element={<Report />} />
-        </Route>
-        <Route element={<AdminRoutes />}>
-          <Route path="/admin/userList" element={<UserList />} />
-        </Route>
-        <Route path="*" element={<Error />} />
+        <Route path="/homepage" element={<PrivateRoute><Home /></PrivateRoute>} />
+        <Route path="/itemlist" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+        <Route path="/additem" element={<PrivateRoute><AddItem /></PrivateRoute>} />
+        <Route path="/report" element={<PrivateRoute><Report /></PrivateRoute>} />
+
+        <Route path="/admin/userlist" element={<AdminRoute><UserList /></AdminRoute>} />
+
+        <Route path="*" element={<PrivateRoute><Error /></PrivateRoute>} />
         <Route path="/test" element={<TestPage />} />
       </Routes>
     </Router>

@@ -4,21 +4,18 @@ import MaterialReactTable from 'material-react-table';
 import {
   Box,
   Button,
-  darken,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  Hidden,
   IconButton,
   MenuItem,
   Stack,
   TextField,
   Tooltip,
-  SortDirection,
   Typography,
 } from '@mui/material';
-import { Delete, Edit, Gradient } from '@mui/icons-material';
+import { Delete, Edit } from '@mui/icons-material';
 import { projects, departments, conditions, categories, work_categories, modes } from './data';
 import { ToastContainer, toast } from 'react-toastify';
 import Swal from 'sweetalert2';
@@ -53,7 +50,7 @@ const DataTable = () => {
 
           setTableData(response.data);
         } catch (e) {
-          console.log("🚀 ~ file: Content.jsx ~ line 21 ~ getUserData ~ e", e)
+          //console.log("🚀 ~ file: Content.jsx ~ line 21 ~ getUserData ~ e", e)
         }
       } else {
         setIsAdmin(false);
@@ -187,7 +184,7 @@ const DataTable = () => {
             .catch((err) => {
               console.log(err);
             })
-        } else if(result.dismiss === Swal.DismissReason.cancel){
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
           Swal.fire(
             'Cancelled',
             'Your data is safe :)',
@@ -241,13 +238,13 @@ const DataTable = () => {
         size: 80,
       },
       {
-        accessorFn: (row) => moment(row.createdAt).format("DD-MM-YYYY hh:mm:ss"),
+        accessorFn: (row) => moment(row.createdAt).format("YYYY-MM-DD hh:mm:ss"),
         id: 'createdAt',
-        header: 'Created on',
+        header: 'Item Created on (yyyy-mm-dd)',
         enableColumnOrdering: false,
         enableEditing: false, //disable editing on this column
-        size: 200,
-        enableSorting: true,
+        size: 180,
+        enableSorting: false,
       },
       {
         accessorKey: 'description',
@@ -441,7 +438,7 @@ const DataTable = () => {
       },
       {
         accessorKey: 'order_no',
-        header: 'Contract Number',
+        header: 'Contract No.',
         size: 80,
         enableSorting: false,
         muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
@@ -450,8 +447,9 @@ const DataTable = () => {
       },
       {
         accessorKey: 'order_dt',
-        header: 'Contract Dated',
-        size: 80,
+        //accessorFn: (row) => moment(row.order_dt).format("DD-MM-YYYY"),
+        header: 'Contract Order Dated (yyyy-mm-dd)',
+        size: 180,
         enableSorting: false,
         muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
           ...getCommonEditTextFieldProps(cell),
@@ -461,12 +459,16 @@ const DataTable = () => {
       {
         accessorKey: 'price',
         header: 'Contract Price',
-        size: 80,
-        enableSorting: false,
-        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
-          ...getCommonEditTextFieldProps(cell),
-          type: 'number',
-        }),
+        Cell: ({ cell }) =>
+          cell.getValue().toLocaleString('en-US', {
+            style: 'currency',
+            currency: 'INR',
+          }),
+          size: 80,
+          enableSorting: false,
+          muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
+            ...getCommonEditTextFieldProps(cell),
+          }),
       },
       {
         accessorKey: 'category',
@@ -506,12 +508,20 @@ const DataTable = () => {
         }
       },
       {
+        accessorKey: 'itemLoc',
+        header: 'Item Physical Location',
+        size: 80,
+        enableSorting: false,
+        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
+          ...getCommonEditTextFieldProps(cell),
+        }),
+      },
+      {
         accessorKey: 'created_by',
         header: 'Creator ID',
         enableSorting: false,
         enableColumnOrdering: false,
         enableEditing: false, //disable editing on this column
-        enableSorting: false,
         size: 80,
       },
       {
@@ -546,7 +556,7 @@ const DataTable = () => {
         muiTableHeadCellProps={{
           sx: {
             fontSize: '16px',
-            background: 'linear-Gradient(to right top, #bafbec, #b1f5d7, #b0efbe, #b7e6a3, #c2dc88)',
+            background: 'linear-Gradient(to right top, #f6c8a1, #d4e7eb)',
             verticalAlign: 'center',
           },
         }}
@@ -635,8 +645,10 @@ const DataTable = () => {
             <Typography><strong>Work Category (if Select Others):&nbsp;</strong> {row.original.cate_others}</Typography>
             <Typography><strong>Mode of Procurement:&nbsp;</strong> {row.original.mode}</Typography>
             <Typography></Typography>
-            <Typography><strong>Remarks (if any):&nbsp;</strong> {row.original.remarks}</Typography>
+            <Typography><strong>Item Physical Location:&nbsp;</strong> {row.original.itemLoc}</Typography>
             <Typography></Typography>
+            <Typography></Typography>
+            <Typography><strong>Remarks (if any):&nbsp;</strong> {row.original.remarks}</Typography>
             <Typography></Typography>
           </Box>
         )}

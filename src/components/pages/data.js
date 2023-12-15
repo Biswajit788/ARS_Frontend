@@ -70,7 +70,7 @@ export const categories = [
 ];
 
 export const modes = [
-  'GeM',
+  'GEM',
   'LPC',
   'Offer Basis',
   'Direct Purchase',

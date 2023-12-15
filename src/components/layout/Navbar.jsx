@@ -30,18 +30,6 @@ export default class Navbar extends Component {
         })
             .then((res) => res.json())
             .then((data) => {
-                if (data.status === "expired") {
-                    Swal.fire({
-                        text: 'Session Expired!',
-                    }).then((result) => {
-                        window.location.href="/sign-in";
-                        /* if(result.isConfirmed){
-                            window.location.href="/sign-in";
-                        } */
-                    })
-                    /* alert('Session expired.')
-                    window.location.href = "/"; */
-                }
                 this.setState({ userData: data.data });
             });
     }
@@ -57,7 +45,7 @@ export default class Navbar extends Component {
             cancelButtonColor: '#d33',
             confirmButtonText: 'Yes'
         }).then((result) => {
-            if(result.isConfirmed){
+            if (result.isConfirmed) {
                 window.localStorage.clear();
                 window.location.href = "/";
             }
@@ -98,73 +86,70 @@ export default class Navbar extends Component {
                         </button>
 
                         <div className="collapse navbar-collapse" id="navbarSupportedContent">
-                            <a href="#" className="navbar-brand mt-2 mt-lg-0">
-                                <NavLink to="/homepage">
-                                    <img
-                                        src={Logo}
-                                        height="70"
-                                        alt="NEEPCO Ltd."
-                                        loading="lazy"
-                                    />
-                                </NavLink>
-                            </a>
+                            <NavLink to="/homepage" className="navbar-brand mt-2 mt-lg-0">
+                                <img
+                                    src={Logo}
+                                    height="70"
+                                    alt="NEEPCO Ltd."
+                                    loading="lazy"
+                                />
+                            </NavLink>
                             <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-
                                 <li className="nav-item">
-                                    <NavLink to="/homepage" className="text-decoration-none">
-                                        <a href="#" className="nav-link">
-                                            <i className="fa fa-home" aria-hidden="true"></i>&nbsp;&nbsp;
-                                            Home
-                                        </a>
+                                    <NavLink to="/homepage" className="nav-link text-decoration-none">
+                                        <i className="fa fa-home" aria-hidden="true"></i>&nbsp;&nbsp;
+                                        Home
                                     </NavLink>
                                 </li>
-                                <li className="nav-item">
-                                    <NavLink to="/dashboard" className="text-decoration-none">
-                                        <a href="#" className="nav-link">Procurement Item</a>
-                                    </NavLink>
-                                </li>
-                                <li className="nav-item dropdown">
-                                    <a href="#" className="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        New Item
+                                <li className="nav-item dropdown ">
+                                    <a href="#" className="nav-link dropdown-toggle" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        User Panel
                                     </a>
-                                    <ul className="dropdown-menu" aria-labelledby="navbarDropdoenMenuLink">
-                                        <NavLink to="/additem" className="text-decoration-none">
-                                            <span className="dropdown-item">Add New Item</span>
-                                        </NavLink>
+                                    <ul className="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
+                                        <li>
+                                            <NavLink to="/additem" className="dropdown-item text-decoration-none">
+                                                Add New Item
+                                            </NavLink>
+                                        </li>
+                                        <li>
+                                            <NavLink to="/itemlist" className="dropdown-item text-decoration-none">
+                                                Procured Item List
+                                            </NavLink>
+                                        </li>
                                     </ul>
                                 </li>
                                 {this.state.userData.role === "Admin" &&
-                                <li className="nav-item dropdown">
-                                    <a href="#" className="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        Admin Panel
-                                    </a>
-                                    <ul className="dropdown-menu" aria-labelledby="navbarDropdoenMenuLink">
-                                        <li>
-                                            <NavLink to="/admin/userList" className="text-decoration-none">
-                                                <span className="dropdown-item">Users</span>
-                                            </NavLink>
-                                        </li>
-                                        <li>
-                                            <NavLink to="" className="text-decoration-none">
-                                                <span className="dropdown-item" onClick={() => this.alertMessage()}>Projects</span>
-                                            </NavLink>
-                                        </li>
-                                        <li>
-                                            <NavLink to="" className="text-decoration-none">
-                                                <span className="dropdown-item" onClick={() => this.alertMessage()}>Departments</span>
-                                            </NavLink>
-                                        </li>
-                                        <li>
-                                            <NavLink to="" className="text-decoration-none">
-                                                <span className="dropdown-item" onClick={() => this.alertMessage()}>Suppliers</span>
-                                            </NavLink>
-                                        </li>
-                                    </ul>
-                                </li>
+                                    <li className="nav-item dropdown ">
+                                        <a href="#" className="nav-link dropdown-toggle" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            Admin Panel
+                                        </a>
+                                        <ul className="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
+                                            <li>
+                                                <NavLink to="/admin/userlist" className="dropdown-item text-decoration-none">
+                                                    Users
+                                                </NavLink>
+                                            </li>
+                                            <li>
+                                                <NavLink to="/admin/projectlist" className="dropdown-item text-decoration-none" onClick={()=> this.alertMessage()}>
+                                                    Projects
+                                                </NavLink>
+                                            </li>
+                                            <li>
+                                                <NavLink to="/admin/deptlist" className="dropdown-item text-decoration-none" onClick={()=> this.alertMessage()}>
+                                                    Departments
+                                                </NavLink>
+                                            </li>
+                                            <li>
+                                                <NavLink to="/admin/supplierlist" className="dropdown-item text-decoration-none" onClick={()=> this.alertMessage()}>
+                                                    Suppliers
+                                                </NavLink>
+                                            </li>
+                                        </ul>
+                                    </li>
                                 }
                                 <li className="nav-item">
-                                    <NavLink to="/report" className="text-decoration-none">
-                                        <a href="#" className="nav-link">Generate Report</a>
+                                    <NavLink to="/report" className="nav-link text-decoration-none">
+                                        Generate Report
                                     </NavLink>
                                 </li>
                             </ul>
@@ -243,7 +228,7 @@ export default class Navbar extends Component {
                                                     <h6>
                                                         {this.state.userData.desgn}
                                                     </h6>
-                                                    
+
                                                     <Tabs
                                                         defaultActiveKey="home"
                                                         className="tab mb-3"
@@ -333,7 +318,7 @@ export default class Navbar extends Component {
                                                 </div>
                                             </Col>
                                             <Col sx={2}>
-                                                <a href="#" onClick={()=>{alert('You have clicked profile edit btn')}}><i className="fa-regular fa-pen-to-square"></i></a>
+                                                <a href="#" onClick={() => { alert('You have clicked profile edit btn') }}><i className="fa-regular fa-pen-to-square"></i></a>
                                             </Col>
                                         </Row>
                                     </form>
