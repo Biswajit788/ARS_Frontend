@@ -20,31 +20,32 @@ import { debounceTime } from 'rxjs/operators';
 const initialValues = {
     project: "",
     dept: "",
-    description: "0",
-    qty: "",
-    model: "0",
-    serial: "0",
+    description: "",
+    //qty: "",
+    model: "",
+    serial: "",
     part_no: "0",
-    asset_id: "0",
-    additional_info: "",
+    asset_id: "",
+    additional_info: "0",
     supplier: "",
     vendoradd: "",
-    condition1: "",
+    condition1: "", /* Whether the Contractor is MSE or not? */
     reg_no: "0",
-    condition2: "0",
-    condition5: "0",
+    condition2: "0", /* If MSE, Whether belong to SC/ST? */
+    condition5: "0", /* If MSE, Whether Women or not? */
     pan: "0",
-    condition4: "",
-    reason: "0",
+    condition4: "", /*Whether this Procurement made outside GEM, even when it is available in GEM? */
+    reason: "",
     order_no: "",
     order_dt: "",
     price: "",
     category: "",
     cate_others: "0",
     mode: "",
-    itemLoc: "0",
+    itemLoc: "",
     remarks: "0",
-    created_by: "",
+    created_by: "0",
+    status: "0",
 };
 
 function ProcurementForm() {
@@ -76,12 +77,11 @@ function ProcurementForm() {
         initialValues: initialValues,
         validationSchema: formInputSchema,
         onSubmit: async (values, actions) => {
-            console.log("🚀 ~ file: BasicTable.jsx ~ line 35 ~ onSubmit:async ~ actions", actions)
-            console.log("🚀 ~ file: BasicTable.jsx ~ line 33 ~ BasicTable ~ FormSubmission ~ values",
-                values)
+            //console.log("🚀 ~ file: BasicTable.jsx ~ line 35 ~ onSubmit:async ~ actions", actions)
+            //console.log("🚀 ~ file: BasicTable.jsx ~ line 33 ~ BasicTable ~ FormSubmission ~ values",values)
             const { project, dept, description, supplier, order_no, order_dt, price, condition1,
                 condition2, condition4, reg_no, pan, category, cate_others, reason, remarks,
-                qty, model, serial, part_no, asset_id, additional_info, vendoradd, condition5, mode, itemLoc, created_by } = values;
+                qty, model, serial, part_no, asset_id, additional_info, vendoradd, condition5, mode, itemLoc, status, created_by } = values;
 
             fetch("http://10.3.0.57:5000/create", {
                 method: "POST",
@@ -118,6 +118,7 @@ function ProcurementForm() {
                     mode,
                     itemLoc,
                     remarks,
+                    status,
                     created_by: usrData.uid
                 }),
             })
@@ -150,7 +151,7 @@ function ProcurementForm() {
         .asObservable()
         .pipe(debounceTime(1000))
         .subscribe(data => {
-            document.getElementById("wordInNum").innerHTML = data;
+            document.getElementById("wordInNum").value = data;
         });
 
     const handleKeyUp = event => {
@@ -279,7 +280,7 @@ function ProcurementForm() {
                                 role="tab"
                                 aria-controls="ex3-tabs-3"
                                 aria-selected="false"
-                            >Vendor/Contractor Details</a>
+                            >Vendor / Contractor Details</a>
                         </li>
                         <li className="nav-item" role="presentation">
                             <a
@@ -313,6 +314,7 @@ function ProcurementForm() {
                                                 onChange={handleChange}
                                                 onBlur={handleBlur}
                                                 isValid={touched.project && !errors.project}
+                                                required
                                             >
                                                 <option value="">Please select</option>
                                                 {projects.map((project) =>
@@ -347,6 +349,7 @@ function ProcurementForm() {
                                                 onChange={handleChange}
                                                 onBlur={handleBlur}
                                                 isValid={touched.dept && !errors.dept}
+                                                required
                                             >
                                                 <option value="">Please select</option>
                                                 {departments.map((department) =>
@@ -380,19 +383,20 @@ function ProcurementForm() {
                             role="tabpanel"
                             aria-labelledby="ex3-tab-2"
                         >
-                            <Row className='mt-5 mb-3 smaller-input'>
-                                <Col sm={6}>
-                                    <FloatingLabel className='text-muted' controlId="floatingTextarea2" label="Name of Work/Goods/Services">
+                            <span className='fst-italic mb-4 text-warning bg-dark font-monospace'>Enter single line Items with no. of quantity (in 200 words):</span>
+                            <Row className='mt-2 mb-2 smaller-input'>
+                                <Col sm={8}>
+                                    <FloatingLabel className='text-muted' controlId="floatingTextarea2" label="Work/Goods/Services Description">
                                         <Form.Control
                                             as="textarea"
-                                            className='text-capitalize'
                                             name="description"
                                             placeholder="Enter Description"
-                                            style={{ height: '120px' }}
+                                            style={{ height: '100px ' }}
                                             values={values.description}
                                             onChange={handleChange}
                                             onBlur={handleBlur}
                                             isValid={touched.description && !errors.description}
+                                            
                                         />
                                     </FloatingLabel>
                                     {errors.description && touched.description ? (
@@ -401,34 +405,33 @@ function ProcurementForm() {
                                 </Col>
                             </Row>
                             <Row className='mb-3 smaller-input'>
-                                <Col sm={3}>
+                                <Col sm={4}>
                                     <FloatingLabel
                                         className='text-muted'
                                         controlId="floatingInput"
-                                        label="Enter Item Quantity"
+                                        label="Serial Number"
                                     >
                                         <Form.Control
-                                            name="qty"
-                                            placeholder="Enter Quantity"
-                                            values={values.qty}
+                                            name="serial"
+                                            placeholder="Enter Serial Number"
+                                            values={values.serial}
                                             onChange={handleChange}
                                             onBlur={handleBlur}
-                                            autoComplete="off"
-                                            isValid={touched.qty && !errors.qty}
+                                            isValid={touched.serial && !errors.serial}
+                                            required
                                         />
                                     </FloatingLabel>
-                                    {errors.qty && touched.qty ? (
-                                        <span className='form-error'>{errors.qty}</span>
+                                    {errors.serial && touched.serial ? (
+                                        <span className='form-error'>{errors.serial}</span>
                                     ) : null}
                                 </Col>
-                                <Col sm={3}>
+                                <Col sm={4}>
                                     <FloatingLabel
                                         className='text-muted'
                                         controlId="floatingInput"
-                                        label="Item Model No. (Optional)"
+                                        label="Model Number"
                                     >
                                         <Form.Control
-                                            className='text-uppercase'
                                             name="model"
                                             placeholder="Enter Model Number"
                                             values={values.model}
@@ -436,6 +439,7 @@ function ProcurementForm() {
                                             onBlur={handleBlur}
                                             autoComplete="off"
                                             isValid={touched.model && !errors.model}
+                                            required
                                         />
                                     </FloatingLabel>
                                     {errors.model && touched.model ? (
@@ -444,41 +448,13 @@ function ProcurementForm() {
                                 </Col>
                             </Row>
                             <Row className='mb-3 smaller-input'>
-                                <Col sm={6}>
+                                <Col sm={4}>
                                     <FloatingLabel
                                         className='text-muted'
                                         controlId="floatingInput"
-                                        label="Item Serial No. (Optional)"
+                                        label="Part No. (Optional)"
                                     >
                                         <Form.Control
-                                            as="textarea"
-                                            className='text-uppercase'
-                                            name="serial"
-                                            style={{ height: '120px' }}
-                                            placeholder="Enter Serial Number"
-                                            values={values.serial}
-                                            onChange={handleChange}
-                                            onBlur={handleBlur}
-                                            isValid={touched.serial && !errors.serial}
-                                        />
-                                    </FloatingLabel>
-                                    {errors.serial && touched.serial ? (
-                                        <span className='form-error'>{errors.serial}</span>
-                                    ) : null}
-                                    <span className='text-warning bg-dark font-monospace'><b>NB:</b> For more than 1 serial no. use "," separator
-                                        (Ex; XXXAB,YYYBD)
-                                    </span>
-                                </Col>
-                            </Row>
-                            <Row className='mb-3 smaller-input'>
-                                <Col sm={6}>
-                                    <FloatingLabel
-                                        className='text-muted'
-                                        controlId="floatingInput"
-                                        label="Item Part No. (Optional)"
-                                    >
-                                        <Form.Control
-                                            className='text-uppercase'
                                             name="part_no"
                                             placeholder="Enter Part Number"
                                             values={values.part_no}
@@ -492,13 +468,11 @@ function ProcurementForm() {
                                         <span className='form-error'>{errors.part_no}</span>
                                     ) : null}
                                 </Col>
-                            </Row>
-                            <Row className='mb-3 smaller-input'>
-                                <Col sm={6}>
+                                <Col sm={4}>
                                     <FloatingLabel
                                         className='text-muted'
                                         controlId="floatingInput"
-                                        label="Enter Asset ID Number (Optional)"
+                                        label="Asset Identification Number "
                                     >
                                         <Form.Control
                                             name="asset_id"
@@ -508,6 +482,7 @@ function ProcurementForm() {
                                             onBlur={handleBlur}
                                             autoComplete="off"
                                             isValid={touched.asset_id && !errors.asset_id}
+                                            required
                                         />
                                     </FloatingLabel>
                                     {errors.asset_id && touched.asset_id ? (
@@ -517,10 +492,9 @@ function ProcurementForm() {
                             </Row>
                             <Row className='mb-3 pb-5 smaller-input'>
                                 <Col sm={6}>
-                                    <FloatingLabel className='text-muted' controlId="floatingTextarea2" label="Additional Item Information (If any) (Optional)">
+                                    <FloatingLabel className='text-muted' controlId="floatingTextarea2" label="Additional Item Information (If any)">
                                         <Form.Control
                                             as="textarea"
-                                            className='text-capitalize'
                                             name="additional_info"
                                             placeholder="Additional Item Description"
                                             style={{ height: '100px' }}
@@ -547,13 +521,13 @@ function ProcurementForm() {
                                 <Col sm={6}>
                                     <FloatingLabel controlId="floatingSelect" label="Enter Vendor/Supplier Name">
                                         <Form.Control
-                                            className='text-uppercase'
                                             name="supplier"
                                             aria-label="Floating label select"
                                             values={values.supplier}
                                             onChange={handleChange}
                                             onBlur={handleBlur}
                                             isValid={touched.supplier && !errors.supplier}
+                                            required
                                         />
                                     </FloatingLabel>
                                     {errors.supplier && touched.supplier ? (
@@ -566,7 +540,6 @@ function ProcurementForm() {
                                     <FloatingLabel className='text-muted' controlId="floatingTextarea2" label="Address of Vendor/Supplier (Optional)">
                                         <Form.Control
                                             as="textarea"
-                                            className='text-capitalize'
                                             name="vendoradd"
                                             placeholder="vendoradd"
                                             style={{ height: '100px' }}
@@ -574,6 +547,7 @@ function ProcurementForm() {
                                             onChange={handleChange}
                                             onBlur={handleBlur}
                                             isValid={touched.vendoradd && !errors.vendoradd}
+                                            required
                                         />
                                     </FloatingLabel>
                                     {errors.vendoradd && touched.vendoradd ? (
@@ -589,8 +563,9 @@ function ProcurementForm() {
                                             onChange={handleChange}
                                             onBlur={handleBlur}
                                             isValid={touched.condition1 && !errors.condition1}
+                                            required
                                         >
-                                            <option>Select</option>
+                                            <option value="">Select</option>
                                             {conditions.map((condition) =>
                                                 <option value={condition}>{condition}</option>
                                             )}
@@ -610,7 +585,6 @@ function ProcurementForm() {
                                             label="If MSE? Registration Number (Optional)"
                                         >
                                             <Form.Control
-                                                className='text-uppercase'
                                                 name="reg_no"
                                                 placeholder="MSE Registration Number"
                                                 values={values.reg_no}
@@ -634,8 +608,9 @@ function ProcurementForm() {
                                                 onChange={handleChange}
                                                 onBlur={handleBlur}
                                                 isValid={touched.condition2 && !errors.condition2}
+                                                required
                                             >
-                                                <option>Select</option>
+                                                <option value="">Select</option>
                                                 {categories.map((category) =>
                                                     <option value={category}>{category}</option>
                                                 )}
@@ -657,7 +632,7 @@ function ProcurementForm() {
                                                 onBlur={handleBlur}
                                                 isValid={touched.condition5 && !errors.condition5}
                                             >
-                                                <option>Select</option>
+                                                <option value="">Select</option>
                                                 {conditions.map((condition) =>
                                                     <option value={condition}>{condition}</option>
                                                 )}
@@ -677,7 +652,6 @@ function ProcurementForm() {
                                         label="PAN Number (Optional)"
                                     >
                                         <Form.Control
-                                            className='text-uppercase'
                                             name="pan"
                                             placeholder="PAN Number"
                                             values={values.pan}
@@ -710,8 +684,9 @@ function ProcurementForm() {
                                             onChange={handleChange}
                                             onBlur={handleBlur}
                                             isValid={touched.condition4 && !errors.condition4}
+                                            required
                                         >
-                                            <option>Select</option>
+                                            <option value="">Select</option>
                                             {conditions.map((condition) =>
                                                 <option value={condition}>{condition}</option>
                                             )}
@@ -725,10 +700,9 @@ function ProcurementForm() {
                             <Row className='mb-3 smaller-input'>
                                 <Col sm={8}>
                                     {values.condition4 === "Yes" && (
-                                        <FloatingLabel className='text-muted' controlId="floatingTextarea2" label="Reason of procurement outside GEM Portal">
+                                        <FloatingLabel className='text-muted' controlId="floatingTextarea2" label="Reason of procurement outside GEM Portal (in 100 words)">
                                             <Form.Control
                                                 as="textarea"
-                                                className='text-capitalize'
                                                 name="reason"
                                                 placeholder="Reason"
                                                 style={{ height: '100px' }}
@@ -736,6 +710,8 @@ function ProcurementForm() {
                                                 onChange={handleChange}
                                                 onBlur={handleBlur}
                                                 isValid={touched.reason && !errors.reason}
+                                                maxLength={150}
+                                                required
                                             />
                                         </FloatingLabel>
                                     )}
@@ -752,7 +728,6 @@ function ProcurementForm() {
                                         label="Contract Order Number"
                                     >
                                         <Form.Control
-                                            className='text-uppercase'
                                             name="order_no"
                                             placeholder="Order Number"
                                             values={values.order_no}
@@ -760,6 +735,7 @@ function ProcurementForm() {
                                             onBlur={handleBlur}
                                             autoComplete="off"
                                             isValid={touched.order_no && !errors.order_no}
+                                            required
                                         />
                                     </FloatingLabel>
                                     {errors.order_no && touched.order_no ? (
@@ -781,6 +757,7 @@ function ProcurementForm() {
                                                 onChange={handleChange}
                                                 onBlur={handleBlur}
                                                 isValid={touched.order_dt && !errors.order_dt}
+                                                required
                                             />
                                         </FloatingLabel>
                                     )}
@@ -789,7 +766,7 @@ function ProcurementForm() {
                                     ) : null}
                                 </Col>
                             </Row>
-                            <Row className='mb-3 smaller-input'>
+                            <Row className='mb-1 smaller-input'>
                                 <Col sm={3}>
                                     <FloatingLabel
                                         className='text-muted'
@@ -805,12 +782,13 @@ function ProcurementForm() {
                                             onBlur={handleBlur}
                                             autoComplete="off"
                                             isValid={touched.price && !errors.price}
+                                            required
                                         />
                                     </FloatingLabel>
                                     {errors.price && touched.price ? (
                                         <span className='form-error'>{errors.price}</span>
-                                    ) : null}
-                                    <span className="text-success fw-bold font-monospace" id="wordInNum"></span>
+                                    ) : null}<br/>
+                                   
                                 </Col>
                                 <Col sm={3}>
                                     <FloatingLabel controlId="floatingSelect" label="Select Work Category">
@@ -821,8 +799,9 @@ function ProcurementForm() {
                                             onChange={handleChange}
                                             onBlur={handleBlur}
                                             isValid={touched.category && !errors.category}
+                                            required
                                         >
-                                            <option>Select</option>
+                                            <option value="">Select</option>
                                             {work_categories.map((work_category) =>
                                                 <option value={work_category}>{work_category}</option>
                                             )}
@@ -855,6 +834,12 @@ function ProcurementForm() {
                                 )}
                             </Row>
                             <Row className='mb-3 smaller-input'>
+                                <span className='mb-2 fst-italic'>Contract price in words:</span>
+                                <Col sm={6}>
+                                    <input type="text" className="wordinNum" id="wordInNum" value="" disabled/>
+                                </Col>
+                            </Row>
+                            <Row className='mb-3 smaller-input'>
                                 <Col sm={3}>
                                     <FloatingLabel controlId="floatingSelect" label="Mode of Procurement">
                                         <Form.Select
@@ -864,8 +849,9 @@ function ProcurementForm() {
                                             onChange={handleChange}
                                             onBlur={handleBlur}
                                             isValid={touched.mode && !errors.mode}
+                                            required
                                         >
-                                            <option>Select</option>
+                                            <option value="">Select</option>
                                             {modes.map((mode) =>
                                                 <option value={mode}>{mode}</option>
                                             )}
@@ -875,7 +861,7 @@ function ProcurementForm() {
                                         <span className='form-error'>{errors.mode}</span>
                                     ) : null}
                                 </Col>
-                                <Col sm={3}>
+                                <Col sm={6}>
                                     <FloatingLabel
                                         className='text-muted'
                                         controlId="floatingInput"
@@ -889,6 +875,7 @@ function ProcurementForm() {
                                             onBlur={handleBlur}
                                             autoComplete="off"
                                             isValid={touched.itemLoc && !errors.ItemLoc}
+                                            required
                                         />
                                     </FloatingLabel>
                                     {errors.itemLoc && touched.itemLoc ? (
@@ -901,7 +888,6 @@ function ProcurementForm() {
                                     <FloatingLabel className='text-muted' controlId="floatingTextarea2" label="Remarks (if any) (Optional)">
                                         <Form.Control
                                             as="textarea"
-                                            className='text-capitalize'
                                             name="remarks"
                                             placeholder="Remarks"
                                             style={{ height: '200px' }}
@@ -919,7 +905,7 @@ function ProcurementForm() {
                             <Row className='mt-5 mb-3 smaller-input'>
                                 <Col sm={6}>
                                     <div className="button">
-                                        <button disabled={isSubmitting} type="submit" className='btn btn-success'>Submit</button>
+                                        <button disabled={isSubmitting} type="submit" className='btn btn-success' >Submit</button>
                                         <button type="Reset" className='btn btn-warning'>Reset</button>
                                     </div>
                                 </Col>

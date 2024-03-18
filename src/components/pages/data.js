@@ -88,3 +88,8 @@ export const roles = [
   'Admin',
   'User'
 ];
+
+export const userFlags= [
+  '0',
+  '1'
+];

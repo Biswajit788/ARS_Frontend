@@ -9,6 +9,7 @@ import Home from "./components/pages/Home";
 import Dashboard from "./components/pages/Dashboard";
 import AddItem from "./components/pages/ProcurementForm";
 import Report from "./components/pages/Report";
+import Action from './components/pages/Pending';
 import Error from "./components/pages/Error";
 import UserList from './admin/User';
 import TestPage from "./components/pages/TestPage";
@@ -29,6 +30,8 @@ function App() {
         <Route path="/report" element={<PrivateRoute><Report /></PrivateRoute>} />
 
         <Route path="/admin/userlist" element={<AdminRoute><UserList /></AdminRoute>} />
+        <Route path="/admin/itemlist" element={<AdminRoute><Dashboard /></AdminRoute>} />
+        <Route path="/admin/pendingActionList" element={<AdminRoute><Action/></AdminRoute>} />
 
         <Route path="*" element={<PrivateRoute><Error /></PrivateRoute>} />
         <Route path="/test" element={<TestPage />} />

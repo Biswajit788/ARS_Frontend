@@ -96,7 +96,7 @@ export class CustomMarquee extends Component {
                             <img src={agtbps} height="120px" width="220px" alt-="Agartala Gas Based Power Station" />
                             <h5>AgGBPS</h5>
                             <p>
-                                This 135 MW (4 x 21 MW + 2 x 25.5 MW) Combined Cycle Power Plant is located in the West Tripura District of the state of Tripura near the capital town of Agartala.
+                                <strong>Agartala Gas Based Power Station</strong>This 135 MW (4 x 21 MW + 2 x 25.5 MW) Combined Cycle Power Plant is located in the West Tripura District of the state of Tripura near the capital town of Agartala.
                                 The plant is presently running as a combined cycle unit with 2 (two) modules consisting of two Gas Turbines, two HRSGs and one Steam Turbine in each module.
                             </p>
                         </div>

@@ -113,7 +113,7 @@ export default class Navbar extends Component {
                                         </li>
                                         <li>
                                             <NavLink to="/itemlist" className="dropdown-item text-decoration-none">
-                                                Procured Item List
+                                                View Item List
                                             </NavLink>
                                         </li>
                                     </ul>
@@ -123,26 +123,43 @@ export default class Navbar extends Component {
                                         <a href="#" className="nav-link dropdown-toggle" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                             Admin Panel
                                         </a>
-                                        <ul className="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
+                                        <ul className="dropdown-menu dropdown-submenu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
                                             <li>
                                                 <NavLink to="/admin/userlist" className="dropdown-item text-decoration-none">
                                                     Users
                                                 </NavLink>
                                             </li>
                                             <li>
-                                                <NavLink to="/admin/projectlist" className="dropdown-item text-decoration-none" onClick={()=> this.alertMessage()}>
+                                                <NavLink to="/admin/projectlist" className="dropdown-item text-decoration-none" onClick={() => this.alertMessage()}>
                                                     Projects
                                                 </NavLink>
                                             </li>
                                             <li>
-                                                <NavLink to="/admin/deptlist" className="dropdown-item text-decoration-none" onClick={()=> this.alertMessage()}>
+                                                <NavLink to="/admin/deptlist" className="dropdown-item text-decoration-none" onClick={() => this.alertMessage()}>
                                                     Departments
                                                 </NavLink>
                                             </li>
                                             <li>
-                                                <NavLink to="/admin/supplierlist" className="dropdown-item text-decoration-none" onClick={()=> this.alertMessage()}>
+                                                <NavLink to="/admin/supplierlist" className="dropdown-item text-decoration-none" onClick={() => this.alertMessage()}>
                                                     Suppliers
                                                 </NavLink>
+                                            </li>
+                                            <li className="dropdown-divider"></li>
+                                            <li>
+                                                <a className="dropdown-item" href="#">
+                                                    Transfer Item &raquo;
+                                                </a>
+                                                <ul className="dropdown-menu dropdown-submenu dropdown-menu-dark">
+                                                    <li>
+                                                        <NavLink to="/admin/pendingActionList" className="dropdown-item">Pending Action</NavLink>
+                                                    </li>
+                                                    <li>
+                                                        <NavLink to="/admin/transHistoryList" className="dropdown-item" onClick={() => this.alertMessage()}>Item Transfer History</NavLink>
+                                                    </li>
+                                                    <li>
+                                                        <NavLink to="/admin/itemLogs" className="dropdown-item" onClick={() => this.alertMessage()}>Logs</NavLink>
+                                                    </li>
+                                                </ul>
                                             </li>
                                         </ul>
                                     </li>
@@ -308,7 +325,11 @@ export default class Navbar extends Component {
                                                                     <label>Status:</label>
                                                                 </Col>
                                                                 <Col xs={6}>
-                                                                    <p className="fw-bold text-success">Active</p>
+                                                                    {
+                                                                        this.state.userData.status === 1
+                                                                            ? <p className="fw-bold text-success">Active</p>
+                                                                            : <p className="fw-bold text-danger">Inactive</p>
+                                                                    }
                                                                 </Col>
                                                             </Row>
                                                         </Tab>

@@ -3,24 +3,17 @@ import axios from 'axios';
 import MaterialReactTable from 'material-react-table';
 import {
   Box,
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  IconButton,
   MenuItem,
-  Stack,
-  TextField,
-  Tooltip,
   Typography,
 } from '@mui/material';
-import { Delete, Edit } from '@mui/icons-material';
 import { projects, departments, conditions, categories, work_categories, modes } from './data';
 import { ToastContainer, toast } from 'react-toastify';
 import Swal from 'sweetalert2';
-import 'react-toastify/dist/ReactToastify.css';
 import moment from 'moment';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import BookmarkAddIcon from '@mui/icons-material/BookmarkAdd';
+import 'react-toastify/dist/ReactToastify.css';
 
 const DataTable = () => {
 
@@ -44,8 +37,13 @@ const DataTable = () => {
         console.log("Admin Access");
         try {
           const response = await axios({
-            method: "get",
-            url: "http://10.3.0.57:5000/admin/items"
+            method: "post",
+            url: "http://10.3.0.57:5000/admin/items",
+            data: {
+              project: userData.data.data.project,
+              dept: userData.data.data.dept,
+              role: userData.data.data.role
+            }
           });
 
           setTableData(response.data);
@@ -61,7 +59,8 @@ const DataTable = () => {
             url: "http://10.3.0.57:5000/user/items",
             data: {
               project: userData.data.data.project,
-              dept: userData.data.data.dept
+              dept: userData.data.data.dept,
+              role: userData.data.data.role
             }
           });
           setTableData(response.data);
@@ -94,8 +93,7 @@ const DataTable = () => {
     } else {
       if (!Object.keys(validationErrors).length) {
         tableData[row.index] = values;
-        console.log("🚀 ~ file: DataTable.js ~ line 92 ~ handleSaveRowEdits ~ values", values)
-
+        //console.log("🚀 ~ file: DataTable.js ~ line 92 ~ handleSaveRowEdits ~ values", values)
         //send/receive api updates here, then refetch or update local table data for re-render
         axios.post('http://10.3.0.57:5000/items/updateItem/' + values._id, {
           project: values.project,
@@ -122,16 +120,19 @@ const DataTable = () => {
           category: values.category,
           cate_others: values.cate_others,
           mode: values.mode,
+          itemLoc: values.itemLoc,
           remarks: values.remarks,
-
         })
           .then(res => {
             if (res.status === 200) {
-              Swal.fire(
-                'Success',
-                'Item saved Successfully',
-                'success'
-              )
+              Swal.fire({
+                title: 'Success',
+                text: 'Item Updated Successfully',
+                icon: 'success',
+              }).then((result) => {
+                // Reload the Page
+                window.location.reload();
+              });
               setTableData([...tableData]);
               //window.location.reload(true);
             } else {
@@ -196,35 +197,64 @@ const DataTable = () => {
     [tableData],
   );
 
-  const getCommonEditTextFieldProps = useCallback(
-    (cell) => {
-      return {
-        error: !!validationErrors[cell.id],
-        helperText: validationErrors[cell.id],
-        onBlur: (event) => {
-          const isValid =
-            cell.column.id === 'email'
-              ? validateEmail(event.target.value)
-              : cell.column.id === 'age'
-                ? validateAge(+event.target.value)
-                : validateRequired(event.target.value);
-          if (!isValid) {
-            //set validation error for cell if invalid
-            setValidationErrors({
-              ...validationErrors,
-              [cell.id]: `${cell.column.columnDef.header} is required`,
-            });
-          } else {
-            //remove validation error for cell if valid
-            delete validationErrors[cell.id];
-            setValidationErrors({
-              ...validationErrors,
-            });
-          }
-        },
-      };
+  const handleMarkRowUpdate = useCallback(
+    (row) => {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Confirm Marking?',
+        text: `Item will be bookmark for transfer action`,
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Confirm'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          //send api delete request here, then refetch or update local table data for re-render
+          axios.get('http://10.3.0.57:5000/items/markItem/' + row.getValue('_id'))
+            .then(res => {
+              if (res.status === 201) {
+                Swal.fire(
+                  'Error',
+                  'Item already marked for transfer.',
+                  'error'
+                )
+              } else {
+                if (res.status === 200) {
+                  Swal.fire(
+                    'Success',
+                    'Item marked for transfer successfull.',
+                    'success'
+                  )
+                  setTableData([...tableData]);
+                } else {
+                  Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: `Unable to marked item. Try again!`,
+                  })
+                }
+              }
+            })
+            .catch((err) => {
+              console.log(err);
+            })
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+          Swal.fire(
+            'Cancelled',
+            'You have cancelled transfer action :)',
+            'error'
+          )
+        }
+      })
     },
-    [validationErrors],
+    [tableData],
+  );
+
+  const getCommonEditTextFieldProps = useCallback(
+    () => {
+      return {
+      };
+    }
   );
 
   const columns = useMemo(
@@ -236,15 +266,6 @@ const DataTable = () => {
         enableEditing: false, //disable editing on this column
         enableSorting: false,
         size: 80,
-      },
-      {
-        accessorFn: (row) => moment(row.createdAt).format("YYYY-MM-DD hh:mm:ss"),
-        id: 'createdAt',
-        header: 'Item Created on (yyyy-mm-dd)',
-        enableColumnOrdering: false,
-        enableEditing: false, //disable editing on this column
-        size: 180,
-        enableSorting: false,
       },
       {
         accessorKey: 'description',
@@ -259,6 +280,8 @@ const DataTable = () => {
         accessorKey: 'project',
         header: 'Project',
         enableSorting: false,
+        filterVariant: 'select',
+        filterSelectOptions: projects,
         muiTableBodyCellEditTextFieldProps: {
           select: true,
           children: projects.map((project) => (
@@ -272,6 +295,8 @@ const DataTable = () => {
         accessorKey: 'dept',
         header: 'Department',
         enableSorting: false,
+        filterVariant: 'select',
+        filterSelectOptions: departments,
         muiTableBodyCellEditTextFieldProps: {
           select: true,
           children: departments.map((department) => (
@@ -446,29 +471,47 @@ const DataTable = () => {
         }),
       },
       {
-        accessorKey: 'order_dt',
-        //accessorFn: (row) => moment(row.order_dt).format("DD-MM-YYYY"),
+        accessorFn: (row) => moment(row.order_dt).format("YYYY-MM-DD"),
+        id: 'order_dt',
         header: 'Contract Order Dated (yyyy-mm-dd)',
         size: 180,
         enableSorting: false,
         muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
           ...getCommonEditTextFieldProps(cell),
-          type: 'date',
+          placeholder: 'YYYY-MM-DD'
         }),
+    
       },
       {
         accessorKey: 'price',
         header: 'Contract Price',
+        size: 80,
         Cell: ({ cell }) =>
-          cell.getValue().toLocaleString('en-US', {
-            style: 'currency',
-            currency: 'INR',
-          }),
-          size: 80,
-          enableSorting: false,
-          muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
-            ...getCommonEditTextFieldProps(cell),
-          }),
+          <Box
+            component="span"
+            sx={(theme) => ({
+              backgroundColor:
+                cell.getValue() <= 50_000
+                  ? theme.palette.success.dark
+                  : cell.getValue() > 50_000 && cell.getValue() < 100_000
+                    ? theme.palette.warning.dark
+                    : theme.palette.error.dark,
+              borderRadius: '0.25rem',
+              color: '#fff',
+              maxWidth: '9ch',
+              p: '0.20rem',
+            })}
+          >
+            {cell.getValue()?.toLocaleString?.('en-US', {
+              style: 'currency',
+              currency: 'INR',
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
+          </Box>,
+        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
+          ...getCommonEditTextFieldProps(cell),
+        }),
       },
       {
         accessorKey: 'category',
@@ -517,14 +560,6 @@ const DataTable = () => {
         }),
       },
       {
-        accessorKey: 'created_by',
-        header: 'Creator ID',
-        enableSorting: false,
-        enableColumnOrdering: false,
-        enableEditing: false, //disable editing on this column
-        size: 80,
-      },
-      {
         accessorKey: 'remarks',
         header: 'Remarks (if any)',
         enableSorting: false,
@@ -532,6 +567,23 @@ const DataTable = () => {
         muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
           ...getCommonEditTextFieldProps(cell),
         }),
+      },
+      {
+        accessorFn: (row) => moment(row.createdAt).format("YYYY-MM-DD hh:mm:ss"),
+        id: 'createdAt',
+        header: 'Item Created on (yyyy-mm-dd)',
+        enableColumnOrdering: false,
+        enableEditing: false, //disable editing on this column
+        size: 180,
+        enableSorting: false,
+      },
+      {
+        accessorKey: 'created_by',
+        header: 'Creator ID',
+        enableSorting: false,
+        enableColumnOrdering: false,
+        enableEditing: false, //disable editing on this column
+        size: 80,
       },
     ],
     [getCommonEditTextFieldProps],
@@ -541,23 +593,16 @@ const DataTable = () => {
     <>
       <MaterialReactTable className="table-responsive custom-table"
         displayColumnDefOptions={{
-          'mrt-row-actions': {
-            muiTableHeadCellProps: {
-              align: 'center',
-            },
-            size: 100,
-          },
           'mrt-row-expand': {
             size: 5,
           }
         }}
-        columns={columns}
-        data={tableData}
         muiTableHeadCellProps={{
           sx: {
-            fontSize: '16px',
+            fontSize: '14px',
             background: 'linear-Gradient(to right top, #f6c8a1, #d4e7eb)',
             verticalAlign: 'center',
+            display: '-ms-flexbox'
           },
         }}
         muiTablePaperProps={{
@@ -567,172 +612,110 @@ const DataTable = () => {
             border: '1px dashed #e0e0e0',
           }
         }}
+        columns={columns}
+        data={tableData}
         enableStickyHeader
         editingMode="modal" //default
-        initialState={{ columnVisibility: { _id: false }, density: 'compact', pagination: { pageSize: 10, pageIndex: 0 } }}
+        initialState={{ columnVisibility: { _id: false }, density: 'compact' }}
+        enableRowNumbers={true}
         enableColumnOrdering
-        enableEditing
+        enableRowActions
         onEditingRowSave={handleSaveRowEdits}
-        renderRowActions={({ row, table }) => (
-          <Box sx={{ display: 'flex', gap: '0.5' }}>
-            <Tooltip arrow placement="left" title="Edit">
-              <IconButton onClick={() => table.setEditingRow(row)}>
-                <Edit />
-              </IconButton>
-            </Tooltip>
-            {isAdmin ?
-              <Tooltip arrow placement="right" title="Delete">
-                <IconButton color="error" onClick={() => handleDeleteRow(row)}>
-                  <Delete />
-                </IconButton>
-              </Tooltip>
-              :
-              <Tooltip arrow placement="right" title="Delete">
-                <IconButton color="error" onClick={() => toast.error("You are not Authorized.", {
-                  position: "top-center",
-                  autoClose: 1000,
-                  theme: "colored"
-                })}>
-                  <Delete />
-                </IconButton>
-              </Tooltip>
-            }
-          </Box>
-        )}
         renderDetailPanel={({ row }) => (
           <Box
             sx={{
-              display: 'grid',
+              display: 'inline-grid',
               margin: '0',
-              float: 'center',
-              gridTemplateColumns: '1fr 1fr 1fr',
-              backgroundColor: '#E7F7B4',
+              float: 'left',
+              gridTemplateColumns: '1fr 1fr',
+              width: '22%',
+              background: '#e0e0eb',
               color: '#000',
-              width: '20%',
-              fontSize: '10px',
+              wordWrap: 'break-word',
             }}
           >
-            <Typography><strong>Description:&nbsp;</strong> {row.original.description}</Typography>
-            <Typography><strong>No. of Quantity:&nbsp;</strong> {row.original.qty}</Typography>
-            <Typography></Typography>
-            <Typography><strong>Item Model Number:&nbsp;</strong> {row.original.model}</Typography>
-            <Typography><strong>Item Serial Number:&nbsp;</strong> {row.original.serial}</Typography>
-            <Typography></Typography>
-            <Typography><strong>Item Part Number:&nbsp;</strong> {row.original.part_no}</Typography>
-            <Typography><strong>Asset ID :&nbsp;</strong> {row.original.asset_id}</Typography>
-            <Typography></Typography>
-            <Typography><strong>Additional Info:&nbsp;</strong> {row.original.additional_info}</Typography>
-            <Typography><strong>Vendor Name:&nbsp;</strong> {row.original.supplier}</Typography>
-            <Typography></Typography>
-            <Typography><strong>Vendor Address:&nbsp;</strong> {row.original.vendoradd}</Typography>
-            <Typography><strong>Whether the Contractor is MSE or not? (Yes/No):&nbsp;</strong> {row.original.condition1}</Typography>
-            <Typography></Typography>
-            <Typography><strong>Registration Number:&nbsp;</strong> {row.original.reg_no}</Typography>
-            <Typography><strong>If MSE, Whether belong to SC/ST?:&nbsp;</strong> {row.original.condition2}</Typography>
-            <Typography></Typography>
-            <Typography><strong>If MSE, Whether Women or Not?:&nbsp;</strong> {row.original.condition5}</Typography>
-            <Typography><strong>PAN Number:&nbsp;</strong> {row.original.pan}</Typography>
-            <Typography></Typography>
-            <Typography><strong>Whether Item purchased outside GEM? (Yes/No):&nbsp;</strong> {row.original.condition4}</Typography>
-            <Typography><strong>Reason of purchase outside GEM?:&nbsp;</strong> {row.original.reason}</Typography>
-            <Typography></Typography>
-            <Typography><strong>Contract Number:&nbsp;</strong> {row.original.order_no}</Typography>
-            <Typography><strong>Contract Dated (yyyy-mm-dd):&nbsp;</strong> {row.original.order_dt}</Typography>
-            <Typography></Typography>
-            <Typography><strong>Contract Price:&nbsp;</strong> {row.original.price}</Typography>
-            <Typography><strong>Contract Work Category:&nbsp;</strong> {row.original.category}</Typography>
-            <Typography></Typography>
-            <Typography><strong>Work Category (if Select Others):&nbsp;</strong> {row.original.cate_others}</Typography>
-            <Typography><strong>Mode of Procurement:&nbsp;</strong> {row.original.mode}</Typography>
-            <Typography></Typography>
-            <Typography><strong>Item Physical Location:&nbsp;</strong> {row.original.itemLoc}</Typography>
-            <Typography></Typography>
-            <Typography></Typography>
-            <Typography><strong>Remarks (if any):&nbsp;</strong> {row.original.remarks}</Typography>
-            <Typography></Typography>
+            <Typography style={{ fontFamily: 'math' }}><strong>Description:</strong>&nbsp; {row.original.description}</Typography>
+            <Typography style={{ fontFamily: 'math' }}><strong>No. of Quantity:&nbsp;</strong> {row.original.qty}</Typography>
+            <Typography style={{ fontFamily: 'math' }}><strong>Item Model Number:&nbsp;</strong> {row.original.model}</Typography>
+            <Typography style={{ fontFamily: 'math' }}><strong>Item Serial Number:&nbsp;</strong> {row.original.serial}</Typography>
+            <Typography style={{ fontFamily: 'math' }}><strong>Item Part Number:&nbsp;</strong> {row.original.part_no}</Typography>
+            <Typography style={{ fontFamily: 'math' }}><strong>Asset ID :&nbsp;</strong> {row.original.asset_id}</Typography>
+            <Typography style={{ fontFamily: 'math' }}><strong>Additional Info:&nbsp;</strong> {row.original.additional_info}</Typography>
+            <Typography style={{ fontFamily: 'math' }}><strong>Vendor Name:&nbsp;</strong> {row.original.supplier}</Typography>
+            <Typography style={{ fontFamily: 'math' }}><strong>Vendor Address:&nbsp;</strong> {row.original.vendoradd}</Typography>
+            <Typography style={{ fontFamily: 'math' }}><strong>Whether the Contractor is MSE or not? (Yes/No):&nbsp;</strong> {row.original.condition1}</Typography>
+            <Typography style={{ fontFamily: 'math' }}><strong>Registration Number:&nbsp;</strong> {row.original.reg_no}</Typography>
+            <Typography style={{ fontFamily: 'math' }}><strong>If MSE, Whether belong to SC/ST?:&nbsp;</strong> {row.original.condition2}</Typography>
+            <Typography style={{ fontFamily: 'math' }}><strong>If MSE, Whether Women or Not?:&nbsp;</strong> {row.original.condition5}</Typography>
+            <Typography style={{ fontFamily: 'math' }}><strong>PAN Number:&nbsp;</strong> {row.original.pan}</Typography>
+            <Typography style={{ fontFamily: 'math' }}><strong>Whether Item purchased outside GEM? (Yes/No):&nbsp;</strong> {row.original.condition4}</Typography>
+            <Typography style={{ fontFamily: 'math' }}><strong>Reason of purchase outside GEM?:&nbsp;</strong> {row.original.reason}</Typography>
+            <Typography style={{ fontFamily: 'math' }}><strong>Contract Number:&nbsp;</strong> {row.original.order_no}</Typography>
+            <Typography style={{ fontFamily: 'math' }}><strong>Contract Dated (yyyy-mm-dd):&nbsp;</strong> {row.original.order_dt}</Typography>
+            <Typography style={{ fontFamily: 'math' }}><strong>Contract Price:&nbsp;</strong> {row.original.price}</Typography>
+            <Typography style={{ fontFamily: 'math' }}><strong>Contract Work Category:&nbsp;</strong> {row.original.category}</Typography>
+            <Typography style={{ fontFamily: 'math' }}><strong>Work Category (if Select Others):&nbsp;</strong> {row.original.cate_others}</Typography>
+            <Typography style={{ fontFamily: 'math' }}><strong>Mode of Procurement:&nbsp;</strong> {row.original.mode}</Typography>
+            <Typography style={{ fontFamily: 'math' }}><strong>Item Physical Location:&nbsp;</strong> {row.original.itemLoc}</Typography>
+            <Typography style={{ fontFamily: 'math' }}><strong>Remarks (if any):&nbsp;</strong> {row.original.remarks}</Typography>
           </Box>
         )}
-        renderTopToolbarCustomActions={() => (
-          <Button
-            color="primary"
-            onClick={() => setCreateModalOpen(true)}
-            variant="contained"
-            disabled
+        renderRowActionMenuItems={({ closeMenu, row, table }) => [
+          <Box sx={{display: 'block'}}>
+          <MenuItem
+            className='text-primary'
+            key={1}
+            onClick={() => {
+              table.setEditingRow(row);
+              closeMenu();
+            }}
           >
-            Create New Item
-          </Button>
-        )}
-      />
-      <CreateNewAccountModal
-        columns={columns}
-        open={createModalOpen}
-        onClose={() => setCreateModalOpen(false)}
-        onSubmit={handleCreateNewRow}
+            <EditIcon /> &nbsp;&nbsp;Edit
+          </MenuItem>
+          <MenuItem
+            className='text-danger'
+            key={2}
+            onClick={() => {
+              {
+                isAdmin ?
+                  handleDeleteRow(row)
+                  :
+                  toast.error("You are not Authorized to Delete.", {
+                    position: "top-center",
+                    autoClose: 1000,
+                    theme: "colored"
+                  })
+              }
+              closeMenu();
+            }}
+          >
+            <DeleteIcon /> &nbsp;&nbsp;Remove
+          </MenuItem>
+          <MenuItem
+            className='text-success'
+            key={3}
+            onClick={() => {
+              {
+                isAdmin ?
+                  handleMarkRowUpdate(row)
+                  :
+                  toast.error("You are not Authorized for Posting.", {
+                    position: "top-center",
+                    autoClose: 1000,
+                    theme: "colored"
+                  })
+              }
+              closeMenu();
+            }}
+          >
+          <BookmarkAddIcon  /> &nbsp;&nbsp;Mark for transfer
+          </MenuItem>
+          </Box>
+        ]}
       />
       <ToastContainer />
     </>
   );
 };
-
-//example of creating a mui dialog modal for creating new rows
-export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit }) => {
-  const [values, setValues] = useState(() =>
-    columns.reduce((acc, column) => {
-      acc[column.accessorKey ?? ''] = '';
-      return acc;
-    }, {}),
-  );
-
-  const handleSubmit = () => {
-    //put your validation logic here
-    onSubmit(values);
-    onClose();
-  };
-
-  return (
-    <Dialog open={open} >
-      <DialogTitle textAlign="center">Create New Item</DialogTitle>
-
-      <DialogContent>
-        <form className='mt-4' onSubmit={(e) => e.preventDefault()}>
-          <Stack
-            sx={{
-              width: '100%',
-              minWidth: { xs: '300px', sm: '360px', md: '400px' },
-              gap: '1.5rem',
-            }}
-          >
-            {columns.map((column) => (
-              <TextField
-                key={column.accessorKey}
-                label={column.header}
-                name={column.accessorKey}
-                onChange={(e) =>
-                  setValues({ ...values, [e.target.name]: e.target.value })
-                }
-              />
-            ))}
-          </Stack>
-        </form>
-      </DialogContent>
-      <DialogActions sx={{ p: '1.25rem' }}>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button color="primary" onClick={handleSubmit} variant="contained">
-          Add
-        </Button>
-      </DialogActions>
-    </Dialog>
-  );
-};
-
-const validateRequired = (value) => !!value.length;
-const validateEmail = (email) =>
-  !!email.length &&
-  email
-    .toLowerCase()
-    .match(
-      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-    );
-const validateAge = (age) => age >= 18 && age <= 50;
 
 export default DataTable;

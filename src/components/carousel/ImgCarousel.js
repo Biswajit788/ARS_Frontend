@@ -27,7 +27,7 @@ function ImgCarousel() {
                 <Carousel.Item>
                     <img src={img2} height="450px" className="d-block w-100" text="Second slide" />
                     <Carousel.Caption>
-                        <h4>AGBPS</h4>
+                        <h4>AgGBPS</h4>
                         <p>Agartala, Tripura(W)</p>
                     </Carousel.Caption>
                 </Carousel.Item>

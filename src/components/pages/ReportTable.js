@@ -7,6 +7,7 @@ import { ExportToCsv } from 'export-to-csv';
 import moment from 'moment';
 import 'react-date-range/dist/styles.css'; // main style file
 import 'react-date-range/dist/theme/default.css'; // theme css file
+import { projects, departments } from './data';
 import { DateRangePicker } from 'react-date-range';
 
 const ReportTable = () => {
@@ -49,11 +50,17 @@ const ReportTable = () => {
             });
             //console.log("🚀 ~ file: DataTable.js ~ line 49 ~ getUserData ~ response", userData.data.data)
             if (userData.data.data.role === "Admin") {
-                console.log("Admin Access");
+                //console.log("Admin Access");
                 try {
                     const response = await axios({
-                        method: "get",
-                        url: "http://10.3.0.57:5000/admin/items"
+                        method: "post",
+                        url: "http://10.3.0.57:5000/admin/items",
+                        data: {
+                            project: userData.data.data.project,
+                            dept: userData.data.data.dept,
+                            role: userData.data.data.role
+                        }
+                        
                     });
                     setTableData(response.data);
                     setAllTableData(response.data);
@@ -67,7 +74,8 @@ const ReportTable = () => {
                         url: "http://10.3.0.57:5000/user/items",
                         data: {
                             project: userData.data.data.project,
-                            dept: userData.data.data.dept
+                            dept: userData.data.data.dept,
+                            role: userData.data.data.role
                         }
                     });
                     setTableData(response.data);
@@ -114,6 +122,8 @@ const ReportTable = () => {
             header: 'Project',
             size: 100,
             enableSorting: false,
+            filterVariant: 'select',
+            filterSelectOptions: projects,
             //enableColumnFilterModes: false,
         },
         {
@@ -121,6 +131,8 @@ const ReportTable = () => {
             header: 'Department',
             size: 80,
             enableSorting: false,
+            filterVariant: 'select',
+            filterSelectOptions: departments,
             //enableColumnFilterModes: false,
         },
         {
@@ -206,13 +218,29 @@ const ReportTable = () => {
             accessorKey: 'price',
             header: 'Contract Price',
             size: 80,
-            enableEditing: false,
-            enableSorting: false,
             Cell: ({ cell }) =>
-                cell.getValue().toLocaleString('en-US', {
-                    style: 'currency',
-                    currency: 'INR',
-                }),
+                <Box
+                    component="span"
+                    sx={(theme) => ({
+                        backgroundColor:
+                            cell.getValue() <= 50_000
+                                ? theme.palette.success.dark
+                                : cell.getValue() > 50_000 && cell.getValue() < 100_000
+                                    ? theme.palette.warning.dark
+                                    : theme.palette.error.dark,
+                        borderRadius: '0.25rem',
+                        color: '#fff',
+                        maxWidth: '9ch',
+                        p: '0.20rem',
+                    })}
+                >
+                    {cell.getValue()?.toLocaleString?.('en-US', {
+                        style: 'currency',
+                        currency: 'INR',
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                    })}
+                </Box>
         },
         {
             accessorKey: 'condition1',
@@ -335,7 +363,7 @@ const ReportTable = () => {
         useBom: true,
         useKeysAsHeaders: false,
         headers: columns.map((c) => c.header),
-        filename: 'Gen_report',
+        filename: 'Gen_Report',
     };
 
     const csvExporter = new ExportToCsv(csvOptions);
@@ -351,7 +379,7 @@ const ReportTable = () => {
     return (
         <>
             <div className="mb-3 row">
-                <label for="inputPassword" className="col-sm-3 col-form-label text-end">Filter By Date Range:</label>
+                <label for="inputPassword" className="col-sm-3 col-form-label text-start">Filter By Date Range:</label>
                 <div className=" col-sm-4">
                     <input
                         className='form-control text-success'
@@ -363,15 +391,15 @@ const ReportTable = () => {
                     <span className='fw-lighter fst-italic text-primary' style={{ fontSize: 14 + 'px' }}>Press Esc or CLick Outside to hide the Date-Range menu.</span>
                 </div>
             </div>
-            <div ref={refOne}>
+            <div className="mb-3 row" ref={refOne}>
                 {open &&
-                    <div>
+                    <div className=" col-sm-8" style={{ border: 1 + 'px dotted black' }}>
                         <DateRangePicker
+                            fixedHeight={200}
                             ranges={[selectionRange]}
                             onChange={handleSelect}
                             showDateDisplay={true}
                             direction='horizontal'
-                            months={1}
                         />
                     </div>
                 }
@@ -402,6 +430,7 @@ const ReportTable = () => {
                 enableStickyHeader
                 ////enableColumnFilterModes
                 initialState={{ density: 'compact' }}
+                enableRowNumbers={true}
                 enableRowSelection
                 positionToolbarAlertBanner="bottom"
                 renderTopToolbarCustomActions={({ table }) => (

@@ -6,6 +6,7 @@ import './Report.css'
 function Report() {
     return (
         <>
+
             <Header />
             <div className='header text-center mt-5'>
                 <span className="titleReport">Consolidated Report Generation</span>
@@ -15,6 +16,7 @@ function Report() {
                 <Table />
             </div>
             <Footer />
+
         </>
     )
 }

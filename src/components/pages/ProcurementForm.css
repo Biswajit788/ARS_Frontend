@@ -50,3 +50,14 @@ label{
     content: "*";
     color: red;
 }
+.required:after {
+    content:" *";
+    color: red;
+  }
+
+  .wordinNum{
+    margin-top: -20rem;
+    background-color: aliceblue;
+    color: blue;
+    width: 600px;
+  }

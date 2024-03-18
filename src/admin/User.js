@@ -5,8 +5,7 @@ import Footer from '../components/layout/Footer';
 import MaterialReactTable from 'material-react-table';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { projects, departments, roles } from '../components/pages/data';
-
+import { projects, departments, roles, userFlags } from '../components/pages/data';
 import {
     Box,
     Button,
@@ -25,7 +24,6 @@ import { Delete, Edit } from '@mui/icons-material';
 const User = () => {
     const [createModalOpen, setCreateModalOpen] = useState(false);
     const [tableData, setTableData] = useState([]);
-    const [validationErrors, setValidationErrors] = useState({});
 
     const getTableData = async () => {
         try {
@@ -33,7 +31,6 @@ const User = () => {
                 method: 'get',
                 url: 'http://10.3.0.57:5000/users',
             });
-            console.log("🚀 ~ file: DataTable.js ~ line 49 ~ getUserData ~ response", response.data)
             setTableData(response.data);
         }
         catch (err) {
@@ -46,7 +43,6 @@ const User = () => {
     }, [])
 
     const handleCreateNewRow = (values) => {
-        console.log("🚀 ~ file: User.js ~ line 49 ~ handleCreateNewRow ~ values", values)
         axios.post('http://10.3.0.57:5000/users/addUser/', {
             uid: values.uid,
             fname: values.fname,
@@ -57,6 +53,7 @@ const User = () => {
             dept: values.dept,
             role: values.role,
             password: values.password,
+            status: values.status,
         })
             .then(res => {
                 if (res.status === 200) {
@@ -68,7 +65,8 @@ const User = () => {
                     tableData.push(values);
                     setTableData([...tableData]);
                     window.location.reload();
-                } else {
+                }
+                else {
                     toast.error('Unable to create User', {
                         position: "top-center",
                         autoClose: 1000,
@@ -79,8 +77,6 @@ const User = () => {
             .catch((err) => {
                 console.log(err);
             })
-        //tableData.push(values);
-        //setTableData([...tableData]);
     };
 
     const handleSaveRowEdits = async ({ exitEditingMode, row, values }) => {
@@ -91,48 +87,47 @@ const User = () => {
             })
             return;
         } else {
-            if (!Object.keys(validationErrors).length) {
-                tableData[row.index] = values;
-
-                //send/receive api updates here, then refetch or update local table data for re-render
-                axios.patch('http://10.3.0.57:5000/users/updateUser/' + values._id, {
-                    uid: values.uid,
-                    fname: values.fname,
-                    lname: values.lname,
-                    desgn: values.desgn,
-                    email: values.email,
-                    project: values.project,
-                    dept: values.dept,
-                    role: values.role,
-                    password: values.password,
-                })
-                    .then(res => {
-                        if (res.status === 200) {
-                            toast.success('User updated successfully', {
-                                position: "top-center",
-                                autoClose: 2000,
-                                theme: "colored",
-                            })
-                            setTableData([...tableData]);
-                        } else {
-                            toast.error('Something went wrong. Please try again!', {
-                                position: "top-center",
-                                autoClose: 1000,
-                                theme: "colored",
-                            });
-                        }
-                    })
-                    .catch((err) => {
-                        console.log(err);
-                        toast.error('Failed to update user.', {
+            tableData[row.index] = values;
+            //send/receive api updates here, then refetch or update local table data for re-render
+            axios.patch('http://10.3.0.57:5000/users/updateUser/' + values._id, {
+                uid: values.uid,
+                fname: values.fname,
+                lname: values.lname,
+                desgn: values.desgn,
+                email: values.email,
+                project: values.project,
+                dept: values.dept,
+                role: values.role,
+                password: values.password,
+                status: values.status,
+            })
+                .then(res => {
+                    if (res.status === 200) {
+                        toast.success('User updated successfully', {
+                            position: "top-center",
+                            autoClose: 2000,
+                            theme: "colored",
+                        })
+                        setTableData([...tableData]);
+                    } else {
+                        toast.error('Something went wrong. Please try again!', {
                             position: "top-center",
                             autoClose: 1000,
                             theme: "colored",
                         });
-                    })
+                    }
+                })
+                .catch((err) => {
+                    console.log(err);
+                    toast.error('Failed to update user.', {
+                        position: "top-center",
+                        autoClose: 1000,
+                        theme: "colored",
+                    });
+                })
 
-                exitEditingMode(); //required to exit editing mode and close modal
-            }
+            exitEditingMode(); //required to exit editing mode and close modal
+
         }
     };
 
@@ -176,30 +171,9 @@ const User = () => {
     const getCommonEditTextFieldProps = useCallback(
         (cell) => {
             return {
-                error: !!validationErrors[cell.id],
-                helperText: validationErrors[cell.id],
-                onBlur: (event) => {
-                    const isValid =
-                        cell.column.id === 'email'
-                            ? validateEmail(event.target.value)
-                            : validateRequired(event.target.value);
-                    if (!isValid) {
-                        //set validation error for cell if invalid
-                        setValidationErrors({
-                            ...validationErrors,
-                            [cell.id]: `${cell.column.columnDef.header} is required`,
-                        });
-                    } else {
-                        //remove validation error for cell if valid
-                        delete validationErrors[cell.id];
-                        setValidationErrors({
-                            ...validationErrors,
-                        });
-                    }
-                },
+
             };
-        },
-        [validationErrors],
+        }
     );
 
     const columns = useMemo(
@@ -300,19 +274,33 @@ const User = () => {
                     ...getCommonEditTextFieldProps(cell),
                 }),
             },
-
+            {
+                accessorKey: 'status',
+                header: 'Status Flag',
+                size: 80,
+                muiTableBodyCellEditTextFieldProps: {
+                    select: true,
+                    children: userFlags.map((userFlag) => (
+                        userFlag === "0"
+                            ? <MenuItem key={userFlag} value={userFlag}>
+                                {userFlag + ' - Blocked'}
+                            </MenuItem>
+                            : <MenuItem key={userFlag} value={userFlag}>
+                                {userFlag + ' - Active'}
+                            </MenuItem>
+                    ))
+                }
+            },
         ],
         [getCommonEditTextFieldProps],
     );
-
+    const tableRef = React.createRef();
     return (
         <>
             <Navbar />
             <div className='container mt-5'>
-                <div className='card'>
-                    <div className="card-header text-center">
-                        <span>Registered User Details</span>
-                    </div>
+                <div className="card-header text-center mb-4">
+                    <span style={{fontFamily:'sans-serif', fontStyle:'italic'}}>Registered User Details</span>
                 </div>
                 <MaterialReactTable
                     displayColumnDefOptions={{
@@ -325,7 +313,8 @@ const User = () => {
                     }}
                     columns={columns}
                     data={tableData}
-                    initialState={{columnVisibility: {_id: false}, density: 'compact'}}
+                    initialState={{ columnVisibility: { _id: false }, density: 'compact' }}
+                    enableRowNumbers={true}
                     editingMode="modal" //default
                     enableColumnOrdering
                     enableEditing
@@ -378,10 +367,10 @@ export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit }) => {
 
     const handleSubmit = () => {
         //put your validation logic here
-        if((values.uid && values.fname && values.lname && values.desgn && values.role) !== ""){
+        if ((values.uid && values.fname && values.lname && values.desgn && values.role) !== "") {
             onSubmit(values);
         }
-        else{
+        else {
             alert("Input Field cannot be empty !!!")
             open();
         }
@@ -490,6 +479,26 @@ export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit }) => {
                             autoComplete="off"
                             onChange={(e) => setValues({ ...values, [e.target.name]: e.target.value })}
                         />
+                        <TextField
+                            select
+                            name="status"
+                            label="Status Flag"
+                            autoComplete="off"
+                            defaultValue={1}
+                            disabled
+                            onChange={(e) => setValues({ ...values, [e.target.name]: e.target.value })}
+                        >
+                            <MenuItem value="">Please Select</MenuItem>
+                            {userFlags.map((userFlag) =>
+                                userFlag === "0"
+                                    ? <MenuItem key={userFlag} value={userFlag}>
+                                        {userFlag + ' - Blocked'}
+                                    </MenuItem>
+                                    : <MenuItem key={userFlag} value={userFlag}>
+                                        {userFlag + ' - Active'}
+                                    </MenuItem>
+                            )}
+                        </TextField>
                     </Stack>
                 </form>
             </DialogContent>
@@ -502,14 +511,5 @@ export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit }) => {
         </Dialog>
     );
 };
-
-const validateRequired = (value) => !!value.length;
-const validateEmail = (email) =>
-    !!email.length &&
-    email
-        .toLowerCase()
-        .match(
-            /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-        );
 
 export default User;
