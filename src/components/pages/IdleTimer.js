@@ -32,7 +32,7 @@ const IdleTimer = () => {
           clearTimeout(timeoutRef.current);
         }
       };
-    }, []);
+    }, [events, resetTimeout]);
   
     return null;
   };  

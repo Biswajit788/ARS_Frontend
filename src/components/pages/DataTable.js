@@ -510,7 +510,7 @@ const DataTable = () => {
         {
           accessorKey: 'vendoradd',
           header: 'Vendor Address',
-          size: 150,
+          size: 300,
           enableSorting: false,
           muiEditTextFieldProps: ({ cell }) => ({
             ...getCommonEditTextFieldProps(cell),

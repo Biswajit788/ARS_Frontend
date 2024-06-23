@@ -18,6 +18,7 @@ const override = css`
 
 function ReportListComponent() {
     const apiUrl = process.env.REACT_APP_API_URL;
+    
     const [tableData, setTableData] = useState([]);
     const [filteredData, setFilteredData] = useState([]); // Add state for filtered data
     const [loading, setLoading] = useState(true);
@@ -48,7 +49,7 @@ function ReportListComponent() {
         };
 
         getTableData();
-    }, [dept, project, role]);
+    }, [dept, project, role, apiUrl]);
 
     useEffect(() => {
         const filterTableData = () => {

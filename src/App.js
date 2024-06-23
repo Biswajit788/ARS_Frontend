@@ -11,12 +11,11 @@ import AddItem from "./components/pages/ProcurementForm";
 import Report from "./components/pages/ReportHome";
 import Action from './components/pages/Pending';
 import Error from "./components/pages/Error";
-import VendorList from "./components/admin/Vendor";
-import UserList from './components/admin/User';
+import VendorList from "./components/admin/vendor/Vendor";
+import UserList from './components/admin/user/User';
 import PrivateRoute from './utils/PrivateRoute';
 import AdminRoute from './utils/AdminRoute';
 import TestPage from './components/pages/DateRangeFilter';
-import IdleTimer from "./components/pages/IdleTimer";
 
 function App() {
   return (

@@ -48,7 +48,7 @@ const DateRangeFilter = ({ onChange }) => {
     };
   }, []);
 
-  const isMobile = window.innerWidth <= 768; // Define a breakpoint for mobile screens
+  //const isMobile = window.innerWidth <= 768; // Define a breakpoint for mobile screens
 
   return (
     <>
