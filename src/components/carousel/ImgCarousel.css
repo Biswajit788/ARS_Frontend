@@ -1,16 +1,47 @@
-.customizeCarousel {
+/* ImgCarousel.css */
+.custom-carousel {
     margin-top: 10px;
-    margin-bottom: 10px;
 }
 
-.customizeCarousel img{
+.custom-carousel .carousel-item {
+    height: 450px;
+}
+
+.custom-carousel .carousel-item .image-container {
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+}
+
+.custom-carousel .carousel-item img {
+    height: 100%;
+    object-fit: cover;
+    animation: zoomSlide 8s ease-in-out;
+}
+
+.custom-carousel .carousel-caption {
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 10px;
     border-radius: 5px;
 }
-.carousel-caption {
-    background-color: darkolivegreen;
-    background-clip: border-box;
-    border-radius: .5rem;
-    opacity: 70%;
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 12px;
+
+@keyframes zoomSlide {
+    0% {
+        transform: scale(1);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1.2);
+        opacity: 0;
+    }
 }

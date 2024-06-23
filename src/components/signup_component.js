@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import Logo from '../aasets/logo.jpg';
+import Logo from '../assets/logo.jpg';
 import '../index.css';
 import { projects, departments} from './pages/data';
 
@@ -22,8 +22,9 @@ export default class SignUp extends Component {
   handleSubmit(e) {
     e.preventDefault();
     const { fname, lname, email, uid, password, project, dept, role, desgn } = this.state;
-    // console.log(fname, lname, email, uid, password);
-    fetch("http://10.3.0.57:5000/register", {
+    const apiUrl = process.env.REACT_APP_API_URL;
+
+    fetch(`${apiUrl}/register`, {
       method: "POST",
       crossDomain: true,
       headers: {

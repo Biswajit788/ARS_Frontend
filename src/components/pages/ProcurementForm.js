@@ -10,7 +10,7 @@ import FloatingLabel from 'react-bootstrap/FloatingLabel';
 import './ProcurementForm.css';
 import { useFormik } from 'formik';
 import { formInputSchema } from '../schemas';
-import { projects, departments, conditions, categories, work_categories, modes } from './data';
+import { projects, departments, conditions, categories, work_categories, vendor_categories, modes, suppliers, genders } from './data';
 import { ToastContainer } from 'react-toastify';
 import Swal from 'sweetalert2';
 import 'react-toastify/dist/ReactToastify.css';
@@ -21,7 +21,10 @@ const initialValues = {
     project: "",
     dept: "",
     description: "",
-    //qty: "",
+    category: "",
+    cate_others: "0",
+    warranty: "0",
+    installation_dt: "",
     model: "",
     serial: "",
     part_no: "0",
@@ -29,19 +32,17 @@ const initialValues = {
     additional_info: "0",
     supplier: "",
     vendoradd: "",
-    condition1: "", /* Whether the Contractor is MSE or not? */
+    vendor_category: "", /* Whether the Contractor is MSE or not? */
     reg_no: "0",
     condition2: "0", /* If MSE, Whether belong to SC/ST? */
     condition5: "0", /* If MSE, Whether Women or not? */
-    pan: "0",
-    condition4: "", /*Whether this Procurement made outside GEM, even when it is available in GEM? */
-    reason: "",
+    gstin: "0",
     order_no: "",
     order_dt: "",
     price: "",
-    category: "",
-    cate_others: "0",
     mode: "",
+    reason: "0",
+    itemUser: "",
     itemLoc: "",
     remarks: "0",
     created_by: "0",
@@ -49,53 +50,90 @@ const initialValues = {
 };
 
 function ProcurementForm() {
-    const [isAdmin, setIsAdmin] = useState(false);
-    const [usrData, setUsrData] = useState([]);
 
-    const getUserData = async () => {
-        const response = await axios({
-            method: 'post',
-            url: 'http://10.3.0.57:5000/userData',
-            data: {
-                token: window.localStorage.getItem("token")
+    const apiUrl = process.env.REACT_APP_API_URL;
+
+    const [isAdmin, setIsAdmin] = useState();
+    const [usrData, setUsrData] = useState([]);
+    const [vendorData, setVendorData] = useState([]);
+    const [selectedVendor, setSelectedVendor] = useState(null);
+
+    const getUserDataFromLocalStorage = async () => {
+        const AuthToken = window.localStorage.getItem("authToken");
+        if (AuthToken) {
+            const userData = {
+                role: localStorage.getItem("role"),
+                uid: localStorage.getItem("ecode"),
+                dept: localStorage.getItem("dept"),
+                project: localStorage.getItem("project")
+            };
+
+            if (userData.role !== "Admin") {
+                setIsAdmin(false);
+                setUsrData(userData);
+            } else {
+                setIsAdmin(true);
+                setUsrData(userData);
             }
-        })
-        if (response.data.data.role !== "Admin") {
-            setIsAdmin(false);
-            setUsrData(response.data.data);
         } else {
-            setIsAdmin(true);
-            setUsrData(response.data.data);
+            console.error("AuthToken not found in local storage");
         }
     }
 
     useEffect(() => {
-        getUserData();
-    }, [])
+        const fetchData = async () => {
+            await getUserDataFromLocalStorage();
+        };
 
-    const { values, errors, isSubmitting, touched, handleBlur, handleChange, handleSubmit } = useFormik({
+        const getVendorData = async () => {
+            try {
+                const response = await axios({
+                    method: 'get',
+                    url: `${apiUrl}/vendors`,
+                });
+                setVendorData(response.data);
+            } catch (error) {
+                console.log("Internal Sysytem Error", error);
+            }
+        }
+
+        fetchData();
+        getVendorData();
+    }, []);
+
+    const handleVendorChange = (e, setFieldValue) => {
+        const selectedVendorName = e.target.value;
+        setSelectedVendor(selectedVendorName);
+        const vendorDetails = vendorData.find(vendor => vendor.vName === selectedVendorName);
+        console.log(vendorDetails);
+        if (vendorDetails) {
+            setFieldValue('supplier', vendorDetails.vName);
+            setFieldValue('vendoradd', vendorDetails.vAddress);
+            setFieldValue('gstin', vendorDetails.vGstin);
+            setFieldValue('vendor_category', vendorDetails.vCategory);
+            setFieldValue('reg_no', vendorDetails.msmeRegNo);
+            setFieldValue('condition2', vendorDetails.msmeCate);
+            setFieldValue('condition5', vendorDetails.msmeGender);
+        }
+    };
+
+    const { values, errors, isSubmitting, resetForm, touched, handleBlur, handleChange, handleSubmit, setFieldValue } = useFormik({
         initialValues: initialValues,
         validationSchema: formInputSchema,
         onSubmit: async (values, actions) => {
-            //console.log("🚀 ~ file: BasicTable.jsx ~ line 35 ~ onSubmit:async ~ actions", actions)
-            //console.log("🚀 ~ file: BasicTable.jsx ~ line 33 ~ BasicTable ~ FormSubmission ~ values",values)
-            const { project, dept, description, supplier, order_no, order_dt, price, condition1,
-                condition2, condition4, reg_no, pan, category, cate_others, reason, remarks,
-                qty, model, serial, part_no, asset_id, additional_info, vendoradd, condition5, mode, itemLoc, status, created_by } = values;
-
-            fetch("http://10.3.0.57:5000/create", {
-                method: "POST",
-                crossDomain: true,
-                headers: {
-                    "Content-Type": "application/json",
-                    Accept: "application/json",
-                    "Access-Control-Allow-Origin": "*",
-                },
-                body: JSON.stringify({
+            const { project, dept, description, category, cate_others, warranty, installation_dt, supplier, order_no, order_dt, price, vendor_category,
+                condition2, reg_no, gstin, reason, remarks,
+                model, serial, part_no, asset_id, additional_info, vendoradd, condition5, mode, itemUser, itemLoc, status, } = values;
+            try {
+                const apiUrl = process.env.REACT_APP_API_URL;
+                axios.post(`${apiUrl}/create`, {
                     project,
                     dept,
                     description,
-                    qty,
+                    category,
+                    cate_others,
+                    warranty,
+                    installation_dt,
                     model,
                     serial,
                     part_no,
@@ -103,46 +141,52 @@ function ProcurementForm() {
                     additional_info,
                     supplier,
                     vendoradd,
-                    condition1,
+                    vendor_category,
                     reg_no,
                     condition2,
                     condition5,
-                    pan,
-                    condition4,
+                    gstin,
                     reason,
                     order_no,
                     order_dt,
                     price,
-                    category,
-                    cate_others,
                     mode,
+                    itemUser,
                     itemLoc,
                     remarks,
                     status,
                     created_by: usrData.uid
-                }),
-            })
-                .then((res) => res.json())
-                .then((data) => {
-                    if (data.status === "Success") {
-                        Swal.fire({
-                            icon: 'success',
-                            text: 'New Item created Successfully',
-                            showConfirmButton: true,
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                window.location.href = "/additem";
-                            }
-                        })
+                }, {
+                    headers: {
+                        "Content-Type": "application/json",
+                        Accept: "application/json",
+                        "Access-Control-Allow-Origin": "*",
                     }
-                    else if (data.status === "error") {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Oops...',
-                            text: `Order No- ` + data.message + ` already exist. Try another!`,
-                        })
-                    }
-                });
+                })
+                    .then((response) => {
+                        const data = response.data;
+                        if (data.status === "Success") {
+                            Swal.fire({
+                                icon: 'success',
+                                text: 'New Item created Successfully',
+                                showConfirmButton: true,
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    window.location.href = "/itemlist";
+                                }
+                            });
+                        } else if (data.status === "exist") {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: data.message,
+                            });
+                        }
+                    })
+            } catch (error) {
+                console.log("Error in creating Item", error);
+            }
+
         },
     });
 
@@ -151,14 +195,14 @@ function ProcurementForm() {
         .asObservable()
         .pipe(debounceTime(1000))
         .subscribe(data => {
-            document.getElementById("wordInNum").value = data;
+            document.getElementById("wordInNum").innerHTML = data;
         });
 
     const handleKeyUp = event => {
         // console.log('valeur ', event.target.value);
         //subject.next(event.target.value);
         var amount = event.target.value;
-        var words = new Array();
+        var words = [];
         words[0] = '';
         words[1] = 'One';
         words[2] = 'Two';
@@ -192,16 +236,17 @@ function ProcurementForm() {
         var number = atemp[0].split(",").join("");
         var n_length = number.length;
         var words_string = "";
+        var i, j;
         if (n_length <= 9) {
-            var n_array = new Array(0, 0, 0, 0, 0, 0, 0, 0, 0);
-            var received_n_array = new Array();
-            for (var i = 0; i < n_length; i++) {
+            var n_array = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+            var received_n_array = [];
+            for (i = 0; i < n_length; i++) {
                 received_n_array[i] = number.substr(i, 1);
             }
-            for (var i = 9 - n_length, j = 0; i < 9; i++, j++) {
+            for (i = 9 - n_length, j = 0; i < 9; i++, j++) {
                 n_array[i] = received_n_array[j];
             }
-            for (var i = 0, j = 1; i < 9; i++, j++) {
+            for (i = 0, j = 1; i < 9; i++, j++) {
                 if (i == 0 || i == 2 || i == 4 || i == 7) {
                     if (n_array[i] == 1) {
                         n_array[j] = 10 + parseInt(n_array[j]);
@@ -210,7 +255,7 @@ function ProcurementForm() {
                 }
             }
             var value = "";
-            for (var i = 0; i < 9; i++) {
+            for (i = 0; i < 9; i++) {
                 if (i == 0 || i == 2 || i == 4 || i == 7) {
                     value = n_array[i] * 10;
                 } else {
@@ -243,9 +288,9 @@ function ProcurementForm() {
     return (
         <>
             <Header />
-            <div className="container mt-4">
+            <div className="container mt-5">
                 <div className="mb-5 title text-center">
-                    <p className="h6 text-primary font-monospace">Fill in all the Procurement details</p>
+                    <p className="title">Create Procurement Details</p>
                 </div>
                 <Form onSubmit={handleSubmit}>
                     <ul className="nav nav-tabs nav-justified mb-3" id="ex1" role="tablist">
@@ -305,7 +350,7 @@ function ProcurementForm() {
                         >
                             <Row className='mt-5 mb-5 smaller-input'>
                                 <Col sm={4}>
-                                    <FloatingLabel controlId="floatingSelect" label="Enter Project Name">
+                                    <FloatingLabel controlId="floatingSelect" label="Enter Project Name *">
                                         {isAdmin ?
                                             <Form.Select
                                                 name="project"
@@ -340,7 +385,7 @@ function ProcurementForm() {
                                     ) : null}
                                 </Col>
                                 <Col sm={4}>
-                                    <FloatingLabel controlId="floatingSelect" label="Enter Department Name">
+                                    <FloatingLabel controlId="floatingSelect" label="Enter Department Name *">
                                         {isAdmin ?
                                             <Form.Select
                                                 name="dept"
@@ -383,20 +428,20 @@ function ProcurementForm() {
                             role="tabpanel"
                             aria-labelledby="ex3-tab-2"
                         >
-                            <span className='fst-italic mb-4 text-warning bg-dark font-monospace'>Enter single line Items with no. of quantity (in 200 words):</span>
-                            <Row className='mt-2 mb-2 smaller-input'>
-                                <Col sm={8}>
-                                    <FloatingLabel className='text-muted' controlId="floatingTextarea2" label="Work/Goods/Services Description">
+                            <br />
+                            <span className='fst-italic mb-4 text-warning bg-dark font-monospace'>&nbsp;&nbsp;Enter short description of Item:&nbsp;</span>
+                            <Row className='mt-2 mb-4 smalle-input'>
+                                <Col sm={9}>
+                                    <FloatingLabel className='custom-label text-muted' controlId="floatingTextarea2" label="Enter Short Title *">
                                         <Form.Control
                                             as="textarea"
                                             name="description"
-                                            placeholder="Enter Description"
-                                            style={{ height: '100px ' }}
+                                            style={{ height: '80px ' }}
                                             values={values.description}
                                             onChange={handleChange}
                                             onBlur={handleBlur}
                                             isValid={touched.description && !errors.description}
-                                            
+
                                         />
                                     </FloatingLabel>
                                     {errors.description && touched.description ? (
@@ -405,15 +450,116 @@ function ProcurementForm() {
                                 </Col>
                             </Row>
                             <Row className='mb-3 smaller-input'>
-                                <Col sm={4}>
+                                <Col sm={3}>
+                                    <FloatingLabel controlId="floatingSelect" label="Item Category *">
+                                        <Form.Select
+                                            name="category"
+                                            aria-label="Floating label select"
+                                            values={values.category}
+                                            onChange={handleChange}
+                                            onBlur={handleBlur}
+                                            isValid={touched.category && !errors.category}
+                                            required
+                                        >
+                                            <option value="">Please select</option>
+                                            {work_categories.map((work_category) =>
+                                                <option value={work_category}>{work_category}</option>
+                                            )}
+                                        </Form.Select>
+                                    </FloatingLabel>
+                                    {errors.category && touched.category ? (
+                                        <span className='form-error'>{errors.category}</span>
+                                    ) : null}
+                                </Col>
+                                {values.category === "Others" && (
+                                    <Col sm={3}>
+                                        <FloatingLabel
+                                            className='text-muted'
+                                            controlId="floatingInput"
+                                            label="Enter Category Name"
+                                        >
+                                            <Form.Control
+                                                name="cate_others"
+                                                values={values.cate_others}
+                                                onChange={handleChange}
+                                                onBlur={handleBlur}
+                                                isValid={touched.cate_others && !errors.cate_others}
+                                                required
+                                            />
+                                        </FloatingLabel>
+                                        {errors.cate_others && touched.cate_others ? (
+                                            <span className='form-error'>{errors.cate_others}</span>
+                                        ) : null}
+                                    </Col>
+                                )}
+                                {values.category === "Hardware" && (
+                                    <>
+                                        <Col sm={3}>
+                                            <FloatingLabel
+                                                className='text-muted'
+                                                controlId="floatingInput"
+                                                label="Product Warranty"
+                                            >
+                                                <Form.Control
+                                                    name="warranty"
+                                                    value={values.warranty}
+                                                    onChange={handleChange}
+                                                    onKeyUp={handleKeyUp}
+                                                    onBlur={(e) => {
+                                                        handleBlur(e);
+                                                        // Append ".00" if the value is a valid number and doesn't contain a decimal point
+                                                        if (!e.target.value.includes(' Yrs')) {
+                                                            handleChange({
+                                                                target: {
+                                                                    name: 'warranty',
+                                                                    value: `${e.target.value} Yrs`
+                                                                }
+                                                            });
+                                                        }
+                                                    }}
+                                                    autoComplete="off"
+                                                    isValid={touched.warranty && !errors.warranty}
+                                                    required
+                                                />
+                                            </FloatingLabel>
+                                            {errors.warranty && touched.warranty ? (
+                                                <span className='form-error'>{errors.warranty}</span>
+                                            ) : null}
+                                        </Col>
+                                        <Col sm={3}>
+                                            <FloatingLabel
+                                                className='text-muted'
+                                                controlId="floatingInput"
+                                                label="Installation Date"
+                                            >
+                                                <Form.Control
+                                                    type="date"
+                                                    className='text-uppercase'
+                                                    name="installation_dt"
+                                                    placeholder="Order Dated"
+                                                    values={values.installation_dt}
+                                                    onChange={handleChange}
+                                                    onBlur={handleBlur}
+                                                    isValid={touched.installation_dt && !errors.installation_dt}
+                                                    required
+                                                />
+                                            </FloatingLabel>
+                                            {errors.installation_dt && touched.installation_dt ? (
+                                                <span className='form-error'>{errors.installation_dt}</span>
+                                            ) : null}
+                                        </Col>
+                                    </>
+                                )}
+                            </Row>
+                            <Row className='mb-4 smaller-input'>
+                                <Col sm={3}>
                                     <FloatingLabel
                                         className='text-muted'
                                         controlId="floatingInput"
-                                        label="Serial Number"
+                                        label="Enter Serial Number *"
                                     >
                                         <Form.Control
                                             name="serial"
-                                            placeholder="Enter Serial Number"
                                             values={values.serial}
                                             onChange={handleChange}
                                             onBlur={handleBlur}
@@ -425,15 +571,14 @@ function ProcurementForm() {
                                         <span className='form-error'>{errors.serial}</span>
                                     ) : null}
                                 </Col>
-                                <Col sm={4}>
+                                <Col sm={3}>
                                     <FloatingLabel
                                         className='text-muted'
                                         controlId="floatingInput"
-                                        label="Model Number"
+                                        label="Enter Model Number *"
                                     >
                                         <Form.Control
                                             name="model"
-                                            placeholder="Enter Model Number"
                                             values={values.model}
                                             onChange={handleChange}
                                             onBlur={handleBlur}
@@ -447,16 +592,15 @@ function ProcurementForm() {
                                     ) : null}
                                 </Col>
                             </Row>
-                            <Row className='mb-3 smaller-input'>
-                                <Col sm={4}>
+                            <Row className='mb-4 smaller-input'>
+                                <Col sm={3}>
                                     <FloatingLabel
                                         className='text-muted'
                                         controlId="floatingInput"
-                                        label="Part No. (Optional)"
+                                        label="Enter Part Number"
                                     >
                                         <Form.Control
                                             name="part_no"
-                                            placeholder="Enter Part Number"
                                             values={values.part_no}
                                             onChange={handleChange}
                                             onBlur={handleBlur}
@@ -468,15 +612,15 @@ function ProcurementForm() {
                                         <span className='form-error'>{errors.part_no}</span>
                                     ) : null}
                                 </Col>
-                                <Col sm={4}>
+                                <Col sm={3}>
                                     <FloatingLabel
                                         className='text-muted'
                                         controlId="floatingInput"
-                                        label="Asset Identification Number "
+                                        label="Enter Asset Identification Number *"
                                     >
                                         <Form.Control
+                                            className='text-uppercase'
                                             name="asset_id"
-                                            placeholder="Enter Asset ID"
                                             values={values.asset_id}
                                             onChange={handleChange}
                                             onBlur={handleBlur}
@@ -490,14 +634,13 @@ function ProcurementForm() {
                                     ) : null}
                                 </Col>
                             </Row>
-                            <Row className='mb-3 pb-5 smaller-input'>
+                            <Row className='mb-4 smaller-input'>
                                 <Col sm={6}>
                                     <FloatingLabel className='text-muted' controlId="floatingTextarea2" label="Additional Item Information (If any)">
                                         <Form.Control
                                             as="textarea"
                                             name="additional_info"
-                                            placeholder="Additional Item Description"
-                                            style={{ height: '100px' }}
+                                            style={{ height: '150px' }}
                                             values={values.additional_info}
                                             onChange={handleChange}
                                             onBlur={handleBlur}
@@ -519,8 +662,26 @@ function ProcurementForm() {
                         >
                             <Row className='mt-5 mb-3 smaller-input'>
                                 <Col sm={6}>
-                                    <FloatingLabel controlId="floatingSelect" label="Enter Vendor/Supplier Name">
-                                        <Form.Control
+                                    <FloatingLabel controlId="floatingSelect" label="Select the Vendor/Supplier *">
+                                        <Form.Select
+                                            name="supplier"
+                                            aria-label="Floating label select"
+                                            values={values.supplier}
+                                            onChange={(e) => {
+                                                handleChange(e);
+                                                handleVendorChange(e, setFieldValue);
+                                            }}
+                                            onBlur={handleBlur}
+                                            isValid={touched.supplier && !errors.supplier}
+                                            required
+                                        >
+                                            <option value="">Please Select</option>
+                                            {vendorData.map((vendor) =>
+                                                <option key={vendor.vName} value={vendor.vName}>{vendor.vName}</option>
+                                            )}
+
+                                        </Form.Select>
+                                        {/* <Form.Control
                                             name="supplier"
                                             aria-label="Floating label select"
                                             values={values.supplier}
@@ -528,7 +689,7 @@ function ProcurementForm() {
                                             onBlur={handleBlur}
                                             isValid={touched.supplier && !errors.supplier}
                                             required
-                                        />
+                                        /> */}
                                     </FloatingLabel>
                                     {errors.supplier && touched.supplier ? (
                                         <span className='form-error'>{errors.supplier}</span>
@@ -537,60 +698,58 @@ function ProcurementForm() {
                             </Row>
                             <Row className='mb-3 smaller-input'>
                                 <Col sm={6}>
-                                    <FloatingLabel className='text-muted' controlId="floatingTextarea2" label="Address of Vendor/Supplier (Optional)">
+                                    <FloatingLabel className='text-muted' controlId="floatingTextarea2" label="Address of Vendor/Supplier *">
                                         <Form.Control
                                             as="textarea"
                                             name="vendoradd"
-                                            placeholder="vendoradd"
                                             style={{ height: '100px' }}
-                                            values={values.vendoradd}
+                                            value={values.vendoradd}
                                             onChange={handleChange}
                                             onBlur={handleBlur}
                                             isValid={touched.vendoradd && !errors.vendoradd}
                                             required
+                                            readOnly={true}
                                         />
                                     </FloatingLabel>
                                     {errors.vendoradd && touched.vendoradd ? (
                                         <span className='form-error'>{errors.vendoradd}</span>
                                     ) : null}
                                 </Col>
-                                <Col sm={4}>
-                                    <FloatingLabel controlId="floatingSelect" label="Whether the Contractor is MSE or not?">
-                                        <Form.Select
-                                            name="condition1"
-                                            aria-label="Floating label select"
-                                            values={values.condition1}
+                            </Row>
+                            <Row className='mb-3 smaller-input'>
+                                <Col sm={6}>
+                                    <FloatingLabel controlId="floatingSelect" label="Vendor Category *">
+                                        <Form.Control
+                                            name="vendor_category"
+                                            value={values.vendor_category}
                                             onChange={handleChange}
                                             onBlur={handleBlur}
-                                            isValid={touched.condition1 && !errors.condition1}
+                                            isValid={touched.vendor_category && !errors.vendor_category}
                                             required
-                                        >
-                                            <option value="">Select</option>
-                                            {conditions.map((condition) =>
-                                                <option value={condition}>{condition}</option>
-                                            )}
-                                        </Form.Select>
+                                            readOnly={true}
+                                        />
                                     </FloatingLabel>
-                                    {errors.condition1 && touched.condition1 ? (
-                                        <span className='form-error'>{errors.condition1}</span>
+                                    {errors.vendor_category && touched.vendor_category ? (
+                                        <span className='form-error'>{errors.vendor_category}</span>
                                     ) : null}
                                 </Col>
                             </Row>
                             <Row className='mb-3 smaller-input'>
                                 <Col sm={3}>
-                                    {values.condition1 === "Yes" && (
+                                    {values.vendor_category === "MSE" && (
                                         <FloatingLabel
                                             className='text-muted'
                                             controlId="floatingInput"
-                                            label="If MSE? Registration Number (Optional)"
+                                            label="MSE Registration No"
                                         >
                                             <Form.Control
                                                 name="reg_no"
                                                 placeholder="MSE Registration Number"
-                                                values={values.reg_no}
+                                                value={values.reg_no}
                                                 onChange={handleChange}
                                                 onBlur={handleBlur}
                                                 isValid={touched.reg_no && !errors.reg_no}
+                                                readOnly={true}
                                             />
                                         </FloatingLabel>
                                     )}
@@ -599,22 +758,18 @@ function ProcurementForm() {
                                     ) : null}
                                 </Col>
                                 <Col sm={3}>
-                                    {values.condition1 === "Yes" && (
-                                        <FloatingLabel controlId="floatingSelect" label="If MSE, Whether belong to SC/ST?">
-                                            <Form.Select
+                                    {values.vendor_category === "MSE" && (
+                                        <FloatingLabel controlId="floatingSelect" label="If MSE, Select the Caste">
+                                            <Form.Control
                                                 name="condition2"
                                                 aria-label="Floating label select"
-                                                values={values.condition2}
+                                                value={values.condition2}
                                                 onChange={handleChange}
                                                 onBlur={handleBlur}
                                                 isValid={touched.condition2 && !errors.condition2}
                                                 required
-                                            >
-                                                <option value="">Select</option>
-                                                {categories.map((category) =>
-                                                    <option value={category}>{category}</option>
-                                                )}
-                                            </Form.Select>
+                                                readOnly={true}
+                                            />
                                         </FloatingLabel>
                                     )}
                                     {errors.condition2 && touched.condition2 ? (
@@ -622,21 +777,17 @@ function ProcurementForm() {
                                     ) : null}
                                 </Col>
                                 <Col sm={4}>
-                                    {values.condition1 === "Yes" && (
-                                        <FloatingLabel controlId="floatingSelect" label="If MSE, Whether Women or not?">
-                                            <Form.Select
+                                    {values.vendor_category === "MSE" && (
+                                        <FloatingLabel controlId="floatingSelect" label="If MSE, Select Gender">
+                                            <Form.Control
                                                 name="condition5"
                                                 aria-label="Floating label select"
-                                                values={values.condition5}
+                                                value={values.condition5}
                                                 onChange={handleChange}
                                                 onBlur={handleBlur}
                                                 isValid={touched.condition5 && !errors.condition5}
-                                            >
-                                                <option value="">Select</option>
-                                                {conditions.map((condition) =>
-                                                    <option value={condition}>{condition}</option>
-                                                )}
-                                            </Form.Select>
+                                                readOnly={true}
+                                            />
                                         </FloatingLabel>
                                     )}
                                     {errors.condition5 && touched.condition5 ? (
@@ -649,20 +800,21 @@ function ProcurementForm() {
                                     <FloatingLabel
                                         className='text-muted'
                                         controlId="floatingInput"
-                                        label="PAN Number (Optional)"
+                                        label="GSTIN"
                                     >
                                         <Form.Control
-                                            name="pan"
-                                            placeholder="PAN Number"
-                                            values={values.pan}
+                                            name="gstin"
+                                            placeholder="GSTIN Number"
+                                            value={values.gstin}
                                             onChange={handleChange}
                                             onBlur={handleBlur}
                                             autoComplete="off"
-                                            isValid={touched.pan && !errors.pan}
+                                            isValid={touched.gstin && !errors.gstin}
+                                            readOnly={true}
                                         />
                                     </FloatingLabel>
-                                    {errors.pan && touched.pan ? (
-                                        <span className='form-error'>{errors.pan}</span>
+                                    {errors.gstin && touched.gstin ? (
+                                        <span className='form-error'>{errors.gstin}</span>
                                     ) : null}
                                 </Col>
                             </Row>
@@ -675,61 +827,14 @@ function ProcurementForm() {
                             aria-labelledby="ex3-tab-4"
                         >
                             <Row className='mt-5 mb-3 smaller-input'>
-                                <Col sm={8}>
-                                    <FloatingLabel className='text-wrap' controlId="floatingSelect" label="Whether this Procurement made outside GEM, even when it is available in GEM?">
-                                        <Form.Select
-                                            name="condition4"
-                                            aria-label="Floating label select"
-                                            values={values.condition4}
-                                            onChange={handleChange}
-                                            onBlur={handleBlur}
-                                            isValid={touched.condition4 && !errors.condition4}
-                                            required
-                                        >
-                                            <option value="">Select</option>
-                                            {conditions.map((condition) =>
-                                                <option value={condition}>{condition}</option>
-                                            )}
-                                        </Form.Select>
-                                    </FloatingLabel>
-                                    {errors.condition4 && touched.condition4 ? (
-                                        <span className='form-error'>{errors.condition4}</span>
-                                    ) : null}
-                                </Col>
-                            </Row>
-                            <Row className='mb-3 smaller-input'>
-                                <Col sm={8}>
-                                    {values.condition4 === "Yes" && (
-                                        <FloatingLabel className='text-muted' controlId="floatingTextarea2" label="Reason of procurement outside GEM Portal (in 100 words)">
-                                            <Form.Control
-                                                as="textarea"
-                                                name="reason"
-                                                placeholder="Reason"
-                                                style={{ height: '100px' }}
-                                                values={values.reason}
-                                                onChange={handleChange}
-                                                onBlur={handleBlur}
-                                                isValid={touched.reason && !errors.reason}
-                                                maxLength={150}
-                                                required
-                                            />
-                                        </FloatingLabel>
-                                    )}
-                                    {errors.reason && touched.reason ? (
-                                        <span className='form-error'>{errors.reason}</span>
-                                    ) : null}
-                                </Col>
-                            </Row>
-                            <Row className='mb-3 smaller-input'>
-                                <Col sm={3}>
+                                <Col sm={4}>
                                     <FloatingLabel
                                         className='text-muted'
                                         controlId="floatingInput"
-                                        label="Contract Order Number"
+                                        label="PO/Contract Number *"
                                     >
                                         <Form.Control
                                             name="order_no"
-                                            placeholder="Order Number"
                                             values={values.order_no}
                                             onChange={handleChange}
                                             onBlur={handleBlur}
@@ -743,105 +848,31 @@ function ProcurementForm() {
                                     ) : null}
                                 </Col>
                                 <Col sm={3}>
-                                    {values.order_no !== "" && (
-                                        <FloatingLabel
-                                            controlId="floatingInput"
-                                            label="Contract Order Dated"
-                                        >
-                                            <Form.Control
-                                                type="date"
-                                                className='text-uppercase'
-                                                name="order_dt"
-                                                placeholder="Order Dated"
-                                                values={values.order_dt}
-                                                onChange={handleChange}
-                                                onBlur={handleBlur}
-                                                isValid={touched.order_dt && !errors.order_dt}
-                                                required
-                                            />
-                                        </FloatingLabel>
-                                    )}
+                                    <FloatingLabel
+                                        controlId="floatingInput"
+                                        label="Contract Date *"
+                                    >
+                                        <Form.Control
+                                            type="date"
+                                            className='text-uppercase'
+                                            name="order_dt"
+                                            placeholder="Order Dated"
+                                            values={values.order_dt}
+                                            onChange={handleChange}
+                                            onBlur={handleBlur}
+                                            isValid={touched.order_dt && !errors.order_dt}
+                                            required
+                                        />
+                                    </FloatingLabel>
+
                                     {errors.order_dt && touched.order_dt ? (
                                         <span className='form-error'>{errors.order_dt}</span>
                                     ) : null}
                                 </Col>
                             </Row>
-                            <Row className='mb-1 smaller-input'>
-                                <Col sm={3}>
-                                    <FloatingLabel
-                                        className='text-muted'
-                                        controlId="floatingInput"
-                                        label="Contract Price (in Rs.)"
-                                    >
-                                        <Form.Control
-                                            name="price"
-                                            placeholder="Contract Price"
-                                            values={values.price}
-                                            onChange={handleChange}
-                                            onKeyUp={handleKeyUp}
-                                            onBlur={handleBlur}
-                                            autoComplete="off"
-                                            isValid={touched.price && !errors.price}
-                                            required
-                                        />
-                                    </FloatingLabel>
-                                    {errors.price && touched.price ? (
-                                        <span className='form-error'>{errors.price}</span>
-                                    ) : null}<br/>
-                                   
-                                </Col>
-                                <Col sm={3}>
-                                    <FloatingLabel controlId="floatingSelect" label="Select Work Category">
-                                        <Form.Select
-                                            name="category"
-                                            aria-label="Floating label select"
-                                            values={values.category}
-                                            onChange={handleChange}
-                                            onBlur={handleBlur}
-                                            isValid={touched.category && !errors.category}
-                                            required
-                                        >
-                                            <option value="">Select</option>
-                                            {work_categories.map((work_category) =>
-                                                <option value={work_category}>{work_category}</option>
-                                            )}
-                                        </Form.Select>
-                                    </FloatingLabel>
-                                    {errors.category && touched.category ? (
-                                        <span className='form-error'>{errors.category}</span>
-                                    ) : null}
-                                </Col>
-
-                                {values.category === "Others" && (
-                                    <Col sm={3}>
-                                        <FloatingLabel
-                                            className='text-muted'
-                                            controlId="floatingInput"
-                                            label="Enter the category Name"
-                                        >
-                                            <Form.Control
-                                                name="cate_others"
-                                                placeholder="Category Others"
-                                                values={values.cate_others}
-                                                onChange={handleChange}
-                                                onBlur={handleBlur}
-                                            />
-                                        </FloatingLabel>
-                                        {errors.cate_others && touched.cate_others ? (
-                                            <span className='form-error'>{errors.cate_others}</span>
-                                        ) : null}
-                                    </Col>
-                                )}
-                            </Row>
-                            <Row className='mb-3 smaller-input'>
-                                <span className='mb-2 fst-italic'>Contract price in words:</span>
-                                <Col sm={6}>
-                                    <input type="text" className="wordinNum" id="wordInNum" value="" disabled/>
-                                </Col>
-                            </Row>
                             <Row className='mb-3 smaller-input'>
                                 <Col sm={3}>
-                                    <FloatingLabel controlId="floatingSelect" label="Mode of Procurement">
+                                    <FloatingLabel controlId="floatingSelect" label="Mode of Procurement *">
                                         <Form.Select
                                             name="mode"
                                             aria-label="Floating label select"
@@ -861,20 +892,100 @@ function ProcurementForm() {
                                         <span className='form-error'>{errors.mode}</span>
                                     ) : null}
                                 </Col>
+                                {values.mode !== "GEM" && values.mode !== "GepNIC" && (
+                                    <Col sm={4}>
+                                        <FloatingLabel className='text-muted' controlId="floatingTextarea2" label="Reason of Purchased *">
+                                            <Form.Control
+                                                as="textarea"
+                                                name="reason"
+                                                style={{ height: '200px' }}
+                                                values={values.reason}
+                                                onChange={handleChange}
+                                                onBlur={handleBlur}
+                                                isValid={touched.reason && !errors.reason}
+                                                required
+                                            />
+                                        </FloatingLabel>
+                                        {errors.reason && touched.reason ? (
+                                            <span className='form-error'>{errors.reason}</span>
+                                        ) : null}
+                                    </Col>
+                                )}
+                            </Row>
+                            <Row className='smaller-input'>
+                                <Col sm={3}>
+                                    <FloatingLabel
+                                        controlId="floatingInput"
+                                        label="Enter Contract Price (in  &#x20b9;) *"
+                                    >
+                                        <Form.Control
+                                            name="price"
+                                            value={values.price}
+                                            onChange={handleChange}
+                                            onKeyUp={handleKeyUp}
+                                            onBlur={(e) => {
+                                                handleBlur(e);
+                                                // Append ".00" if the value is a valid number and doesn't contain a decimal point
+                                                if (!isNaN(e.target.value) && !e.target.value.includes('.')) {
+                                                    handleChange({
+                                                        target: {
+                                                            name: 'price',
+                                                            value: `${e.target.value}.00`
+                                                        }
+                                                    });
+                                                }
+                                            }}
+                                            autoComplete="off"
+                                            isValid={touched.price && !errors.price}
+                                            required
+                                        />
+                                    </FloatingLabel>
+                                    {errors.price && touched.price ? (
+                                        <span className='form-error'>{errors.price}</span>
+                                    ) : null}<br />
+
+                                </Col>
+                            </Row>
+                            <Row className='mb-4 smaller-input'>
+                                <span className='mb-2 fst-italic'>Contract price in words (&#x20b9;):</span>
                                 <Col sm={6}>
+                                    <span className='wordinNum' id="wordInNum"></span>
+                                </Col>
+                            </Row>
+                            <Row className='mb-2 smaller-input'>
+                                <Col sm={3}>
                                     <FloatingLabel
                                         className='text-muted'
                                         controlId="floatingInput"
-                                        label="Item Location in office"
+                                        label="Name of the User (if applicable) *"
+                                    >
+                                        <Form.Control
+                                            name="itemUser"
+                                            values={values.itemUser}
+                                            onChange={handleChange}
+                                            onBlur={handleBlur}
+                                            autoComplete="off"
+                                            isValid={touched.itemUser && !errors.itemUser}
+                                            required
+                                        />
+                                    </FloatingLabel>
+                                    {errors.itemUser && touched.itemUser ? (
+                                        <span className='form-error'>{errors.itemUser}</span>
+                                    ) : null}
+                                </Col>
+                                <Col sm={4}>
+                                    <FloatingLabel
+                                        className='text-muted'
+                                        controlId="floatingInput"
+                                        label="Installed Location (if applicable) *"
                                     >
                                         <Form.Control
                                             name="itemLoc"
-                                            placeholder="Item Location"
                                             values={values.itemLoc}
                                             onChange={handleChange}
                                             onBlur={handleBlur}
                                             autoComplete="off"
-                                            isValid={touched.itemLoc && !errors.ItemLoc}
+                                            isValid={touched.itemLoc && !errors.itemLoc}
                                             required
                                         />
                                     </FloatingLabel>
@@ -883,13 +994,12 @@ function ProcurementForm() {
                                     ) : null}
                                 </Col>
                             </Row>
-                            <Row className='mt-3 mb-3 smaller-input'>
+                            <Row className='mb-3 smaller-input'>
                                 <Col sm={6}>
-                                    <FloatingLabel className='text-muted' controlId="floatingTextarea2" label="Remarks (if any) (Optional)">
+                                    <FloatingLabel className='text-muted' controlId="floatingTextarea2" label="Remarks (if any)">
                                         <Form.Control
                                             as="textarea"
                                             name="remarks"
-                                            placeholder="Remarks"
                                             style={{ height: '200px' }}
                                             values={values.remarks}
                                             onChange={handleChange}
@@ -906,14 +1016,14 @@ function ProcurementForm() {
                                 <Col sm={6}>
                                     <div className="button">
                                         <button disabled={isSubmitting} type="submit" className='btn btn-success' >Submit</button>
-                                        <button type="Reset" className='btn btn-warning'>Reset</button>
+                                        <button type="button" onClick={() => resetForm()} className='btn btn-warning'>Reset</button>
                                     </div>
                                 </Col>
                             </Row>
                         </div>
                     </div>
-                </Form>
-            </div>
+                </Form >
+            </div >
             <Footer />
             <ToastContainer />
         </>

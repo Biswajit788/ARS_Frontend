@@ -1,0 +1,15 @@
+.pendingHead {
+    display: flex;
+    height: 40px;
+    background-color: rgb(24, 26, 25);
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: -20px;
+}
+
+.pendingHead h5{
+    color: #fff;
+    font-weight: 100;
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+}

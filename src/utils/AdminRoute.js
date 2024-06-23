@@ -1,14 +1,14 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import jwt_decode from 'jwt-decode';
+import {jwtDecode} from 'jwt-decode';
 import Swal from 'sweetalert2';
 
 const AdminRoute = ({ children }) => {
 
     
-    if (localStorage.getItem("token")) {
-        var accessToken = localStorage.getItem("token");
-        var decoded = jwt_decode(accessToken);
+    if (localStorage.getItem("authToken")) {
+        var accessToken = localStorage.getItem("authToken");
+        var decoded = jwtDecode(accessToken);
         if(decoded.role === "Admin"){
             return (
                 <>

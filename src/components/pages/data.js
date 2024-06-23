@@ -17,27 +17,33 @@ export const projects = [
 ];
 
 export const suppliers = [
-  'Vendor-1',
-  'Vendor-2',
-  'Vendor-3',
-  'Vendor-4',
-  'Vendor-5',
-  'Vendor-6',
-  'Vendor-7',
-  'Vendor-8',
-  'Vendor-9',
-  'Vendor-10',
-  'Vendor-11',
-  'Vendor-12',
-  'Vendor-13',
-  'Vendor-14',
-  'Vendor-15',
-  'Vendor-16',
-  'Vendor-17',
-  'Vendor-18',
-  'Vendor-19',
-  'Vendor-20',
-  'Vendor-21',
+  { vid: "0001", vname: "Aargus Infotec Pvt. Ltd" }, 
+  { vid: "0002", vname: "Bahuchar Traders" },
+  { vid: "0003", vname: "BMG Informatics Private Limited" },
+  { vid: "0004", vname: "CIDERMATICS PRIVATE LIMITED" },
+  { vid: "0005", vname: "Capricot Technologies Pvt Ltd" },
+  { vid: "0006", vname: "CLOUDSTRATS TECHNOLOGIES PRIVATE LIMITED" },
+  { vid: "0007", vname: "Compuzer Solution Pvt Ltd." },
+  { vid: "0008", vname: "D R Mercantile" },
+  { vid: "0009", vname: "DataSync Solutions" },
+  { vid: "0010", vname: "DS System Pvt Ltd" },
+  { vid: "0011", vname: "FIDERE ENGINEERS & SERVICES PRIVATE LIMITED" },
+  { vid: "0012", vname: "HTTPCART TECHNOLOGIES PRIVATE LIMITED" },
+  { vid: "0013", vname: "HUE Service Pvt Ltd" },
+  { vid: "0014", vname: "Indian Export & Import Co." },
+  { vid: "0015", vname: "Infotech Solution" },
+  { vid: "0016", vname: "Innoric Solutions Private Limited" },
+  { vid: "0017", vname: "I-TEK LOGICS PRIVATE LIMITED" },
+  { vid: "0018", vname: "KORAZON TECHNOLOGIES PRIVATE LIMITED" },
+  { vid: "0019", vname: "M/s TechWeb" },
+  { vid: "0020", vname: "Mercantile Agents" },
+  { vid: "0021", vname: "Pace Business Machine Pvt. Ltd." },
+  { vid: "0022", vname: "Prime Infoserv LLP" },
+  { vid: "0023", vname: "Roman Network Pvt. Ltd." },
+  { vid: "0024", vname: "Sanmati Traders " },
+  { vid: "0025", vname: "SPECTRUM" },
+  { vid: "0026", vname: "Technology Horizon" },
+  { vid: "0027", vname: "TECHWEB" },
 ];
 
 export const departments = [
@@ -65,6 +71,7 @@ export const conditions = [
 export const categories = [
   'SC',
   'ST',
+  'OBC',
   'None',
   'NA',
 ];
@@ -79,9 +86,18 @@ export const modes = [
 ];
 
 export const work_categories = [
-  'Product',
-  'Services',
+  'Consumable',
+  'Hardware',
+  'Software',
   'Others',
+];
+
+export const vendor_categories = [
+  'Govt',
+  'PSU',
+  'OEM',
+  'MSE',
+  'Others'
 ];
 
 export const roles = [
@@ -89,7 +105,14 @@ export const roles = [
   'User'
 ];
 
-export const userFlags= [
+export const genders = [
+  'Male',
+  'Female',
+  'Third Gender',
+  'None of the above'
+];
+
+export const userFlags = [
   '0',
   '1'
 ];

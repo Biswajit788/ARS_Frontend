@@ -3,7 +3,6 @@ import Navbar from '../layout/Navbar'
 import Footer from '../layout/Footer'
 //import Content from '../pages/Content'
 import DashTable from './DataTable'
-import Card from '../card/Card'
 import './Dashboard.css'
 
 class dashboard_component extends React.Component{
@@ -12,7 +11,6 @@ class dashboard_component extends React.Component{
       <>
           <Navbar />
           <div className="container">
-          {/* <Card /> */}
             <DashTable />
           </div>
           <Footer />

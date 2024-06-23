@@ -1,27 +1,40 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import MaterialReactTable from 'material-react-table';
+import { MaterialReactTable } from 'material-react-table';
 import { Box, Button } from '@mui/material';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
-import { ExportToCsv } from 'export-to-csv';
+import { mkConfig, generateCsv, download } from 'export-to-csv';
 import moment from 'moment';
-import 'react-date-range/dist/styles.css'; // main style file
-import 'react-date-range/dist/theme/default.css'; // theme css file
 import { projects, departments } from './data';
+import 'react-date-range/dist/styles.css'; // main css file
+import 'react-date-range/dist/theme/default.css'; // theme css file
 import { DateRangePicker } from 'react-date-range';
+import ClipLoader   from 'react-spinners/ClipLoader';
+import { css } from '@emotion/react';
+
+const override = css`
+  display: block;
+  margin: 0 auto;
+  border-color: red;
+`;
 
 const ReportTable = () => {
 
+    const apiUrl = process.env.REACT_APP_API_URL;
     const [tableData, setTableData] = useState([]);
     const [allTableData, setAllTableData] = useState([]);
     const [startDate, setStartDate] = useState(new Date());
     const [endDate, setEndDate] = useState(new Date());
+    const [isAdmin, setIsAdmin] = useState(null);
+    const [loading, setLoading] = useState(true);
     const [open, setOpen] = useState(false);
-
     const refOne = useRef(null)
 
-    const handleSelect = (date) => {
+    const role = window.localStorage.getItem("roleAssign");
+    const project = window.localStorage.getItem("project");
+    const dept = window.localStorage.getItem("dept");
 
+    const handleSelect = (date) => {
         let filtered = allTableData.filter((tableData) => {
             let tableDataDate = new Date(tableData["order_dt"]);
             return tableDataDate >= date.selection.startDate &&
@@ -40,54 +53,24 @@ const ReportTable = () => {
     }
 
     const getTableData = async () => {
+        setLoading(true);
         try {
-            const userData = await axios({
-                method: 'post',
-                url: 'http://10.3.0.57:5000/userData',
-                data: {
-                    token: window.localStorage.getItem("token")
-                }
+            const endpoint = role === "Admin" ? "admin/items" : "user/items";
+            setIsAdmin(role === "Admin");
+            //console.log(`${role} Access`);
+            const response = await axios.post(`${apiUrl}/${endpoint}`, {
+              project,
+              dept,
+              role
             });
-            //console.log("🚀 ~ file: DataTable.js ~ line 49 ~ getUserData ~ response", userData.data.data)
-            if (userData.data.data.role === "Admin") {
-                //console.log("Admin Access");
-                try {
-                    const response = await axios({
-                        method: "post",
-                        url: "http://10.3.0.57:5000/admin/items",
-                        data: {
-                            project: userData.data.data.project,
-                            dept: userData.data.data.dept,
-                            role: userData.data.data.role
-                        }
-                        
-                    });
-                    setTableData(response.data);
-                    setAllTableData(response.data);
-                } catch (e) {
-                    console.log("🚀 ~ file: Content.jsx ~ line 21 ~ getUserData ~ e", e)
-                }
-            } else {
-                try {
-                    const response = await axios({
-                        method: "post",
-                        url: "http://10.3.0.57:5000/user/items",
-                        data: {
-                            project: userData.data.data.project,
-                            dept: userData.data.data.dept,
-                            role: userData.data.data.role
-                        }
-                    });
-                    setTableData(response.data);
-                    setAllTableData(response.data);
-                } catch (e) {
-                    console.log("🚀 ~ file: Content.jsx ~ line 21 ~ getUserData ~ e", e)
-                }
-            }
-        }
-        catch (err) {
-            console.log(err);
-        }
+        
+            setTableData(response.data);
+            setAllTableData(response.data);
+          } catch (error) {
+            console.log(`Error fetching ${role} data`, error);
+          } finally {
+            setLoading(false);
+          }
     }
 
     useEffect(() => {
@@ -113,12 +96,12 @@ const ReportTable = () => {
         {
             accessorKey: '_id',
             header: 'System Generated ID',
-            size: 300,
+            size: 200,
             enableSorting: false,
             //enableColumnFilterModes: false,
         },
         {
-            accessorKey: 'project',
+            accessorFn: (row) => <div className="text-wrap">{row.project}</div>,
             header: 'Project',
             size: 100,
             enableSorting: false,
@@ -127,24 +110,31 @@ const ReportTable = () => {
             //enableColumnFilterModes: false,
         },
         {
-            accessorKey: 'dept',
+            accessorFn: (row) => <div className="text-wrap">{row.dept}</div>,
             header: 'Department',
-            size: 80,
+            size: 100,
             enableSorting: false,
             filterVariant: 'select',
             filterSelectOptions: departments,
             //enableColumnFilterModes: false,
         },
         {
-            accessorKey: 'description',
+            accessorFn: (row) => <div className="text-wrap">{row.description}</div>,
             header: 'Description',
             size: 300,
             enableSorting: false,
             //enableColumnFilterModes: false,
         },
         {
-            accessorKey: 'qty',
-            header: 'Quantity',
+            accessorKey: 'category',
+            header: 'Work Category',
+            size: 80,
+            enableSorting: false,
+            //enableColumnFilterModes: false,
+        },
+        {
+            accessorKey: 'cate_others',
+            header: 'Work Category (if Selected Others)',
             size: 100,
             enableSorting: false,
             //enableColumnFilterModes: false,
@@ -178,30 +168,30 @@ const ReportTable = () => {
             //enableColumnFilterModes: false,
         },
         {
-            accessorKey: 'additional_info',
+            accessorFn: (row) => <div className="text-wrap">{row.additional_info}</div>,
             header: 'Item Additional Info.',
-            size: 100,
+            size: 220,
             enableSorting: false,
             //enableColumnFilterModes: false,
         },
         {
-            accessorKey: 'supplier',
+            accessorFn: (row) => <div className="text-wrap">{row.supplier}</div>,
             header: 'Supplier Name',
-            size: 100,
+            size: 150,
             enableSorting: false,
             //enableColumnFilterModes: false,
         },
         {
-            accessorKey: 'vendoradd',
+            accessorFn: (row) => <div className="text-wrap">{row.vendoradd}</div>,
             header: 'Supplier Address',
-            size: 100,
+            size: 150,
             enableSorting: false,
             //enableColumnFilterModes: false,
         },
         {
-            accessorKey: 'order_no',
-            header: 'WO Number',
-            size: 80,
+            accessorFn: (row) => <div className="text-wrap">{row.order_no}</div>,
+            header: 'WO/PO Number',
+            size: 200,
             enableSorting: true,
             //enableColumnFilterModes: false,
         },
@@ -209,14 +199,14 @@ const ReportTable = () => {
             accessorFn: (row) => moment(row.order_dt).format("DD-MM-YYYY"),
             id: 'order_dt',
             //accessorKey: 'order_dt',
-            header: 'WO Dated (dd-mm-yyyy)',
-            size: 120,
+            header: 'WO/PO Dated (dd-mm-yyyy)',
+            size: 160,
             enableSorting: true,
             //columnFilterModeOptions: ['between', 'betweenInclusive'],
         },
         {
             accessorKey: 'price',
-            header: 'Contract Price',
+            header: 'Contract Price (INR)',
             size: 80,
             Cell: ({ cell }) =>
                 <Box
@@ -234,96 +224,75 @@ const ReportTable = () => {
                         p: '0.20rem',
                     })}
                 >
-                    {cell.getValue()?.toLocaleString?.('en-US', {
+                    {cell.getValue()?.toLocaleString?.('en-IN', {
                         style: 'currency',
                         currency: 'INR',
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0,
                     })}
                 </Box>
         },
         {
-            accessorKey: 'condition1',
-            header: 'Whether the Contractor is MSE or not? (Yes/No)',
-            size: 300,
+            accessorKey: 'vendor_category',
+            header: 'Vendor_category',
+            size: 160,
             enableSorting: false,
             //enableColumnFilterModes: false,
         },
         {
             accessorKey: 'condition2',
             header: 'If MSE Whether belong to SC/ST?',
-            size: 300,
-            enableSorting: false,
-            //enableColumnFilterModes: false,
-        },
-        {
-            accessorKey: 'condition4',
-            header: 'Whether Item purchased outside GEM? (Yes/No)',
-            size: 300,
+            size: 160,
             enableSorting: false,
             //enableColumnFilterModes: false,
         },
         {
             accessorKey: 'condition5',
             header: 'If MSE Whether Women or Not?',
-            size: 300,
+            size: 160,
             enableSorting: false,
             //enableColumnFilterModes: false,
         },
         {
             accessorKey: 'reg_no',
-            header: 'Registration No.',
+            header: 'Registration No',
             size: 80,
             enableSorting: false,
             //enableColumnFilterModes: false,
         },
 
         {
-            accessorKey: 'pan',
+            accessorKey: 'gstin',
             header: 'PAN Number',
-            size: 100,
-            enableSorting: false,
-            //enableColumnFilterModes: false,
-        },
-        {
-            accessorKey: 'category',
-            header: 'Work Category',
-            size: 100,
-            enableSorting: false,
-            //enableColumnFilterModes: false,
-        },
-        {
-            accessorKey: 'cate_others',
-            header: 'Work Category (if Selected Others)',
-            size: 100,
+            size: 80,
             enableSorting: false,
             //enableColumnFilterModes: false,
         },
         {
             accessorKey: 'mode',
             header: 'Mode of Procurement',
-            size: 100,
+            size: 80,
             enableSorting: false,
             //enableColumnFilterModes: false,
         },
         {
-            accessorKey: 'itemLoc',
+            accessorFn: (row) => <div className="text-wrap">{row.itemLoc}</div>,
             header: 'Item Physical Location',
-            size: 100,
+            size: 160,
             enableSorting: false,
             //enableColumnFilterModes: false,
         },
         {
-            accessorKey: 'reason',
+            accessorFn: (row) => <div className="text-wrap">{row.reason}</div>,
             header: 'Reason of purchase outside GEM?',
-            size: 300,
+            size: 200,
             enableSorting: false,
             //enableColumnFilterModes: false,
         },
         {
-            accessorKey: 'remarks',
+            accessorFn: (row) => <div className="text-wrap">{row.remarks}</div>,
             header: 'Remarks (if any)',
-            size: 300,
+            size: 200,
             enableSorting: false,
             //enableColumnFilterModes: false,
         },
@@ -355,40 +324,46 @@ const ReportTable = () => {
         },
     ]
 
-    const csvOptions = {
+    const csvConfig = mkConfig({
         fieldSeparator: ',',
-        quoteStrings: '"',
         decimalSeparator: '.',
-        showLabels: true,
-        useBom: true,
-        useKeysAsHeaders: false,
-        headers: columns.map((c) => c.header),
-        filename: 'Gen_Report',
-    };
-
-    const csvExporter = new ExportToCsv(csvOptions);
+        useKeysAsHeaders: true,
+        filename: 'Generated Procurement Report',
+    });
 
     const handleExportRows = (rows) => {
-        csvExporter.generateCsv(rows.map((row) => row.original));
+        const rowData = rows.map((row) => row.original);
+        const csv = generateCsv(csvConfig)(rowData);
+        download(csvConfig)(csv);
     };
 
     const handleExportData = () => {
-        csvExporter.generateCsv(tableData);
+        const csv = generateCsv(csvConfig)(tableData);
+        download(csvConfig)(csv);
     };
 
     return (
         <>
-            <div className="mb-3 row">
-                <label for="inputPassword" className="col-sm-3 col-form-label text-start">Filter By Date Range:</label>
+            <div className="mb-0 row">
+                <div className='col-sm-3'>
+                    <label for="inputPassword" className="col-form-label text-start">Filter By Date Range:</label>
+                </div>
                 <div className=" col-sm-4">
                     <input
-                        className='form-control text-success'
+                        className='form-control text-white'
                         value={`${startDate.toLocaleDateString("es-CL")}  to  ${endDate.toLocaleDateString("es-CL")}`}
                         onClick={() => setOpen(open => !open)}
-                        style={{ textAlign: 'center' }}
-                        readOnly
+                        style={{ textAlign: 'center', backgroundColor: 'InfoText' }}
                     />
-                    <span className='fw-lighter fst-italic text-primary' style={{ fontSize: 14 + 'px' }}>Press Esc or CLick Outside to hide the Date-Range menu.</span>
+                </div>
+                <div className="col-sm-2">
+                    <input className='form-control' color="primary" width="150px" type="button" value="Clear Filter" onClick={()=>window.location.reload(true)}/>
+                </div>
+            </div>
+            <div className="mb-3 row">
+                <div className="col-sm-3"></div>
+                <div className='col-sm-4'>
+                    <span className='fw-lighter fst-italic text-primary' style={{ fontSize: 14 + 'px'  }}>Press Esc or CLick Outside to hide the Date-Range menu.</span>
                 </div>
             </div>
             <div className="mb-3 row" ref={refOne}>
@@ -420,6 +395,11 @@ const ReportTable = () => {
                         verticalAlign: 'center',
                     },
                 }}
+                muiTableBodyCellProps={{
+                    sx: {
+                        color: '',
+                    }
+                }}
                 muiTablePaperProps={{
                     elevation: 0,
                     sx: {
@@ -428,11 +408,18 @@ const ReportTable = () => {
                     }
                 }}
                 enableStickyHeader
-                ////enableColumnFilterModes
-                initialState={{ density: 'compact' }}
+                columnFilterDisplayMode= 'popover'
+                muiPaginationProps={{
+                    color: 'primary',
+                    shape: 'rounded',
+                    showRowsPerPage: false,
+                    variant: 'outlined',
+                }}
+                paginationDisplayMode="pages"
+                initialState={{ density: 'compact', pagination: { pageSize: 10, pageIndex: 0 } }}
                 enableRowNumbers={true}
                 enableRowSelection
-                positionToolbarAlertBanner="bottom"
+                positionToolbarAlertBanner="top"
                 renderTopToolbarCustomActions={({ table }) => (
                     <Box
                         sx={{ display: 'flex', gap: '1rem', p: '0.2rem', flexWrap: 'wrap' }}

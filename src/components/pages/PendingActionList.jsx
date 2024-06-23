@@ -91,6 +91,7 @@ function CustomNoRowsOverlay() {
 
 export default function PendingActionList() {
 
+  const apiUrl = process.env.REACT_APP_API_URL;
   const [tableData, setTableData] = React.useState([]);
   const [open, setOpen] = React.useState(false);
   const [location, setLocation] = React.useState('');
@@ -115,7 +116,7 @@ export default function PendingActionList() {
     try {
       const collection = await axios({
         method: "get",
-        url: "http://10.3.0.57:5000/admin/items/pendingTransfer"
+        url: `${apiUrl}/admin/items/pendingTransfer`
       });
       setTableData(collection.data);
     } catch (error) {
@@ -147,7 +148,7 @@ export default function PendingActionList() {
               };
               const onClickDel = (e) => {
                 const currentRow = params.row
-                axios.get('http://10.3.0.57:5000/items/removeTransferItemList/' + currentRow._id)
+                axios.get(`${apiUrl}/items/removeTransferItemList/` + currentRow._id)
                   .then(res => {
                     if (res.status === 200) {
                       //alert('Item deleted successfully.');
@@ -183,7 +184,7 @@ export default function PendingActionList() {
                   >
                     <DialogTitle>Item Transfer</DialogTitle>
                     <DialogContent>
-                      <DialogContentText className='text-primary' sx={{fontStyle:'italic', fontSize:'13px'}}>
+                      <DialogContentText className='text-primary' sx={{ fontStyle: 'italic', fontSize: '13px' }}>
                         To Transfer the Item, please select the Project from the list.
                       </DialogContentText>
                       <FormControl variant="standard" sx={{ m: 1, minWidth: 300 }}>

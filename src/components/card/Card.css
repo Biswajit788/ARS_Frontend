@@ -3,16 +3,24 @@
     margin-bottom: 10px;
     margin-right: 0rem;
     margin-left: 0rem;
+    height: 450px;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
 }
 .card-header{
     color: rgba(56, 2, 83, 0.884);
-    font-size: 20px;
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    font-size: 16px;
     font-weight: 400;
 }
-.card-body p{
-    font-size: 14px;
+.card-body p,a{
+    font-size: 13px;
+    font-family: Roboto, Helvetica, Arial, sans-serif;
     text-align: justify;
+    text-decoration: none;
 }
 .modal-body{
     text-align: justify;
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    font-size: 14px;
 }

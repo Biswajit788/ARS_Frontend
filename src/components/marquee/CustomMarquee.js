@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
 
-import khep from '../../aasets/KHEP.png';
-import dhep from '../../aasets/DHEP.png';
-import kahep from '../../aasets/KaHEP.png';
-import phep from '../../aasets/PHEP.png';
-import plhps from '../../aasets/PLHPS.png';
-import trhep from '../../aasets/TrHEP.png';
-import agbps from '../../aasets/agbps.png';
-import tgbps from '../../aasets/tgbps.png';
-import agtbps from '../../aasets/agtbps.png';
+import khep from '../../assets/KHEP.png';
+import dhep from '../../assets/DHEP.png';
+import kahep from '../../assets/KaHEP.png';
+import phep from '../../assets/PHEP.png';
+import plhps from '../../assets/PLHPS.png';
+import trhep from '../../assets/TrHEP.png';
+import agbps from '../../assets/agbps.png';
+import tgbps from '../../assets/tgbps.png';
+import agtbps from '../../assets/agtbps.png';
 
 import './CustomMarquee.css';
 
@@ -41,7 +41,7 @@ export class CustomMarquee extends Component {
                     </div>
                     <div className='card'>
                         <div className='chid-card3'>
-                            <img src={kahep} height="120px" width="220px" alt-="Kameng Hydro Power Station" />
+                            <img src={kahep} height="120px" width="220px" alt="Kameng Hydro Power Station" />
                             <h5>KaHPS</h5>
                             <p>
                                 <strong>Kameng Hydro Power Station</strong> is a run-of-the river scheme to harness the hydro power of Bichom and Tenga Rivers
@@ -52,7 +52,7 @@ export class CustomMarquee extends Component {
                     </div>
                     <div className='card'>
                         <div className='chid-card4'>
-                            <img src={plhps} height="120px" width="220px" alt-="Kameng Hydro Power Station" />
+                            <img src={plhps} height="120px" width="220px" alt="Kameng Hydro Power Station" />
                             <h5>PLHPS</h5>
                             <p>
                                 <strong>Panyor Lower Hydro Power Station</strong> (formerly Ranganadi Hydro Power Station) is a run-of-the-river scheme with a small pondage to harness the
@@ -63,7 +63,7 @@ export class CustomMarquee extends Component {
                     </div>
                     <div className='card'>
                         <div className='chid-card5'>
-                            <img src={phep} height="120px" width="220px" alt-="Pare Hydro Power Station" />
+                            <img src={phep} height="120px" width="220px" alt="Pare Hydro Power Station" />
                             <h5>PHPS</h5>
                             <p>
                                 <strong>Pare Hydro Power Station</strong> is a run-of-the river scheme to harness the hydro power of Dikrong River (a tributary of river Brahmaputra) and located at Sopo, Papum Pare District, Arunachal Pradesh. 
@@ -73,7 +73,7 @@ export class CustomMarquee extends Component {
                     </div>
                     <div className='card'>
                         <div className='chid-card6'>
-                            <img src={trhep} height="120px" width="220px" alt-="Tuirial Hydro Power Station" />
+                            <img src={trhep} height="120px" width="220px" alt="Tuirial Hydro Power Station" />
                             <h5>TrHPS</h5>
                             <p>
                                 <strong>Tuirial Hydro Power Station</strong> is medium head storage scheme to harness the hydro power of Tuirial River
@@ -83,7 +83,7 @@ export class CustomMarquee extends Component {
                     </div>
                     <div className='card'>
                         <div className='chid-card7'>
-                            <img src={agbps} height="120px" width="220px" alt-="Assam Gas Based Power Station" />
+                            <img src={agbps} height="120px" width="220px" alt="Assam Gas Based Power Station" />
                             <h5>AGBPS</h5>
                             <p>
                                 <strong>Assam Gas Based Power Station</strong> is located in the Dibrugarh District of Assam.
@@ -93,7 +93,7 @@ export class CustomMarquee extends Component {
                     </div>
                     <div className='card'>
                         <div className='chid-card8'>
-                            <img src={agtbps} height="120px" width="220px" alt-="Agartala Gas Based Power Station" />
+                            <img src={agtbps} height="120px" width="220px" alt="Agartala Gas Based Power Station" />
                             <h5>AgGBPS</h5>
                             <p>
                                 <strong>Agartala Gas Based Power Station</strong>This 135 MW (4 x 21 MW + 2 x 25.5 MW) Combined Cycle Power Plant is located in the West Tripura District of the state of Tripura near the capital town of Agartala.
@@ -103,7 +103,7 @@ export class CustomMarquee extends Component {
                     </div>
                     <div className='card'>
                         <div className='chid-card9'>
-                            <img src={tgbps} height="120px" width="220px" alt-="Agartala Gas Based Power Station" />
+                            <img src={tgbps} height="120px" width="220px" alt="Agartala Gas Based Power Station" />
                             <h5>TGBPS</h5>
                             <p>
                                 This Combined Cycle project is located in the Sepahijala District of the state of Tripura around 60 Kms away from the capital town of Agartala. The project runs

@@ -1,11 +1,21 @@
 import React, { Component } from "react";
-import { NavLink, Navigate } from 'react-router-dom';
-import User from '../../aasets/user.png';
-import Logo from '../../aasets/logo.jpg';
+import { NavLink } from 'react-router-dom';
+import User from '../../assets/user.png';
+import Logo from '../../assets/logo.jpg';
 import 'bootstrap/dist/css/bootstrap.min.css'
 import { Modal, Button, Container, Col, Row, Tab, Tabs } from 'react-bootstrap';
 import './Navbar.css';
 import Swal from 'sweetalert2';
+
+const fname = window.localStorage.getItem("fname");
+const lname = window.localStorage.getItem("lname");
+const desgn = window.localStorage.getItem("desgn");
+const email = window.localStorage.getItem("email");
+const dept = window.localStorage.getItem("dept");
+const project = window.localStorage.getItem("project");
+const uid = window.localStorage.getItem("ecode");
+const role = window.localStorage.getItem("roleAssign");
+const sFlag = window.localStorage.getItem("status");
 
 export default class Navbar extends Component {
     constructor(props) {
@@ -15,25 +25,6 @@ export default class Navbar extends Component {
             isAdmin: false,
         };
     }
-    componentDidMount() {
-        fetch("http://10.3.0.57:5000/userData", {
-            method: "POST",
-            crossDomain: true,
-            headers: {
-                "Content-Type": "application/json",
-                Accept: "application/json",
-                "Access-Control-Allow-Origin": "*",
-            },
-            body: JSON.stringify({
-                token: window.localStorage.getItem("token"),
-            }),
-        })
-            .then((res) => res.json())
-            .then((data) => {
-                this.setState({ userData: data.data });
-            });
-    }
-
     //Logout function
     logout = () => {
         Swal.fire({
@@ -102,7 +93,7 @@ export default class Navbar extends Component {
                                     </NavLink>
                                 </li>
                                 <li className="nav-item dropdown ">
-                                    <a href="#" className="nav-link dropdown-toggle" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <a href="#navbarDarkDropdownMenuLink" className="nav-link dropdown-toggle" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                         User Panel
                                     </a>
                                     <ul className="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
@@ -118,9 +109,9 @@ export default class Navbar extends Component {
                                         </li>
                                     </ul>
                                 </li>
-                                {this.state.userData.role === "Admin" &&
+                                {role === "Admin" &&
                                     <li className="nav-item dropdown ">
-                                        <a href="#" className="nav-link dropdown-toggle" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <a href="#navbarDarkDropdownMenuLink" className="nav-link dropdown-toggle" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                             Admin Panel
                                         </a>
                                         <ul className="dropdown-menu dropdown-submenu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
@@ -140,13 +131,13 @@ export default class Navbar extends Component {
                                                 </NavLink>
                                             </li>
                                             <li>
-                                                <NavLink to="/admin/supplierlist" className="dropdown-item text-decoration-none" onClick={() => this.alertMessage()}>
+                                                <NavLink to="/admin/supplier" className="dropdown-item text-decoration-none">
                                                     Suppliers
                                                 </NavLink>
                                             </li>
                                             <li className="dropdown-divider"></li>
                                             <li>
-                                                <a className="dropdown-item" href="#">
+                                                <a className="dropdown-item" href="#dropdownSubmenuLink">
                                                     Transfer Item &raquo;
                                                 </a>
                                                 <ul className="dropdown-menu dropdown-submenu dropdown-menu-dark">
@@ -175,12 +166,12 @@ export default class Navbar extends Component {
 
                         <div className="d-flex align-items-center">
                             <div className="userName">
-                                <small>{this.state.userData.fname} {this.state.userData.lname}</small>
+                                <small>{fname} {lname}</small>
                             </div>
                             <div className="dropdown">
                                 <a
-                                    className="dropdown-toggle d-flex align-items-center hidden-arrow"
-                                    href="#"
+                                    className="nav-link dropdown-toggle d-flex align-items-center hidden-arrow"
+                                    href="#navbarDropdownMenuAvatar"
                                     id="navbarDropdownMenuAvatar"
                                     role="button"
                                     data-mdb-toggle="dropdown"
@@ -199,13 +190,13 @@ export default class Navbar extends Component {
                                     aria-labelledby="navbarDropdownMenuAvatar"
                                 >
                                     <li>
-                                        <a className="dropdown-item" href="#" onClick={this.openModal}><i className="fa fa-user fa-xs" aria-hidden="true"></i>&nbsp;&nbsp;My profile</a>
+                                        <a className="dropdown-item" href="#dropdown-item" onClick={this.openModal}><i className="fa fa-user fa-xs" aria-hidden="true"></i>&nbsp;&nbsp;My profile</a>
                                     </li>
                                     <li>
-                                        <a className="dropdown-item" href="#"><i className="fa fa-cog fa-xs" aria-hidden="true"></i>&nbsp;&nbsp;Settings</a>
+                                        <a className="dropdown-item" href="#dropdown-item"><i className="fa fa-cog fa-xs" aria-hidden="true"></i>&nbsp;&nbsp;Settings</a>
                                     </li>
                                     <li>
-                                        <a className="dropdown-item" href="#" onClick={() => this.logout()}>
+                                        <a className="dropdown-item" href="#dropdown-item" onClick={() => this.logout()}>
                                             <i className="fa fa-sign-out fa-xs" aria-hidden="true"></i>&nbsp;
                                             Logout
                                         </a>
@@ -240,10 +231,10 @@ export default class Navbar extends Component {
                                             <Col xs={6}>
                                                 <div className="profile-head">
                                                     <h5>
-                                                        {this.state.userData.fname} {this.state.userData.lname}
+                                                        {fname} {lname}
                                                     </h5>
                                                     <h6>
-                                                        {this.state.userData.desgn}
+                                                        {desgn}
                                                     </h6>
 
                                                     <Tabs
@@ -257,7 +248,7 @@ export default class Navbar extends Component {
                                                                     <label>User Id:</label>
                                                                 </Col>
                                                                 <Col xs={6}>
-                                                                    <p>{this.state.userData.uid}</p>
+                                                                    <p>{uid}</p>
                                                                 </Col>
                                                             </Row>
                                                             <Row>
@@ -265,7 +256,15 @@ export default class Navbar extends Component {
                                                                     <label>Name:</label>
                                                                 </Col>
                                                                 <Col xs={6}>
-                                                                    <p> {this.state.userData.fname} {this.state.userData.lname}</p>
+                                                                    <p> {fname} {lname}</p>
+                                                                </Col>
+                                                            </Row>
+                                                            <Row>
+                                                                <Col xs={6}>
+                                                                    <label>Designation:</label>
+                                                                </Col>
+                                                                <Col xs={6}>
+                                                                    <p>{desgn}</p>
                                                                 </Col>
                                                             </Row>
                                                             <Row>
@@ -273,7 +272,7 @@ export default class Navbar extends Component {
                                                                     <label>Email ID:</label>
                                                                 </Col>
                                                                 <Col xs={6}>
-                                                                    <p>{this.state.userData.email}</p>
+                                                                    <p>{email}</p>
                                                                 </Col>
                                                             </Row>
                                                             <Row>
@@ -296,10 +295,10 @@ export default class Navbar extends Component {
                                                         <Tab eventKey="workinfo" title="Work" className="profile-tab">
                                                             <Row>
                                                                 <Col xs={6}>
-                                                                    <label>Project:</label>
+                                                                    <label>Place of Posting:</label>
                                                                 </Col>
                                                                 <Col xs={6}>
-                                                                    <p>{this.state.userData.project}</p>
+                                                                    <p>{project}</p>
                                                                 </Col>
                                                             </Row>
                                                             <Row>
@@ -307,26 +306,26 @@ export default class Navbar extends Component {
                                                                     <label>Department:</label>
                                                                 </Col>
                                                                 <Col xs={6}>
-                                                                    <p>{this.state.userData.dept}</p>
+                                                                    <p>{dept}</p>
                                                                 </Col>
                                                             </Row>
                                                         </Tab>
                                                         <Tab eventKey="details" title="Status" className="profile-tab">
                                                             <Row>
                                                                 <Col xs={6}>
-                                                                    <label>Role:</label>
+                                                                    <label>Role Assigned:</label>
                                                                 </Col>
                                                                 <Col xs={6}>
-                                                                    <p>{this.state.userData.role}</p>
+                                                                    <p>{role}</p>
                                                                 </Col>
                                                             </Row>
                                                             <Row>
                                                                 <Col xs={6}>
-                                                                    <label>Status:</label>
+                                                                    <label>User Status:</label>
                                                                 </Col>
                                                                 <Col xs={6}>
                                                                     {
-                                                                        this.state.userData.status === 1
+                                                                            sFlag === '1'
                                                                             ? <p className="fw-bold text-success">Active</p>
                                                                             : <p className="fw-bold text-danger">Inactive</p>
                                                                     }
@@ -339,7 +338,7 @@ export default class Navbar extends Component {
                                                 </div>
                                             </Col>
                                             <Col sx={2}>
-                                                <a href="#" onClick={() => { alert('You have clicked profile edit btn') }}><i className="fa-regular fa-pen-to-square"></i></a>
+                                                <a href="#edit" onClick={() => { alert('You have clicked profile edit btn') }}><i className="fa-regular fa-pen-to-square"></i></a>
                                             </Col>
                                         </Row>
                                     </form>

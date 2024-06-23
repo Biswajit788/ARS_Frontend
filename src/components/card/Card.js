@@ -1,9 +1,6 @@
 import React, { Component } from 'react'
 import { NavLink } from 'react-router-dom'
 import './Card.css'
-import img1 from '../../aasets/shillong.jpg'
-import img2 from '../../aasets/agbp.jpg'
-import img3 from '../../aasets/controlroom.jpg'
 
 export class Card extends Component {
     render() {
@@ -11,13 +8,14 @@ export class Card extends Component {
             <>
                 <div className="card">
                     <div className="card-header">
-                        E-Procurement Data System
+                       Asset Repository System (ARS)
                     </div>
                     <div className="card-body">
-                        <p><strong>E-Pocurement Data System (ePDS)</strong> is a central data repository system of all the procurement made within an Organization irrespective of the department.
+                        <p><strong>Asset Repository System (ARS)</strong> is a central data repository system of all the procurement made within an Organization irrespective of the department.
                             It is an initiative from the IT Department, Corporate HQ, Shillong to make the procurement information retrieval at the easiest way to comply the Organization needs as an when required.
+                            &nbsp;
+                            <NavLink to="#" data-bs-toggle="modal" data-bs-target="#staticBackdrop">...see more</NavLink>
                         </p>
-                        <NavLink to="#" data-bs-toggle="modal" data-bs-target="#staticBackdrop">see more..</NavLink>
                     </div>
                 </div>
 
@@ -30,7 +28,7 @@ export class Card extends Component {
                                 <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div className="modal-body">
-                                <p>E-Pocurement Data System (ePDS) is a central data repository system of all the procurement made within an Organization irrespective of the department.
+                                <p>Asset Repository System (ARS) is a central data repository system of all the procurement made within an Organization irrespective of the department.
                                    It is an initiative from the IT Department, Corporate HQ, Shillong to make the procurement information retrieval at the easiest way to comply the
                                     Organization needs as an when required.
                                 </p>

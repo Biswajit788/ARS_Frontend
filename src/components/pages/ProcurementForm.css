@@ -11,6 +11,13 @@
     font-weight: 400;
 }
 
+.title {
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    font-weight: 100;
+    font-size: 20px;
+    color: #000;
+}
+
 .smaller-input{
     font-size: 15px;
 }
@@ -40,10 +47,10 @@ button:disabled{
 
 label{
     font-size: 15px;
-    font-family: 'Courier New', Courier, monospace;
     white-space: normal;
-    display: inline;
-    vertical-align: baseline;
+    text-wrap:pretty;
+    font-family: 'Roboto', sans-serif;
+    color: #333;
 }
 
 .form-group .required .control-label::after {

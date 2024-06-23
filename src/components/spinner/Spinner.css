@@ -1,0 +1,32 @@
+.spinner-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100vw;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: rgba(255, 255, 255, 0.8);
+    z-index: 1000;
+  }
+  
+  .spinner {
+    width: 128px;
+    height: 128px;
+    animation: gradient-shift 4s linear infinite;
+  }
+  
+  @keyframes gradient-shift {
+    0% {
+      background-position: 0% 0%;
+    }
+    100% {
+      background-position: 0% 100%;
+    }
+  }
+  
+  .spinner path {
+    fill: url(#grad1);
+  }
+  
