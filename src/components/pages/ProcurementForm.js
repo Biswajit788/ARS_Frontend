@@ -134,7 +134,7 @@ function ProcurementForm() {
                 const warranty = values.itemWarranty + ' Yrs';
             try {
                 const apiUrl = process.env.REACT_APP_API_URL;
-                axios.post(`${apiUrl}/create`, {
+                axios.post(`${apiUrl}/items/create`, {
                     project,
                     dept,
                     description,

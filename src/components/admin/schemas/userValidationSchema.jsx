@@ -11,11 +11,11 @@ export const userValidationSchema = Yup.object().shape({
     project: Yup.string().required('Select project'),
     dept: Yup.string().required('Select department'),
     password: Yup.string()
-        .matches(
-            /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/,
-            'Password must contain at least one uppercase letter, one number, one special character, and at least six characters long'
-        )
-        .required('Password is required'),
+    .matches(
+        /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{6,}$/,
+        'Password must contain at least one uppercase letter, one number, one special character (including #), and at least six characters long'
+    )
+    .required('Password is required'),
     confirmPassword: Yup.string()
         .oneOf([Yup.ref('password'), null], 'Passwords must match')
         .required('Confirm Password is required'),
