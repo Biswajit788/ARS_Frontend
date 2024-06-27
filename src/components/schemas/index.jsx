@@ -14,10 +14,18 @@ export const formInputSchema = Yup.object({
         then: Yup.string().matches(/^[0-9]*$/, 'Only numbers are allowed').required("Enter warranty period"),
         otherwise: Yup.string().notRequired()
     }),
-    installation_dt: Yup.string().when('category', {
-        is: (val) => val === 'Hardware',
-        then: Yup.string().required("Enter Installation"),
-        otherwise: Yup.string().notRequired()
+    installation_dt: Yup.date().when("category", {
+        is: (val) => val === "Hardware",
+        then: Yup.date()
+            .required("Enter Installation date")
+            .test("is-after-order_dt", "Installation date must be after order date", function (value) {
+                const { order_dt } = this.parent;
+                if (!order_dt || !value) {
+                    return true; // If either date is missing, let other validations handle it
+                }
+                return new Date(value) >= new Date(order_dt);
+            }),
+        otherwise: Yup.date().notRequired(),
     }),
     model: Yup.string().required("Enter Model Number"),
     serial: Yup.string().required("Enter serial Number"),

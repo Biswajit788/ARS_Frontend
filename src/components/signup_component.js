@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { Navigate } from "react-router-dom";
 import Logo from '../assets/logo.jpg';
 import '../index.css';
 import { projects, departments} from './pages/data';
@@ -48,12 +49,11 @@ export default class SignUp extends Component {
       .then((data) => {
         if (data.status === "ok") {
           alert("User created successfully");
-          window.location.href = "/";
+          return <Navigate to="/"/>
         }
         else if(data.status === "error"){
           alert("User Id already registered !!");
         }
-        // console.log(data, "UserRegister");
       });
   }
   render() {

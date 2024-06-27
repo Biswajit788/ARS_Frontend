@@ -111,9 +111,13 @@ const UserForm = ({ onSubmit, onClose, projects, departments, roles, userFlags }
                         error={touched.project && !!errors.project}
                         helperText={touched.project && errors.project}
                         InputLabelProps={{
+                            shrink: true,
                             sx: {
                                 fontSize: '0.875rem', // Adjust the font size here
                             },
+                        }}
+                        SelectProps={{
+                            displayEmpty: true,
                         }}
                     >
                         <MenuItem value="">Please Select</MenuItem>
@@ -129,9 +133,13 @@ const UserForm = ({ onSubmit, onClose, projects, departments, roles, userFlags }
                         error={touched.dept && !!errors.dept}
                         helperText={touched.dept && errors.dept}
                         InputLabelProps={{
+                            shrink: true,
                             sx: {
                                 fontSize: '0.875rem', // Adjust the font size here
                             },
+                        }}
+                        SelectProps={{
+                            displayEmpty: true,
                         }}
                     >
                         <MenuItem value="">Please Select</MenuItem>
@@ -147,9 +155,13 @@ const UserForm = ({ onSubmit, onClose, projects, departments, roles, userFlags }
                         error={touched.role && !!errors.role}
                         helperText={touched.role && errors.role}
                         InputLabelProps={{
+                            shrink: true,
                             sx: {
                                 fontSize: '0.875rem', // Adjust the font size here
                             },
+                        }}
+                        SelectProps={{
+                            displayEmpty: true,
                         }}
                     >
                         <MenuItem value="">Please Select</MenuItem>
@@ -191,9 +203,13 @@ const UserForm = ({ onSubmit, onClose, projects, departments, roles, userFlags }
                         error={touched.status && !!errors.status}
                         helperText={touched.status && errors.status}
                         InputLabelProps={{
+                            shrink: true,
                             sx: {
                                 fontSize: '0.875rem', // Adjust the font size here
                             },
+                        }}
+                        SelectProps={{
+                            displayEmpty: true,
                         }}
                     >
                         <MenuItem value="">Please Select</MenuItem>

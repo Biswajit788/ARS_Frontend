@@ -81,8 +81,7 @@ export const modes = [
   'LPC',
   'Offer Basis',
   'Direct Purchase',
-  'GepNIC',
-  'Limited Tender'
+  'GepNIC'
 ];
 
 export const work_categories = [

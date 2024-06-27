@@ -1,20 +1,16 @@
-import React, { Component } from 'react'
-import Navbar from '../layout/Navbar'
-import Footer from '../layout/Footer'
+import React from 'react'
 import Content from './PendingActionList'
 import './Pending.css'
 
 function PendingAction() {
   return (
     <>
-      <Navbar />
       <div className="container">
-        <div className='pendingHead mt-5'>
-            <h5>Pending Transfer List</h5>
+        <div className='card-title mb-2'>
+            <span>Pending Transfer List</span>
         </div>
         <Content />
       </div>
-      <Footer />
     </>
   )
 }

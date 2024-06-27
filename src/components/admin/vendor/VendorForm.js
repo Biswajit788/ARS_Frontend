@@ -78,13 +78,17 @@ const VendorForm = ({ onSubmit, onClose, vendor_categories, categories, genders 
                         as={TextField}
                         select
                         name="vCategory"
-                        label="Select Category *"
+                        label="Category *"
                         error={touched.vCategory && !!errors.vCategory}
                         helperText={touched.vCategory && errors.vCategory}
                         InputLabelProps={{
+                            shrink: true,
                             sx: {
                                 fontSize: '0.875rem', // Adjust the font size here
                             },
+                        }}
+                        SelectProps={{
+                            displayEmpty: true,
                         }}
                     >
                         <MenuItem value="">Please Select</MenuItem>

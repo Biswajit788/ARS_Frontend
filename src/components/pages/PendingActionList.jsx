@@ -4,8 +4,6 @@ import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { styled } from '@mui/material/styles';
 import axios from 'axios';
 import { Stack, Button } from '@mui/material'
-
-import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -100,32 +98,30 @@ export default function PendingActionList() {
     setLocation(event.target.value);
   };
 
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
   const handleClose = () => {
     setOpen(false);
   };
 
-  React.useEffect(() => {
-    getDataList();
-  }, [])
 
-  const getDataList = async () => {
-    try {
-      const collection = await axios({
-        method: "get",
-        url: `${apiUrl}/admin/items/pendingTransfer`
-      });
-      setTableData(collection.data);
-    } catch (error) {
-      console.log(error);
+  React.useEffect(() => {
+
+    const getDataList = async () => {
+      try {
+        const collection = await axios({
+          method: "get",
+          url: `${apiUrl}/admin/items/pendingTransfer`
+        });
+        setTableData(collection.data);
+      } catch (error) {
+        console.log(error);
+      }
     }
-  }
+
+    getDataList();
+  }, [apiUrl])
 
   return (
-    <Box sx={{ width: '100%', marginTop: '2rem' }}>
+    <Box>
       <DataGrid
         autoHeight
         rows={tableData}

@@ -57,6 +57,8 @@ const DateRangeFilter = ({ onChange }) => {
         <div className="input-container" onClick={togglePicker}>
           <input
             type="text"
+            id="range-picker"
+            name="range-picker"
             readOnly
             value={`${formatDate(selectedRange.from)} - ${formatDate(selectedRange.to)}`}
           />
@@ -79,7 +81,7 @@ const DateRangeFilter = ({ onChange }) => {
           </div>
         )}
       </div>
-      <div className="buttons mb-4">
+      <div className="buttons mt-2 mb-4">
         <button onClick={handleFilter} className="filter-button">Filter</button>
         <button onClick={handleClear} className="clear-button">Clear</button>
       </div>

@@ -1,0 +1,28 @@
+/* Reset some basic styling to ensure full height */
+html, body {
+    height:fit-content;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  /* Ensure App component takes full height of viewport */
+  .App {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  
+  /* Make main take up remaining space */
+  main {
+    flex: 1;
+    overflow: auto;  /* Ensure content is scrollable */
+  }
+  
+  footer {
+    background-color: #333;
+    color: #fff;
+    padding: 1rem;
+    text-align: center;
+  }
+  

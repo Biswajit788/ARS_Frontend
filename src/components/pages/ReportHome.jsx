@@ -1,24 +1,20 @@
-import Header from '../layout/Navbar'
-import Footer from '../layout/Footer'
+import React from 'react'
 import ReportDataList from './ReportListComponent'
 import './Report.css'
 
 function Report() {
     return (
         <>
-
-            <Header />
-            <div className='header text-center mt-2'>
-                <span className="titleReport"> Report Generation Page</span>
-            </div>
-            <div className='container mt-4'>
-                <div className='report-table-list mt-4'>
-                    <ReportDataList />
+            <div className="container">
+                <div className='card-title mb-2'>
+                    <span className='titleReport'> Report Generation Page</span>
                 </div>
-               
+                <div className='container'>
+                    <div className='report-table-list'>
+                        <ReportDataList />
+                    </div>
+                </div>
             </div>
-            <Footer />
-
         </>
     )
 }

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './PreviewFormItem.css';
 
-function PreviewFormItem({isModelOpen, setIsModalOpen, previewData}) {
+function PreviewFormItem({isModelOpen, setIsModalOpen}) {
     return (
         <>
             {isModelOpen && (

@@ -1,12 +1,14 @@
-import React, { useCallback, useMemo, useState, useEffect } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { MaterialReactTable } from 'material-react-table';
 import {
   Box,
   MenuItem,
   Typography,
+  Button,
 } from '@mui/material';
-import { projects, departments, conditions, categories, work_categories, vendor_categories, modes, suppliers } from './data';
+import { projects, departments, conditions, categories, work_categories, vendor_categories, modes } from './data';
 import { ToastContainer, toast } from 'react-toastify';
 import Swal from 'sweetalert2';
 import moment from 'moment';
@@ -23,18 +25,10 @@ const override = css`
   border-color: red;
 `;
 
-const DataTable = () => {
+const AssetListTable = ({ apiUrl, tableData, setTableData, loading, isAdmin, getTableData }) => {
 
-  const apiUrl = process.env.REACT_APP_API_URL;
-
-  const [tableData, setTableData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(null);
+  const navigate = useNavigate();
   const [errors, setErrors] = useState({});
-
-  const role = window.localStorage.getItem("roleAssign");
-  const project = window.localStorage.getItem("project");
-  const dept = window.localStorage.getItem("dept");
 
   const validateCell = (key, value) => {
     if (!value || value.trim() === '') {
@@ -49,48 +43,41 @@ const DataTable = () => {
     return true;
   };
 
-  const getTableData = async () => {
-    setLoading(true);
-    try {
-      const endpoint = role === "Admin" ? "admin/items" : "user/items";
-      setIsAdmin(role === "Admin");
-      //console.log(`${role} Access`);
-      const response = await axios.post(`${apiUrl}/${endpoint}`, {
-        project,
-        dept,
-        role
-      });
-
-      setTableData(response.data);
-    } catch (error) {
-      console.log(`Error fetching ${role} data`, error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    getTableData();
-  }, [])
-
   const handleSaveRowEdits = async ({ exitEditingMode, row, values }) => {
-    const mandatoryFields = ['project', 'dept', 'description', 'model', 'serial', 'asset_id', 'supplier', 'vendoradd', 'order_no', 'order_dt', 'price']; // Add other mandatory fields here
+    const mandatoryFields = ['project', 'dept', 'description', 'model', 'serial', 'asset_id', 'supplier', 'vendoradd', 'order_no', 'order_dt', 'price', 'mode']; // Add other mandatory fields here
     let valid = true;
 
     mandatoryFields.forEach((field) => {
       const value = values[field];
 
-      if (!value || (typeof value === 'string' && value.trim() === '')) {
-        setErrors((prev) => ({ ...prev, [field]: 'This field is required' }));
-        valid = false;
+      // Special condition for 'mode' field
+      if (field === 'mode' && (value === 'LPC' || value === 'Offer Basis' || value === 'Direct Purchase')) {
+        // When mode is LPC or Offer Basis or Direct Purchase, reason field becomes mandatory
+        if (!values.reason || (typeof values.reason === 'string' && values.reason.trim() === '')) {
+          setErrors((prev) => ({ ...prev, reason: 'Reason field is required' }));
+          valid = false;
+        } else {
+          setErrors((prev) => {
+            const newErrors = { ...prev };
+            delete newErrors.reason;
+            return newErrors;
+          });
+        }
       } else {
-        setErrors((prev) => {
-          const newErrors = { ...prev };
-          delete newErrors[field];
-          return newErrors;
-        });
+        // Regular mandatory fields validation
+        if (!value || (typeof value === 'string' && value.trim() === '')) {
+          setErrors((prev) => ({ ...prev, [field]: 'This field is required' }));
+          valid = false;
+        } else {
+          setErrors((prev) => {
+            const newErrors = { ...prev };
+            delete newErrors[field];
+            return newErrors;
+          });
+        }
       }
     });
+
 
     if (!valid) {
       toast.error('Mandatory fields cannot be left blank', {
@@ -108,7 +95,7 @@ const DataTable = () => {
       return;
     } else {
       tableData[row.index] = values;
-      //console.log("🚀 ~ file: DataTable.js ~ line 92 ~ handleSaveRowEdits ~ values", values)
+      //console.log("🚀 ~ file: AssetListTable.js ~ line 92 ~ handleSaveRowEdits ~ values", values)
       //send/receive api updates here, then refetch or update local table data for re-render
       axios.post(`${apiUrl}/items/updateItem/` + values._id, {
         project: values.project,
@@ -149,6 +136,7 @@ const DataTable = () => {
               // Reload the Page
               //window.location.reload();
               setTableData([...tableData]);
+              getTableData();
             });
 
             //window.location.reload(true);
@@ -211,7 +199,7 @@ const DataTable = () => {
         }
       })
     },
-    [tableData],
+    [tableData, apiUrl, setTableData],
   );
 
   const handleMarkRowUpdate = useCallback(
@@ -264,7 +252,7 @@ const DataTable = () => {
         }
       })
     },
-    [tableData],
+    [tableData, apiUrl, setTableData],
   );
 
   const columns = useMemo(
@@ -274,7 +262,7 @@ const DataTable = () => {
         const key = cell.column.id;
         const error = errors[key];
         return {
-          // Define common edit text field props here
+          width: 500,
           fullWidth: true,
           variant: 'standard',
           error: !!error,
@@ -320,14 +308,20 @@ const DataTable = () => {
           muiEditTextFieldProps: ({ cell }) => ({
             ...getCommonEditTextFieldProps(cell),
             select: true,
-            children: projects.map((project) => (
-              <MenuItem key={project} value={project}>
-                {project}
-              </MenuItem>
-            )),
+            children: [
+              <MenuItem key="please-select" value="">
+                Please select
+              </MenuItem>,
+              ...projects.map((project) => (
+                <MenuItem key={project} value={project}>
+                  {project}
+                </MenuItem>
+              )),
+            ],
             label: 'Select Project',
             fullWidth: false,
             required: true,
+            disabled: false,
           }),
         },
         {
@@ -340,14 +334,21 @@ const DataTable = () => {
           muiEditTextFieldProps: ({ cell }) => ({
             ...getCommonEditTextFieldProps(cell),
             select: true,
-            children: departments.map((department) => (
-              <MenuItem key={department} value={department}>
-                {department}
-              </MenuItem>
-            )),
+            children: [
+              <MenuItem key="please-select" value="">
+                Please select
+              </MenuItem>,
+              ...departments.map((department) => (
+                <MenuItem key={department} value={department}>
+                  {department}
+                </MenuItem>
+              )),
+            ],
+
             label: 'Select Department',
             fullWidth: false,
             required: true,
+            disabled: false,
           }),
         },
         {
@@ -360,11 +361,16 @@ const DataTable = () => {
           muiEditTextFieldProps: ({ cell }) => ({
             ...getCommonEditTextFieldProps(cell),
             select: true,
-            children: work_categories.map((work_category) => (
-              <MenuItem key={work_category} value={work_category}>
-                {work_category}
-              </MenuItem>
-            )),
+            children: [
+              <MenuItem key="please-select" value="">
+                Please select
+              </MenuItem>,
+              ...work_categories.map((work_category) => (
+                <MenuItem key={work_category} value={work_category}>
+                  {work_category}
+                </MenuItem>
+              )),
+            ],
             label: 'Select Category',
             fullWidth: false,
             required: true,
@@ -492,30 +498,32 @@ const DataTable = () => {
         {
           accessorKey: 'supplier',
           header: 'Vendor Name',
-          size: 150,
+          size: 250,
           enableSorting: false,
           muiEditTextFieldProps: ({ cell }) => ({
             ...getCommonEditTextFieldProps(cell),
-            select: true,
-            children: suppliers.map((supplier) => (
-              <MenuItem key={supplier.vname} value={supplier.vname}>
-                {supplier.vname}
-              </MenuItem>
-            )),
-            label: 'Vendor/Supplier Name',
-            fullWidth: false,
+            label: 'Vendor Name',
             required: true,
+            disabled: true,
           }),
+          Cell: ({ cell }) => {
+            return <Box sx={{
+              whiteSpace: 'pre-wrap',
+              wordWrap: 'break-word',
+            }}>
+              {cell.getValue()}</Box>
+          }
         },
         {
           accessorKey: 'vendoradd',
           header: 'Vendor Address',
-          size: 300,
+          size: 350,
           enableSorting: false,
           muiEditTextFieldProps: ({ cell }) => ({
             ...getCommonEditTextFieldProps(cell),
             label: 'Vendor/Supplier Address',
             required: true,
+            disabled: true,
           }),
           Cell: ({ cell }) => {
             return <Box sx={{
@@ -534,14 +542,20 @@ const DataTable = () => {
           muiEditTextFieldProps: ({ cell }) => ({
             ...getCommonEditTextFieldProps(cell),
             select: true,
-            children: vendor_categories.map((vendor_category) => (
-              <MenuItem key={vendor_category} value={vendor_category}>
-                {vendor_category}
-              </MenuItem>
-            )),
+            children: [
+              <MenuItem key="please-select" value="">
+                Please elect
+              </MenuItem>,
+              ...vendor_categories.map((vendor_category) => (
+                <MenuItem key={vendor_category} value={vendor_category}>
+                  {vendor_category}
+                </MenuItem>
+              )),
+            ],
             label: 'Vendor Category',
             fullWidth: false,
             required: true,
+            disabled: true,
           }),
         },
         {
@@ -553,6 +567,7 @@ const DataTable = () => {
             ...getCommonEditTextFieldProps(cell),
             label: 'MSE Registration Number',
             required: false,
+            disabled: true,
           }),
         },
         {
@@ -564,14 +579,20 @@ const DataTable = () => {
           muiEditTextFieldProps: ({ cell }) => ({
             ...getCommonEditTextFieldProps(cell),
             select: true,
-            children: categories.map((category) => (
-              <MenuItem key={category} value={category}>
-                {category}
-              </MenuItem>
-            )),
+            children: [
+              <MenuItem key="please-select" value="">
+                Please select
+              </MenuItem>,
+              ...categories.map((category) => (
+                <MenuItem key={category} value={category}>
+                  {category}
+                </MenuItem>
+              )),
+            ],
             label: 'If MSE, Whether belong to SC/ST?',
             fullWidth: false,
             required: true,
+            disabled: true,
           }),
         },
         {
@@ -583,14 +604,20 @@ const DataTable = () => {
           muiEditTextFieldProps: ({ cell }) => ({
             ...getCommonEditTextFieldProps(cell),
             select: true,
-            children: conditions.map((condition) => (
-              <MenuItem key={condition} value={condition}>
-                {condition}
-              </MenuItem>
-            )),
+            children: [
+              <MenuItem key="please-select" value="">
+                Please select
+              </MenuItem>,
+              ...conditions.map((condition) => (
+                <MenuItem key={condition} value={condition}>
+                  {condition}
+                </MenuItem>
+              )),
+            ],
             label: 'If MSE, Whether belong to SC/ST?',
             fullWidth: false,
             required: true,
+            disabled: true,
           }),
         },
         {
@@ -602,6 +629,7 @@ const DataTable = () => {
             ...getCommonEditTextFieldProps(cell),
             label: 'Vendors/Supplier PAN Number',
             required: true,
+            disabled: true,
           }),
         },
         {
@@ -678,11 +706,16 @@ const DataTable = () => {
           muiEditTextFieldProps: ({ cell }) => ({
             ...getCommonEditTextFieldProps(cell),
             select: true,
-            children: modes.map((mode) => (
-              <MenuItem key={mode} value={mode}>
-                {mode}
-              </MenuItem>
-            )),
+            children: [
+              <MenuItem key="please-select" value="">
+                Please select
+              </MenuItem>,
+              ...modes.map((mode) => (
+                <MenuItem key={mode} value={mode}>
+                  {mode}
+                </MenuItem>
+              )),
+            ],
             label: 'Mode of Purchase',
             fullWidth: false,
             required: true,
@@ -690,13 +723,13 @@ const DataTable = () => {
         },
         {
           accessorKey: 'reason',
-          header: 'Reason of purchase outside GEM?',
+          header: 'Reason of purchase outside GEM/GepNIC?',
           size: 250,
           enableSorting: false,
           muiEditTextFieldProps: ({ cell }) => ({
             ...getCommonEditTextFieldProps(cell),
-            label: 'Reason for Purchased Outside GEM',
-            required: true,
+            label: 'Reason',
+            required: false,
           }),
           Cell: ({ cell }) => {
             return <Box sx={{
@@ -891,7 +924,7 @@ const DataTable = () => {
           </Box>
         )}
         renderRowActionMenuItems={({ closeMenu, row, table }) => [
-          <Box sx={{ display: 'block' }}>
+          <Box key="menu-item-container" sx={{ display: 'block', }}>
             <MenuItem
               className='text-primary'
               key={1}
@@ -938,10 +971,19 @@ const DataTable = () => {
             </MenuItem>
           </Box>
         ]}
+        renderTopToolbarCustomActions={() => (
+          <Button
+            color="primary"
+            variant="contained"
+            onClick={() => navigate('/additem')}
+          >
+            + Add New
+          </Button>
+        )}
       />
       <Box display="flex" justifyContent="space-between" alignItems="center" mt={2}>
-        <Typography variant="body2">
-          Total Records: {tableData.length}
+        <Typography variant="body2" sx={{ fontSize: '16px', fontFamily: 'math' }}>
+          Total Records: <span>{tableData.length}</span>
         </Typography>
 
       </Box>
@@ -950,4 +992,4 @@ const DataTable = () => {
   );
 };
 
-export default DataTable;
+export default AssetListTable;

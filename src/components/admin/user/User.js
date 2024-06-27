@@ -1,7 +1,5 @@
 import React, { useCallback, useMemo, useState, useEffect } from 'react';
 import axios from 'axios';
-import Navbar from '../../layout/Navbar';
-import Footer from '../../layout/Footer';
 import { MaterialReactTable } from 'material-react-table';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -34,25 +32,22 @@ const User = () => {
     const [loading, setLoading] = useState(true);
     const [errors, setErrors] = useState({});
 
-    const getTableData = async () => {
+    const getTableData = useCallback(async () => {
         setLoading(true);
         try {
-            const response = await axios({
-                method: 'get',
-                url: `${apiUrl}/users`,
-            });
+            const response = await axios.get(`${apiUrl}/users`);
             setTableData(response.data);
-        }
-        catch (err) {
-            console.log(err);
+        } catch (error) {
+            console.log(`Error fetching data: ${error.message}`);
         } finally {
             setLoading(false);
         }
-    }
+    }, [apiUrl]);
 
     useEffect(() => {
         getTableData();
-    }, [])
+    }, [getTableData]);
+
 
     const handleCreateNewRow = (values) => {
         axios.post(`${apiUrl}/users/addUser/`, {
@@ -76,8 +71,7 @@ const User = () => {
                     });
                     tableData.push(values);
                     setTableData([...tableData]);
-                    // Optional: Reload the page or update the data
-                    // window.location.reload();
+                    getTableData();
                 } else {
                     throw new Error('Unexpected response from server');
                 }
@@ -103,11 +97,16 @@ const User = () => {
 
     const handleSaveRowEdits = async ({ exitEditingMode, row, values }) => {
         try {
-            await userValidationSchema.validate(values, { abortEarly: false });
+            const isPasswordPresent = !!values.password;
+            // Generate the validation schema based on whether password is present or not
+            const validationSchema = userValidationSchema(isPasswordPresent);
 
-            if (!window.confirm(`User ${row.getValue('uid')} will be updated, Please confirm update?`)) {
+            // Validate the values using the generated validation schema
+            await validationSchema.validate(values, { abortEarly: false });
+
+            if (!window.confirm(`User ${row.getValue('uid')} will be updated. Please confirm the update.`)) {
                 toast.info('You canceled the update action', {
-                    position: "top-center",
+                    position: 'top-center',
                     autoClose: 1000,
                 });
                 return;
@@ -116,12 +115,13 @@ const User = () => {
             const response = await axios.patch(`${apiUrl}/users/updateUser/${values._id}`, values);
             if (response.status === 200) {
                 toast.success('User updated successfully', {
-                    position: "top-center",
+                    position: 'top-center',
                     autoClose: 2000,
-                    theme: "colored",
+                    theme: 'colored',
                 });
                 tableData[row.index] = values;
                 setTableData([...tableData]);
+                getTableData();
             } else {
                 throw new Error('Failed to update user.');
             }
@@ -137,14 +137,13 @@ const User = () => {
             } else {
                 console.error(err);
                 toast.error('Failed to update user.', {
-                    position: "top-center",
+                    position: 'top-center',
                     autoClose: 1000,
-                    theme: "colored",
+                    theme: 'colored',
                 });
             }
         }
     };
-
 
     const handleDeleteRow = useCallback(
         (row) => {
@@ -180,7 +179,7 @@ const User = () => {
                     console.log(err);
                 })
         },
-        [tableData],
+        [tableData, apiUrl],
     );
 
     const getCommonEditTextFieldProps = useCallback(
@@ -213,6 +212,7 @@ const User = () => {
                 muiEditTextFieldProps: ({ cell }) => ({
                     ...getCommonEditTextFieldProps(cell),
                     required: true,
+                    disabled: true,
                 }),
             },
             {
@@ -324,6 +324,7 @@ const User = () => {
                 muiEditTextFieldProps: ({ cell }) => ({
                     ...getCommonEditTextFieldProps(cell),
                     required: true,
+                    type: 'password',
                 }),
             },
             {
@@ -357,7 +358,6 @@ const User = () => {
     //const tableRef = React.createRef();
     return (
         <>
-            <Navbar />
             {loading && (
                 <Box
                     position="fixed"
@@ -376,9 +376,9 @@ const User = () => {
                     </div>
                 </Box>
             )}
-            <div className='container mt-5'>
-                <div className="card-header mb-4">
-                    <h5>Registered Users Details</h5>
+            <div className='container'>
+                <div className="card-title mb-2">
+                    <span>Registered User</span>
                 </div>
                 <MaterialReactTable
                     displayColumnDefOptions={{
@@ -444,7 +444,6 @@ const User = () => {
 
             />
             <ToastContainer />
-            <Footer />
         </>
     );
 };

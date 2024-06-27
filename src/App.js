@@ -1,10 +1,8 @@
-import React from "react";
-import "./App.css";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import React, { useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
 
-import Login from "./components/login_component";
+import Login from "./components/Login";
 import SignUp from "./components/signup_component";
-// import UserDetails from "./components/userDetails";
 import Home from "./components/pages/Home";
 import Dashboard from "./components/pages/Dashboard";
 import AddItem from "./components/pages/ProcurementForm";
@@ -15,31 +13,63 @@ import VendorList from "./components/admin/vendor/Vendor";
 import UserList from './components/admin/user/User';
 import PrivateRoute from './utils/PrivateRoute';
 import AdminRoute from './utils/AdminRoute';
-import TestPage from './components/pages/DateRangeFilter';
+import Layout from "./components/layout/Layout";
 
-function App() {
+const App = () => {
   return (
     <Router>
-      <Routes>
-        <Route exact path="/" element={<Login />} />
-        <Route path="/sign-in" element={<Login />} />
-        <Route path="/sign-up" element={<SignUp />} />
-        {/* User Pages */}
-        <Route path="/homepage" element={<PrivateRoute><Home /></PrivateRoute>} />
-        <Route path="/itemlist" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-        <Route path="/additem" element={<PrivateRoute><AddItem /></PrivateRoute>} />
-        <Route path="/report" element={<PrivateRoute><Report /></PrivateRoute>} />
-        <Route path="/test" element={<PrivateRoute><TestPage /></PrivateRoute>} />
-        {/* Admin Pages */}
-        <Route path="/admin/userlist" element={<AdminRoute><UserList /></AdminRoute>} />
-        <Route path="/admin/supplier" element={<AdminRoute><VendorList /></AdminRoute>} />
-        <Route path="/admin/itemlist" element={<AdminRoute><Dashboard /></AdminRoute>} />
-        <Route path="/admin/pendingActionList" element={<AdminRoute><Action /></AdminRoute>} />
-
-        <Route path="*" element={<PrivateRoute><Error /></PrivateRoute>} />
-      </Routes>
+      <AppRoutes />
     </Router>
   );
-}
+};
+
+const AppRoutes = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.pathname !== '/' && !location.pathname.startsWith('/sign-in') && !location.pathname.startsWith('/sign-up')) {
+      localStorage.setItem('lastVisitedPage', location.pathname);
+    }
+  }, [location]);
+
+  const isAuthenticated = () => {
+    return !!localStorage.getItem('authToken');
+  };
+
+  const lastVisitedPage = localStorage.getItem('lastVisitedPage') || '/homepage';
+
+  return (
+    <Routes>
+      <Route
+        exact
+        path="/"
+        element={isAuthenticated() ? <Navigate to={lastVisitedPage} /> : <Navigate to="/sign-in" />}
+      />
+      <Route path="/sign-in" element={<Login />} />
+      <Route path="/sign-up" element={<SignUp />} />
+      <Route
+        path="*"
+        element={
+          <Layout>
+            <Routes>
+              {/* User Pages */}
+              <Route path="/homepage" element={<PrivateRoute><Home /></PrivateRoute>} />
+              <Route path="/itemlist" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+              <Route path="/additem" element={<PrivateRoute><AddItem /></PrivateRoute>} />
+              <Route path="/report" element={<PrivateRoute><Report /></PrivateRoute>} />
+              {/* Admin Pages */}
+              <Route path="/admin/userlist" element={<AdminRoute><UserList /></AdminRoute>} />
+              <Route path="/admin/supplier" element={<AdminRoute><VendorList /></AdminRoute>} />
+              <Route path="/admin/itemlist" element={<AdminRoute><Dashboard /></AdminRoute>} />
+              <Route path="/admin/pendingActionList" element={<AdminRoute><Action /></AdminRoute>} />
+
+              <Route path="*" element={<PrivateRoute><Error /></PrivateRoute>} />
+            </Routes>
+          </Layout>
+        }
+      />
+    </Routes>
+  );
+};
 
 export default App;

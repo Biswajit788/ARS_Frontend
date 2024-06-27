@@ -479,7 +479,7 @@ function ReportListComponent() {
                     variant: 'outlined',
                 }}
                 paginationDisplayMode="pages"
-                initialState={{ columnVisibility: { _id: false }, density: 'compact', pagination: { pageSize: 50, pageIndex: 0 } }}
+                initialState={{ columnVisibility: { _id: false }, density: 'compact', pagination: { pageSize: 100, pageIndex: 0 } }}
                 enableRowNumbers={true}
                 enableRowSelection
                 positionToolbarAlertBanner="top"

@@ -1,7 +1,5 @@
 import React, { useCallback, useMemo, useState, useEffect } from 'react';
 import axios from 'axios';
-import Navbar from '../../layout/Navbar';
-import Footer from '../../layout/Footer';
 import { MaterialReactTable } from 'material-react-table';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -324,7 +322,6 @@ const Vendor = () => {
     //const tableRef = React.createRef();
     return (
         <>
-            <Navbar />
             {loading && (
                 <Box
                     position="fixed"
@@ -343,9 +340,9 @@ const Vendor = () => {
                     </div>
                 </Box>
             )}
-            <div className='container mt-5'>
-                <div className="card-header mb-4">
-                    <h5>Registered Vendor/Supplier Details in NEEPCO</h5>
+            <div className='container'>
+                <div className="card-title mb-2">
+                    <span>Registered Vendor List</span>
                 </div>
                 <MaterialReactTable
                     displayColumnDefOptions={{
@@ -409,10 +406,8 @@ const Vendor = () => {
                 onSubmit={handleCreateNewRow}
             />
             <ToastContainer />
-            <Footer />
         </>
     );
 };
 
 export default Vendor;
-

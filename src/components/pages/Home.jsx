@@ -1,6 +1,6 @@
 import React from 'react';
-import Navbar from '../layout/Navbar'
-import Footer from '../layout/Footer';
+//import Navbar from '../layout/Navbar'
+//import Footer from '../layout/Footer';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -12,7 +12,7 @@ import CustMarquee from '../marquee/CustomMarquee';
 const Home = () => {
     return (
         <>
-            <Navbar />
+            
             <Container fluid="md">
                 <Row className='one'>
                     <Col xs={6} md={4}>
@@ -31,7 +31,7 @@ const Home = () => {
                 </Row>
             </Container>
             <br />
-            <Footer />
+           
         </>
     )
 }
