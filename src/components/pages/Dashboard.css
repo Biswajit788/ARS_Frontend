@@ -16,6 +16,7 @@
 
 .table-title span { 
     font-family: Roboto;
+    font-weight: bold;
     font-size: 18px;
     color: rgb(255, 255, 255);
     text-align: center;

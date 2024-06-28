@@ -2,7 +2,7 @@
 .date-range-filter {
   display: flex;
   flex-direction: row;
-  align-items:flex-start;
+  align-items: flex-start;
   gap: 5px;
   position: relative;
   margin-top: 10px;
@@ -13,11 +13,9 @@
   align-items: center;
   border: 1px solid #ccc;
   padding: 5px 10px;
-  border-radius: 4px;
   cursor: pointer;
   width: 100%;
   max-width: 350px;
-  /* Limit max width for larger screens */
 }
 
 input {
@@ -31,7 +29,7 @@ input {
 }
 
 .date-picker-wrapper {
-  border: 1px solid black;
+  border: 1px solid rgb(236, 236, 236);
 }
 
 .day-picker {
@@ -41,21 +39,17 @@ input {
 .day-picker table {
   border-collapse: collapse;
   width: 100%;
-  /* Ensure the table takes the full width */
 }
 
 .day-picker {
   box-sizing: border-box;
   padding: 5px;
-  /* Adjust the padding for larger cells */
   font-size: 14px;
-  /* Adjust the font size for larger text */
 }
 
 .day-picker .rdp-cell {
-  border: 1px solid #ccc;
+  border: 1px solid #a0a0a0;
   padding: 0px;
-  /* Adjust the padding for larger cells */
 }
 
 .buttons {
@@ -66,41 +60,24 @@ input {
 
 .filter-button,
 .clear-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   padding: 8px 8px;
   border: none;
   cursor: pointer;
   font-size: 14px;
+  text-align: center;
+  width: 80px;
+  height: 30px;
 }
 
 .filter-button {
-  align-items: center;
-  appearance: none;
   background-color: #50b6e6;
   border-radius: 4px;
-  border-width: 0;
   box-shadow: rgba(45, 35, 66, 0.4) 0 2px 4px, rgba(45, 35, 66, 0.3) 0 7px 13px -3px, #D6D6E7 0 -3px 0 inset;
-  box-sizing: border-box;
   color: #000000;
-  cursor: pointer;
-  display: inline-flex;
-  font-family: sans-serif;
-  height: 30px;
-  justify-content: center;
-  line-height: 1;
-  list-style: none;
-  overflow: hidden;
-  padding-left: 16px;
-  padding-right: 16px;
-  position: relative;
-  text-align: left;
-  text-decoration: none;
   transition: box-shadow .15s, transform .15s;
-  user-select: none;
-  -webkit-user-select: none;
-  touch-action: manipulation;
-  white-space: nowrap;
-  will-change: box-shadow, transform;
-  font-size: 14px;
 }
 
 .filter-button:focus {
@@ -118,34 +95,11 @@ input {
 }
 
 .clear-button {
-  align-items: center;
-  appearance: none;
   background-color: #ff8741;
   border-radius: 4px;
-  border-width: 0;
   box-shadow: rgba(45, 35, 66, 0.4) 0 2px 4px, rgba(45, 35, 66, 0.3) 0 7px 13px -3px, #D6D6E7 0 -3px 0 inset;
-  box-sizing: border-box;
   color: #000000;
-  cursor: pointer;
-  display: inline-flex;
-  font-family: sans-serif;
-  height: 30px;
-  justify-content: center;
-  line-height: 1;
-  list-style: none;
-  overflow: hidden;
-  padding-left: 16px;
-  padding-right: 16px;
-  position: relative;
-  text-align: left;
-  text-decoration: none;
   transition: box-shadow .15s, transform .15s;
-  user-select: none;
-  -webkit-user-select: none;
-  touch-action: manipulation;
-  white-space: nowrap;
-  will-change: box-shadow, transform;
-  font-size: 14px;
 }
 
 .clear-button:focus {
@@ -162,15 +116,18 @@ input {
   transform: translateY(2px);
 }
 
-.date-range-filter div[ref] {
+.date-picker-popup {
+  display: block !important;
   position: absolute;
+  z-index: 1000;
   top: 100%;
   left: 0;
-  z-index: 10;
   background: white;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  margin-top: 4px;
   padding: 10px;
   border-radius: 4px;
+  opacity: 1;
 }
 
 .filtered-range {
@@ -179,24 +136,9 @@ input {
   color: #333;
 }
 
-/* Responsive styles */
 @media (max-width: 768px) {
   .input-container {
     width: 100%;
-    /* Full width on smaller screens */
     max-width: none;
-    /* Remove max width for smaller screens */
   }
-}
-
-.date-picker-popup {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  z-index: 10;
-  background: rgb(252, 252, 252);
-  opacity: 0.;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-  padding: 10px;
-  border-radius: 2px;
 }

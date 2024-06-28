@@ -3,7 +3,7 @@ import { DayPicker } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
 import './DateRangeFilter.css';
 import { format } from 'date-fns';
-import { FaRegCalendarAlt } from "react-icons/fa"; // Import a calendar icon
+import { FaRegCalendarAlt } from "react-icons/fa";
 
 const DateRangeFilter = ({ onChange }) => {
   const [selectedRange, setSelectedRange] = useState({ from: undefined, to: undefined });
@@ -11,9 +11,10 @@ const DateRangeFilter = ({ onChange }) => {
   const pickerRef = useRef();
 
   const handleSelect = (range) => {
+    console.log('Date range selected:', range); // Debug log
     setSelectedRange(range);
     if (range.from && range.to) {
-      setIsPickerOpen(false); // Close the picker when both dates are selected
+      setIsPickerOpen(false); 
     }
   };
 
@@ -28,6 +29,7 @@ const DateRangeFilter = ({ onChange }) => {
   };
 
   const togglePicker = () => {
+    console.log('Toggling Picker:', !isPickerOpen); // Debug log
     setIsPickerOpen(!isPickerOpen);
   };
 
@@ -47,8 +49,6 @@ const DateRangeFilter = ({ onChange }) => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
-
-  //const isMobile = window.innerWidth <= 768; // Define a breakpoint for mobile screens
 
   return (
     <>
@@ -71,7 +71,7 @@ const DateRangeFilter = ({ onChange }) => {
                 mode="range"
                 selected={selectedRange}
                 onSelect={handleSelect}
-                numberOfMonths={1} // Show single month on mobile
+                numberOfMonths={1}
                 className="day-picker"
                 captionLayout="dropdown"
                 fromYear={2010}

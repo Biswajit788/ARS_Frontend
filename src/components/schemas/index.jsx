@@ -23,7 +23,7 @@ export const formInputSchema = Yup.object({
                 if (!order_dt || !value) {
                     return true; // If either date is missing, let other validations handle it
                 }
-                return new Date(value) >= new Date(order_dt);
+                return new Date(value) > new Date(order_dt);
             }),
         otherwise: Yup.date().notRequired(),
     }),
