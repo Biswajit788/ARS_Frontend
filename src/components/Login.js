@@ -5,6 +5,7 @@ import Swal from 'sweetalert2';
 import { useNavigate } from "react-router-dom";
 
 export default function Login() {
+  
   const navigate = useNavigate();
 
   const [uid, setUid] = React.useState("");
@@ -13,15 +14,13 @@ export default function Login() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    //To be used for dynamic ip
+    // Use HTTP URL for local development
     const apiUrl = process.env.REACT_APP_API_URL;
 
     axios.post(`${apiUrl}/login-user`, { uid, password })
       .then((response) => {
 
-        const data = response.data;
-        console.log('Login response data:', data);
-
+        const res = response.data;
         if (response.status === 200) {
           Swal.fire({
             title: 'Login Successful',
@@ -36,17 +35,7 @@ export default function Login() {
               toast.addEventListener('mouseleave', Swal.resumeTimer);
             }
           }).then(() => {
-            window.localStorage.setItem("authToken", data.tokenAssign);
-            window.localStorage.setItem("ecode", data.uid);
-            window.localStorage.setItem("fname", data.fname);
-            window.localStorage.setItem("lname", data.lname);
-            window.localStorage.setItem("desgn", data.desgn);
-            window.localStorage.setItem("email", data.email);
-            window.localStorage.setItem("roleAssign", data.role);
-            window.localStorage.setItem("dept", data.dept);
-            window.localStorage.setItem("project", data.project);
-            window.localStorage.setItem("status", data.flag);
-
+            window.localStorage.setItem("authToken", res.token);
             navigate("/homepage");
           });
         }
@@ -150,7 +139,7 @@ export default function Login() {
               </button>
             </div>
             <p className="forgot-password text-right">
-              <a href="/sign-up">Sign Up</a>
+              <a href="#">Sign Up</a>
             </p>
           </form>
         </div>

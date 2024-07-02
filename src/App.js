@@ -14,6 +14,7 @@ import UserList from './components/admin/user/User';
 import PrivateRoute from './utils/PrivateRoute';
 import AdminRoute from './utils/AdminRoute';
 import Layout from "./components/layout/Layout";
+import Sop from "./components/admin/sops/MainSop";
 
 const App = () => {
   return (
@@ -57,6 +58,7 @@ const AppRoutes = () => {
               <Route path="/itemlist" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
               <Route path="/additem" element={<PrivateRoute><AddItem /></PrivateRoute>} />
               <Route path="/report" element={<PrivateRoute><Report /></PrivateRoute>} />
+              <Route path="/sop" element={<PrivateRoute><Sop /></PrivateRoute>} />
               {/* Admin Pages */}
               <Route path="/admin/userlist" element={<AdminRoute><UserList /></AdminRoute>} />
               <Route path="/admin/supplier" element={<AdminRoute><VendorList /></AdminRoute>} />

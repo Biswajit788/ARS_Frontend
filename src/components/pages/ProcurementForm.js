@@ -16,79 +16,57 @@ import 'react-toastify/dist/ReactToastify.css';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
-const initialValues = {
-    project: "",
-    dept: "",
-    description: "",
-    category: "",
-    cate_others: "0",
-    warranty: "0",
-    installation_dt: "0",
-    model: "",
-    serial: "",
-    part_no: "0",
-    asset_id: "",
-    additional_info: "0",
-    supplier: "",
-    vendoradd: "",
-    vendor_category: "", /* Whether the Contractor is MSE or not? */
-    reg_no: "0",
-    condition2: "0", /* If MSE, Whether belong to SC/ST? */
-    condition5: "0", /* If MSE, Whether Women or not? */
-    gstin: "0",
-    order_no: "",
-    order_dt: "",
-    price: "",
-    mode: "",
-    reason: "",
-    itemUser: "",
-    itemLoc: "",
-    remarks: "0",
-    created_by: "0",
-    status: "0",
-};
-
 function ProcurementForm() {
 
     const apiUrl = process.env.REACT_APP_API_URL;
     const navigate = useNavigate();
-    const [isAdmin, setIsAdmin] = useState();
+    const [isAdmin, setIsAdmin] = useState(false);
     const [usrData, setUsrData] = useState([]);
     const [vendorData, setVendorData] = useState([]);
     const [selectedVendor, setSelectedVendor] = useState(null);
 
-    const getUserDataFromLocalStorage = async () => {
-        const AuthToken = window.localStorage.getItem("authToken");
-        if (AuthToken) {
-            const userData = {
-                role: localStorage.getItem("role"),
-                uid: localStorage.getItem("ecode"),
-                dept: localStorage.getItem("dept"),
-                project: localStorage.getItem("project")
-            };
+    const getUserInfo = async () => {
+        try {
+            const token = window.localStorage.getItem("authToken");
+            if (!token) throw new Error("Authentication token not found");
 
-            if (userData.role !== "Admin") {
+            const decodedToken = parseJwt(token);
+            setUsrData(decodedToken);
+
+            if (decodedToken.role !== "Admin") {
                 setIsAdmin(false);
-                setUsrData(userData);
             } else {
                 setIsAdmin(true);
-                setUsrData(userData);
             }
-        } else {
-            console.error("AuthToken not found in local storage");
+
+        } catch (error) {
+            console.log(error);
         }
     }
 
+    const parseJwt = (token) => {
+        try {
+            return JSON.parse(atob(token.split('.')[1]));
+        } catch (e) {
+            return {};
+        }
+    };
+
     useEffect(() => {
         const fetchData = async () => {
-            await getUserDataFromLocalStorage();
+            await getUserInfo();
         };
 
         const getVendorData = async () => {
             try {
+                const token = localStorage.getItem("authToken");
+                if (!token) throw new Error("Authentication token not found");
                 const response = await axios({
                     method: 'get',
                     url: `${apiUrl}/vendors`,
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
                 });
                 setVendorData(response.data);
             } catch (error) {
@@ -121,6 +99,38 @@ function ProcurementForm() {
             setFieldValue('condition2', '');
             setFieldValue('condition5', '');
         }
+    };
+
+    const initialValues = {
+        project: "",
+        dept: "",
+        description: "",
+        category: "",
+        cate_others: "0",
+        warranty: "0" || "",
+        installation_dt: "0",
+        model: "",
+        serial: "",
+        part_no: "0",
+        asset_id: "",
+        additional_info: "0",
+        supplier: "",
+        vendoradd: "",
+        vendor_category: "", /* Whether the Contractor is MSE or not? */
+        reg_no: "0",
+        condition2: "0", /* If MSE, Whether belong to SC/ST? */
+        condition5: "0", /* If MSE, Whether Women or not? */
+        gstin: "0",
+        order_no: "",
+        order_dt: "",
+        price: "",
+        mode: "",
+        reason: "",
+        itemUser: "",
+        itemLoc: "",
+        remarks: "0",
+        created_by: "0",
+        status: "0",
     };
 
     const { values, errors, isSubmitting, resetForm, touched, handleBlur, handleChange, handleSubmit, setFieldValue } = useFormik({
@@ -379,7 +389,6 @@ function ProcurementForm() {
                                                 values={values.name}
                                                 onChange={handleChange}
                                                 onBlur={handleBlur}
-                                                isValid={touched.project && !errors.project}
                                             >
                                                 <option key="" value="">Please select</option>
                                                 <option key={usrData.project} value={usrData.project}>{usrData.project}</option>
@@ -396,7 +405,7 @@ function ProcurementForm() {
                                             <Form.Select
                                                 name="dept"
                                                 aria-label="Floating label select"
-                                                values={values.dept}
+                                                values={values.name}
                                                 onChange={handleChange}
                                                 onBlur={handleBlur}
                                                 isValid={touched.dept && !errors.dept}
@@ -411,10 +420,9 @@ function ProcurementForm() {
                                             <Form.Select
                                                 name="dept"
                                                 aria-label="Floating label select"
-                                                values={values.dept}
+                                                values={values.name}
                                                 onChange={handleChange}
                                                 onBlur={handleBlur}
-                                                isValid={touched.dept && !errors.dept}
                                             >
                                                 <option key="" value="">Please select</option>
                                                 <option key={usrData.dept} value={usrData.dept}>{usrData.dept}</option>

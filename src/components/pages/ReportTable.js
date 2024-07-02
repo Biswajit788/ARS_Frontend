@@ -57,7 +57,6 @@ const ReportTable = () => {
         try {
             const endpoint = role === "Admin" ? "admin/items" : "user/items";
             setIsAdmin(role === "Admin");
-            //console.log(`${role} Access`);
             const response = await axios.post(`${apiUrl}/${endpoint}`, {
               project,
               dept,
@@ -80,7 +79,6 @@ const ReportTable = () => {
     }, [])
 
     const hideOnEscape = (e) => {
-        console.log(e.key);
         if (e.key === "Escape") {
             setOpen(false)
         }

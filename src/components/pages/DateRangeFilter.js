@@ -11,7 +11,6 @@ const DateRangeFilter = ({ onChange }) => {
   const pickerRef = useRef();
 
   const handleSelect = (range) => {
-    console.log('Date range selected:', range); // Debug log
     setSelectedRange(range);
     if (range.from && range.to) {
       setIsPickerOpen(false); 
@@ -29,7 +28,6 @@ const DateRangeFilter = ({ onChange }) => {
   };
 
   const togglePicker = () => {
-    console.log('Toggling Picker:', !isPickerOpen); // Debug log
     setIsPickerOpen(!isPickerOpen);
   };
 

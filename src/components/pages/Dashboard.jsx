@@ -8,26 +8,43 @@ function Dashboard() {
 
   const [tableData, setTableData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(null);
-
-  const role = window.localStorage.getItem("roleAssign");
-  const project = window.localStorage.getItem("project");
-  const dept = window.localStorage.getItem("dept");
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [userData, setUserData] = useState([]);
 
   const getTableData = useCallback(async () => {
     try {
+      const token = localStorage.getItem("authToken");
+      if (!token) throw new Error("Authentication token not found");
+
+      const decodedToken = parseJwt(token);
+      const project = decodedToken.project;
+      const dept = decodedToken.dept;
+      const role = decodedToken.role;
+
+      if (role === "Admin") {
+        setIsAdmin(true);
+      } else {
+        setIsAdmin(false);
+      }
       const endpoint = role === "Admin" ? "admin/items" : "user/items";
-      setIsAdmin(role === "Admin");
-      const response = await axios.post(`${apiUrl}/${endpoint}`, {
-        project,
-        dept,
-        role
+
+      const response = await axios.post(`${apiUrl}/${endpoint}`, null, {
+        params: {
+          project,
+          dept,
+          role,
+        },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
+
       setTableData(response.data);
     } catch (error) {
-      console.log(`Error fetching ${role} data`, error);
+      console.log(`Error fetching data`, error);
     }
-  }, [apiUrl, role, project, dept]);
+  }, [apiUrl]);
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -38,6 +55,14 @@ function Dashboard() {
 
     fetchData();
   }, [getTableData]);
+
+  const parseJwt = (token) => {
+    try {
+      return JSON.parse(atob(token.split('.')[1]));
+    } catch (e) {
+      return {};
+    }
+  };
 
   return (
     <div className='main-container'>

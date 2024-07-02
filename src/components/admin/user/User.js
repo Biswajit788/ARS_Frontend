@@ -35,7 +35,15 @@ const User = () => {
     const getTableData = useCallback(async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`${apiUrl}/users`);
+            const token = localStorage.getItem("authToken");
+            if (!token) throw new Error("Authentication token not found");
+
+            const response = await axios.get(`${apiUrl}/users`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
             setTableData(response.data);
         } catch (error) {
             console.log(`Error fetching data: ${error.message}`);
@@ -44,12 +52,15 @@ const User = () => {
         }
     }, [apiUrl]);
 
+
     useEffect(() => {
         getTableData();
     }, [getTableData]);
 
 
     const handleCreateNewRow = (values) => {
+        const token = localStorage.getItem("authToken");
+        if (!token) throw new Error("Authentication token not found");
         axios.post(`${apiUrl}/users/addUser/`, {
             uid: values.uid,
             fname: values.fname,
@@ -61,6 +72,10 @@ const User = () => {
             role: values.role,
             password: values.password,
             status: values.status,
+        }, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
         })
             .then(res => {
                 if (res.status === 200) {
@@ -111,8 +126,14 @@ const User = () => {
                 });
                 return;
             }
-
-            const response = await axios.patch(`${apiUrl}/users/updateUser/${values._id}`, values);
+            
+            const token = localStorage.getItem("authToken");
+            if (!token) throw new Error("Authentication token not found");
+            const response = await axios.patch(`${apiUrl}/users/updateUser/${values._id}`, values, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
             if (response.status === 200) {
                 toast.success('User updated successfully', {
                     position: 'top-center',
@@ -157,7 +178,13 @@ const User = () => {
                 return;
             }
             //send api delete request here, then refetch or update local table data for re-render
-            axios.get(`${apiUrl}/users/deleteUser/` + row.getValue('_id'))
+            const token = localStorage.getItem("authToken");
+            if (!token) throw new Error("Authentication token not found");
+            axios.get(`${apiUrl}/users/deleteUser/` + row.getValue('_id'), {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
                 .then(res => {
                     if (res.status === 200) {
                         toast.error('User deleted successfully', {

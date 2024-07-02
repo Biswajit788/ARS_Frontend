@@ -2,7 +2,7 @@ import * as Yup from "yup";
 
 const digitsOnly = (value) => /^\d+$/.test(value)
 export const formInputSchema = Yup.object({
-    project: Yup.string().min(1).required("Select your Project"),
+    project: Yup.string().required("Select your Project"),
     dept: Yup.string().required("Select your Department"),
     description: Yup.string().max(200, 'You have exceeds 200 words').required("Enter short description of the item"),
     //qty: Yup.string().required("Please enter no. of Quantity")

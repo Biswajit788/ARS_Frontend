@@ -3,39 +3,46 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import User from '../../assets/user.png';
 import Logo from '../../assets/logo.jpg';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Modal, Button, Container, Col, Row, Tab, Tabs } from 'react-bootstrap';
 import './Navbar.css';
 import Swal from 'sweetalert2';
+import ProfileModal from './profileModal';
 
 const Navbar = () => {
   const navigate = useNavigate();
-  const [userData, setUserData] = useState({
-    fname: '',
-    lname: '',
-    desgn: '',
-    email: '',
-    dept: '',
-    project: '',
-    uid: '',
-    role: '',
-    sFlag: '',
-  });
   const [isOpen, setIsOpen] = useState(false);
+  const [user, setUser] = useState([]);
+  const [isAdmin, setIsAdmin] = useState(false)
 
   useEffect(() => {
-    const userData = {
-      fname: window.localStorage.getItem("fname"),
-      lname: window.localStorage.getItem("lname"),
-      desgn: window.localStorage.getItem("desgn"),
-      email: window.localStorage.getItem("email"),
-      dept: window.localStorage.getItem("dept"),
-      project: window.localStorage.getItem("project"),
-      uid: window.localStorage.getItem("ecode"),
-      role: window.localStorage.getItem("roleAssign"),
-      sFlag: window.localStorage.getItem("status"),
+    const fetchUserName = async () => {
+      try {
+        const token = localStorage.getItem("authToken");
+        if (!token) throw new Error("Authentication token not found");
+
+        const decodedToken = parseJwt(token);
+        setUser(decodedToken);
+
+        if (decodedToken.role !== "Admin") {
+          setIsAdmin(false);
+        } else {
+          setIsAdmin(true);
+        }
+
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
+      }
     };
-    setUserData(userData);
+
+    fetchUserName();
   }, []);
+
+  const parseJwt = (token) => {
+    try {
+      return JSON.parse(atob(token.split('.')[1]));
+    } catch (e) {
+      return {};
+    }
+  };
 
   const logout = () => {
     Swal.fire({
@@ -48,7 +55,8 @@ const Navbar = () => {
       confirmButtonText: 'Yes'
     }).then((result) => {
       if (result.isConfirmed) {
-        window.localStorage.clear();
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('lastVisitedPage');
         navigate('/');
       }
     });
@@ -114,7 +122,7 @@ const Navbar = () => {
                   </li>
                 </ul>
               </li>
-              {userData.role === "Admin" &&
+              {isAdmin &&
                 <li className="nav-item dropdown">
                   <a href="#navbarDarkDropdownMenuLink" className="nav-link dropdown-toggle" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                     Admin Panel
@@ -165,12 +173,17 @@ const Navbar = () => {
                   Generate Report
                 </NavLink>
               </li>
+              <li className="nav-item">
+                <NavLink to="/sop" className="nav-link text-decoration-none">
+                  SOP
+                </NavLink>
+              </li>
             </ul>
           </div>
 
           <div className="d-flex align-items-center">
             <div className="userName">
-              <small>{userData.fname} {userData.lname}</small>
+              <small>{user.fname} {user.lname}</small>
             </div>
             <div className="dropdown">
               <a
@@ -208,150 +221,9 @@ const Navbar = () => {
               </ul>
             </div>
           </div>
-          <Modal size="lg" show={isOpen} onHide={closeModal}>
-            <Modal.Header closeButton>
-              <Modal.Title>
-                <h5>My Profile</h5>
-              </Modal.Title>
-            </Modal.Header>
-            <Modal.Body className="show-grid">
-              <Container className="emp-profile">
-                <form method="post">
-                  <Row>
-                    <Col xs={4}>
-                      <div className="profile-img">
-                        <img
-                          src={User}
-                          className="rounded-circle"
-                          alt="Black and White Portrait of a Man"
-                          loading="lazy"
-                        />
-                        <div className="file btn btn-lg btn-primary">
-                          Change Photo
-                          <input type="file" name="file" />
-                        </div>
-                      </div>
-                    </Col>
-                    <Col xs={6}>
-                      <div className="profile-head">
-                        <h5>
-                          {userData.fname} {userData.lname}
-                        </h5>
-                        <h6>
-                          {userData.desgn}
-                        </h6>
-
-                        <Tabs
-                          defaultActiveKey="home"
-                          className="tab mb-3"
-                          justify
-                        >
-                          <Tab eventKey="home" title="About" className="profile-tab">
-                            <Row>
-                              <Col xs={6}>
-                                <label>User Id:</label>
-                              </Col>
-                              <Col xs={6}>
-                                <p>{userData.uid}</p>
-                              </Col>
-                            </Row>
-                            <Row>
-                              <Col xs={6}>
-                                <label>Name:</label>
-                              </Col>
-                              <Col xs={6}>
-                                <p> {userData.fname} {userData.lname}</p>
-                              </Col>
-                            </Row>
-                            <Row>
-                              <Col xs={6}>
-                                <label>Designation:</label>
-                              </Col>
-                              <Col xs={6}>
-                                <p>{userData.desgn}</p>
-                              </Col>
-                            </Row>
-                            <Row>
-                              <Col xs={6}>
-                                <label>Email ID:</label>
-                              </Col>
-                              <Col xs={6}>
-                                <p>{userData.email}</p>
-                              </Col>
-                            </Row>
-                            <Row>
-                              <Col xs={6}>
-                                <label>Address:</label>
-                              </Col>
-                              <Col xs={6}>
-                                <p>NEEPCO LTD.</p>
-                              </Col>
-                            </Row>
-                            <Row>
-                              <Col xs={6}>
-                                <label>Contact No.:</label>
-                              </Col>
-                              <Col xs={6}>
-                                <p>(+91) XXXXXXXXXX</p>
-                              </Col>
-                            </Row>
-                          </Tab>
-                          <Tab eventKey="workinfo" title="Work" className="profile-tab">
-                            <Row>
-                              <Col xs={6}>
-                                <label>Place of Posting:</label>
-                              </Col>
-                              <Col xs={6}>
-                                <p>{userData.project}</p>
-                              </Col>
-                            </Row>
-                            <Row>
-                              <Col xs={6}>
-                                <label>Department:</label>
-                              </Col>
-                              <Col xs={6}>
-                                <p>{userData.dept}</p>
-                              </Col>
-                            </Row>
-                          </Tab>
-                          <Tab eventKey="details" title="Status" className="profile-tab">
-                            <Row>
-                              <Col xs={6}>
-                                <label>Role Assigned:</label>
-                              </Col>
-                              <Col xs={6}>
-                                <p>{userData.role}</p>
-                              </Col>
-                            </Row>
-                            <Row>
-                              <Col xs={6}>
-                                <label>User Status:</label>
-                              </Col>
-                              <Col xs={6}>
-                                {
-                                  userData.sFlag === '1'
-                                    ? <p className="fw-bold text-success">Active</p>
-                                    : <p className="fw-bold text-danger">Inactive</p>
-                                }
-                              </Col>
-                            </Row>
-                          </Tab>
-                        </Tabs>
-                      </div>
-                    </Col>
-                    <Col sx={2}>
-                      <a href="#edit" onClick={() => { alert('You have clicked profile edit btn') }}><i className="fa-regular fa-pen-to-square"></i></a>
-                    </Col>
-                  </Row>
-                </form>
-              </Container>
-            </Modal.Body>
-            <Modal.Footer>
-              <Button variant="secondary" onClick={closeModal}>Close</Button>
-            </Modal.Footer>
-          </Modal>
         </div>
       </nav>
+      <ProfileModal isOpen={isOpen} closeModal={closeModal} user={user} />
     </div>
   );
 };

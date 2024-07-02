@@ -18,38 +18,51 @@ const override = css`
 
 function ReportListComponent() {
     const apiUrl = process.env.REACT_APP_API_URL;
-    
+
     const [tableData, setTableData] = useState([]);
     const [filteredData, setFilteredData] = useState([]); // Add state for filtered data
     const [loading, setLoading] = useState(true);
     const [dateRange, setDateRange] = useState({ from: undefined, to: undefined }); // Add state for date range
 
-    const role = window.localStorage.getItem("roleAssign");
-    const project = window.localStorage.getItem("project");
-    const dept = window.localStorage.getItem("dept");
+    //const role = window.localStorage.getItem("roleAssign");
+    //const project = window.localStorage.getItem("project");
+    //const dept = window.localStorage.getItem("dept");
 
     useEffect(() => {
         const getTableData = async () => {
             setLoading(true);
             try {
-                const endpoint = role === "Admin" ? "admin/items" : "user/items";
-                //setIsAdmin(role === "Admin");
-                const response = await axios.post(`${apiUrl}/${endpoint}`, {
-                    project,
-                    dept,
-                    role
-                });
-
-                setTableData(response.data);
+              const token = localStorage.getItem("authToken");
+              if (!token) throw new Error("Authentication token not found");
+        
+              const decodedToken = parseJwt(token);
+              const project = decodedToken.project;
+              const dept = decodedToken.dept;
+              const role = decodedToken.role;
+    
+              const endpoint = role === "Admin" ? "admin/items" : "user/items";
+        
+              const response = await axios.post(`${apiUrl}/${endpoint}`, null, {
+                params: {
+                  project,
+                  dept,
+                  role,
+                },
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              });
+        
+              setTableData(response.data);
             } catch (error) {
-                console.log(`Error fetching ${role} data`, error);
+              console.log(`Error fetching data`, error);
             } finally {
                 setLoading(false);
             }
-        };
+          }
 
         getTableData();
-    }, [dept, project, role, apiUrl]);
+    }, [apiUrl]);
 
     useEffect(() => {
         const filterTableData = () => {
@@ -68,6 +81,14 @@ function ReportListComponent() {
 
         filterTableData();
     }, [dateRange, tableData]); // Add dateRange and tableData as dependencies
+
+    const parseJwt = (token) => {
+        try {
+            return JSON.parse(atob(token.split('.')[1]));
+        } catch (e) {
+            return {};
+        }
+    };
 
     const handleDateRangeChange = (range) => {
         setDateRange(range);
@@ -102,6 +123,7 @@ function ReportListComponent() {
                     header: 'Project',
                     size: 100,
                     enableSorting: false,
+                    filterVariant: 'select',
                     filterSelectOptions: projects,
                 },
                 {
@@ -109,6 +131,7 @@ function ReportListComponent() {
                     header: 'Department',
                     size: 180,
                     enableSorting: false,
+                    filterVariant: 'select',
                     filterSelectOptions: departments,
                 },
                 {
@@ -116,6 +139,7 @@ function ReportListComponent() {
                     header: 'Category',
                     size: 80,
                     enableSorting: false,
+                    filterVariant: 'select',
                     filterSelectOptions: work_categories,
                 },
                 {

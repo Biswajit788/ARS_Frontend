@@ -30,6 +30,9 @@ const AssetListTable = ({ apiUrl, tableData, setTableData, loading, isAdmin, get
   const navigate = useNavigate();
   const [errors, setErrors] = useState({});
 
+  const token = localStorage.getItem("authToken");
+  if (!token) throw new Error("Authentication token not found");
+
   const validateCell = (key, value) => {
     if (!value || value.trim() === '') {
       setErrors((prev) => ({ ...prev, [key]: 'This field is required' }));
@@ -95,7 +98,6 @@ const AssetListTable = ({ apiUrl, tableData, setTableData, loading, isAdmin, get
       return;
     } else {
       tableData[row.index] = values;
-      //console.log("🚀 ~ file: AssetListTable.js ~ line 92 ~ handleSaveRowEdits ~ values", values)
       //send/receive api updates here, then refetch or update local table data for re-render
       axios.post(`${apiUrl}/items/updateItem/` + values._id, {
         project: values.project,
@@ -125,6 +127,10 @@ const AssetListTable = ({ apiUrl, tableData, setTableData, loading, isAdmin, get
         itemUser: values.itemUser,
         itemLoc: values.itemLoc,
         remarks: values.remarks,
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       })
         .then(res => {
           if (res.status === 200) {
@@ -169,7 +175,11 @@ const AssetListTable = ({ apiUrl, tableData, setTableData, loading, isAdmin, get
       }).then((result) => {
         if (result.isConfirmed) {
           //send api delete request here, then refetch or update local table data for re-render
-          axios.get(`${apiUrl}/items/deleteItem/` + row.getValue('_id'))
+          axios.get(`${apiUrl}/items/deleteItem/` + row.getValue('_id'), {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          })
             .then(res => {
               if (res.status === 200) {
                 Swal.fire(
@@ -215,7 +225,11 @@ const AssetListTable = ({ apiUrl, tableData, setTableData, loading, isAdmin, get
       }).then((result) => {
         if (result.isConfirmed) {
           //send api delete request here, then refetch or update local table data for re-render
-          axios.get(`${apiUrl}/items/markItem/` + row.getValue('_id'))
+          axios.get(`${apiUrl}/items/markItem/` + row.getValue('_id'), {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          })
             .then(res => {
               if (res.status === 201) {
                 Swal.fire(

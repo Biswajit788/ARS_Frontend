@@ -35,24 +35,33 @@ const Vendor = () => {
     const getTableData = async () => {
         setLoading(true);
         try {
+            const token = localStorage.getItem("authToken");
+            if (!token) throw new Error("Authentication token not found");
+
             const response = await axios({
                 method: 'get',
                 url: `${apiUrl}/vendors`,
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
             });
+
             setTableData(response.data);
-        }
-        catch (err) {
-            console.log(err);
+        } catch (err) {
+            console.log(`Error fetching data: ${err.message}`);
         } finally {
             setLoading(false);
         }
-    }
+    };
+
 
     useEffect(() => {
         getTableData();
     }, [])
 
     const handleCreateNewRow = (newValues) => {
+        const token = localStorage.getItem("authToken");
+        if (!token) throw new Error("Authentication token not found");
         axios.post(`${apiUrl}/vendors/addVendor/`, {
             vendorId: newValues.vendorID,
             vName: newValues.vName,
@@ -62,6 +71,10 @@ const Vendor = () => {
             msmeRegNo: newValues.msmeRegNo,
             msmeCate: newValues.msmeCate,
             msmeGender: newValues.msmeGender,
+        }, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
         })
             .then(res => {
                 if (res.status === 200) {
@@ -72,8 +85,7 @@ const Vendor = () => {
                     });
                     tableData.push(newValues);
                     setTableData([...tableData]);
-                    // Optional: Reload the page or update the data
-                    // window.location.reload();
+                    getTableData();
                 } else {
                     throw new Error('Unexpected response from server');
                 }
@@ -82,7 +94,7 @@ const Vendor = () => {
                 console.error('Error:', error);
                 if (error.response && error.response.status === 400) {
                     const { vGstin } = newValues;
-                    toast.error(`GSTIN- ${vGstin} already exists`, {
+                    toast.error(`Vendor with GSTIN- ${vGstin} already exists`, {
                         position: "top-center",
                         autoClose: 2000,
                         theme: "colored",
@@ -100,14 +112,21 @@ const Vendor = () => {
     const handleSaveRowEdits = async ({ exitEditingMode, row, values }) => {
         try {
             await vendorValidationSchema.validate(values, { abortEarly: false });
-            if (!window.confirm(`Vendor details will be updated, Please confirm update?`)) {
+            if (!window.confirm(`Vendor with ID ${row.getValue('vendorId')} will be updated, Please confirm?`)) {
                 toast.info('You cancel Update action', {
                     position: "top-center",
                     autoClose: 1000
                 })
                 return;
             }
-            const response = await axios.patch(`${apiUrl}/vendors/updateVendor/${values._id}`, values);
+
+            const token = localStorage.getItem("authToken");
+            if (!token) throw new Error("Authentication token not found");
+            const response = await axios.patch(`${apiUrl}/vendors/updateVendor/${values._id}`, values, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
             if (response.status === 200) {
                 toast.success('Vendor updated successfully', {
                     position: "top-center",
@@ -142,7 +161,7 @@ const Vendor = () => {
     const handleDeleteRow = useCallback(
         (row) => {
             if (
-                !window.confirm(`Selected Vendor will be deleted. Please Confirm?`)
+                !window.confirm(`Vendor with ID ${row.getValue('vendorId')} will be deleted. Please Confirm?`)
             ) {
                 toast.info('You have cancel Delete action', {
                     position: "top-center",
@@ -151,7 +170,13 @@ const Vendor = () => {
                 return;
             }
             //send api delete request here, then refetch or update local table data for re-render
-            axios.get(`${apiUrl}/vendors/deleteVendor/` + row.getValue('_id'))
+            const token = localStorage.getItem("authToken");
+            if (!token) throw new Error("Authentication token not found");
+            axios.get(`${apiUrl}/vendors/deleteVendor/` + row.getValue('_id'), {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
                 .then(res => {
                     if (res.status === 200) {
                         toast.error('Vendor deleted successfully', {

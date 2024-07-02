@@ -1,0 +1,70 @@
+.form-box {
+    display: block;
+    border: 1px solid #ddd;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 600px; /* Increase the max-width to make the form wider */
+    background-color: #fff;
+    margin-bottom: 1rem;
+  }
+  
+  .form-floating > .form-control {
+    height: calc(3.5rem + 2px);
+    padding: 1rem 0.75rem;
+    width: 100%; /* Ensure the form control takes the full width of the form */
+  }
+  
+  .form-floating > .form-control::placeholder {
+    opacity: 0;
+  }
+  
+  .form-floating > .form-control:not(:placeholder-shown) ~ .form-label {
+    font-size: 0.75rem;
+    color: #6c757d;
+  }
+  
+
+  .table thead th {
+    width: auto; /* Let the browser determine the width for headers */
+  }
+  
+  .table tbody td {
+    width: auto; /* Default width for table data cells */
+  }
+  
+  .table tbody td:nth-child(1) {
+    width: 5%; /* Width for the first column */
+  }
+  
+  .table tbody td:nth-child(2) {
+    width: 45%; /* Width for the second column */
+  }
+  
+  .table tbody td:nth-child(3) {
+    width: 10%; /* Width for the third column */
+  }
+  
+  .table tbody td:nth-child(4) {
+    width: 15%; /* Width for the fourth column */
+  }
+  
+  .table tbody td:nth-child(5) {
+    width: 10%; /* Width for the fourth column */
+  }
+
+  .custom-button {
+    padding: 5px 10px;
+    font-size: 14px;
+  }
+  
+  .custom-button-lg {
+    padding: 10px 20px;
+    font-size: 18px;
+  }
+  
+  .custom-button-sm {
+    padding: 2px 5px;
+    font-size: 12px;
+  }

@@ -2,6 +2,7 @@
   "name": "react-procurement-system",
   "version": "0.1.0",
   "private": true,
+  "proxy": "http://10.3.0.57:5000",
   "dependencies": {
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
@@ -25,6 +26,7 @@
     "export-to-csv": "^1.3.0",
     "export-to-csv-fix-source-map": "^0.2.1",
     "formik": "^2.2.9",
+    "js-cookie": "^3.0.5",
     "jwt-decode": "^4.0.0",
     "material-react-table": "^2.13.0",
     "material-table": "^1.63.0",
