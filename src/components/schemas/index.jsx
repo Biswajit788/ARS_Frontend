@@ -61,12 +61,12 @@ export const formInputSchema = Yup.object({
         then: Yup.string().required('Enter vendor registration'),
         otherwise: Yup.string().notRequired()
     }),
-    condition2: Yup.string().when('vendor_category', {
+    caste: Yup.string().when('vendor_category', {
         is: (val) => val === 'MSE',
         then: Yup.string().required('Select caste'),
         otherwise: Yup.string().notRequired()
     }),
-    condition5: Yup.string().when('vendor_category', {
+    gender: Yup.string().when('vendor_category', {
         is: (val) => val === 'MSE',
         then: Yup.string().required('Select gender'),
         otherwise: Yup.string().notRequired()
