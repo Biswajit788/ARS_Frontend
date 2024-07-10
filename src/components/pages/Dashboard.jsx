@@ -69,7 +69,7 @@ function Dashboard() {
       <div className="table-title">
         <span>Asset Database</span>
       </div>
-      <div className="table-content">
+      <div className="table-content mb-3">
         <AssetListTable
           tableData={tableData}
           setTableData={setTableData}

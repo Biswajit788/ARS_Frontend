@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
+import {useNavigate} from 'react-router-dom'
 import { Form, Button } from 'react-bootstrap';
 import './SopStyle.css';
 import axios from 'axios';
@@ -7,8 +8,10 @@ const FormComponent = ({ fetchFiles }) => {
 
   const apiUrl = process.env.REACT_APP_API_URL;
 
+  const navigate = useNavigate();
   const [title, setTitle] = useState('');
   const [file, setFile] = useState(null);
+  const fileInputRef = useRef(null);
   const [module, setModule] = useState('');
 
   const handleTitleChange = (e) => {
@@ -43,8 +46,12 @@ const FormComponent = ({ fetchFiles }) => {
         }
         setTitle('');
         setModule('');
-        setFile(null);
+        setFile('null');
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
         fetchFiles(); // Refresh file list after upload
+        navigate(0);
       } catch (error) {
         if (error.response && error.response.status === 403) {
           alert('Access denied. You are not Authorized.');

@@ -112,8 +112,8 @@ const AssetListTable = ({ apiUrl, tableData, setTableData, loading, isAdmin, get
         vendoradd: values.vendoradd,
         vendor_category: values.vendor_category,
         reg_no: values.reg_no,
-        condition2: values.condition2,
-        condition5: values.condition5,
+        caste: values.caste,
+        gender: values.gender,
         gstin: values.gstin,
         reason: values.reason,
         order_no: values.order_no,
@@ -403,7 +403,7 @@ const AssetListTable = ({ apiUrl, tableData, setTableData, loading, isAdmin, get
         },
         {
           accessorKey: 'warranty',
-          header: 'Product Warranty (if applicable)',
+          header: 'Product Warranty',
           size: 80,
           enableSorting: false,
           muiEditTextFieldProps: ({ cell }) => ({
@@ -413,23 +413,42 @@ const AssetListTable = ({ apiUrl, tableData, setTableData, loading, isAdmin, get
           }),
         },
         {
-          accessorFn: (row) => moment(row.installation_dt).format("YYYY-MM-DD"),
-          id: 'installation_dt',
-          header: 'Product Installation Date (yyyy-mm-dd)',
+          accessorKey: 'installation_dt',
+          header: 'Product Installation Date',
           size: 180,
           enableSorting: false,
           muiEditTextFieldProps: ({ cell }) => ({
             ...getCommonEditTextFieldProps(cell),
-            placeholder: 'YYYY-MM-DD',
-            label: 'Product Installation (YYYY-MM-DD)',
+            label: 'Product Installation Date (YYYY-MM-DD):',
             required: true,
           }),
-
+        },
+        {
+          accessorKey: 'licenseStartDate',
+          header: 'If Category is Software, License Start Date',
+          size: 180,
+          enableSorting: false,
+          muiEditTextFieldProps: ({ cell }) => ({
+            ...getCommonEditTextFieldProps(cell),
+            label: 'License Start Date (YYYY-MM-DD):',
+            required: true,
+          }),
+        },
+        {
+          accessorKey: 'licenseEndDate',
+          header: 'If Category is Software, License End Date',
+          size: 180,
+          enableSorting: false,
+          muiEditTextFieldProps: ({ cell }) => ({
+            ...getCommonEditTextFieldProps(cell),
+            label: 'License End Date (YYYY-MM-DD):',
+            required: true,
+          }),
         },
         {
           accessorKey: 'model',
           header: 'Product Model No.',
-          size: 240,
+          size: 200,
           enableSorting: false,
           muiEditTextFieldProps: ({ cell }) => ({
             ...getCommonEditTextFieldProps(cell),
@@ -490,6 +509,38 @@ const AssetListTable = ({ apiUrl, tableData, setTableData, loading, isAdmin, get
             }}>
               {cell.getValue()}</Box>
           }
+        },
+        {
+          accessorKey: 'unitPrice',
+          header: 'Unit Price (INR)',
+          size: 180,
+          Cell: ({ cell }) =>
+            <Box
+              component="span"
+              sx={(theme) => ({
+                backgroundColor:
+                  cell.getValue() <= 50_000
+                    ? theme.palette.success.dark
+                    : cell.getValue() > 50_000 && cell.getValue() < 100_000
+                      ? theme.palette.warning.dark
+                      : theme.palette.error.dark,
+                borderRadius: '0.25rem',
+                color: '#fff',
+                maxWidth: '9ch',
+                p: '0.20rem',
+              })}
+            >
+              {cell.getValue()?.toLocaleString?.('en-IN', {
+                style: 'currency',
+                currency: 'INR',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </Box>,
+          muiEditTextFieldProps: ({ cell }) => ({
+            ...getCommonEditTextFieldProps(cell),
+            required: true,
+          }),
         },
         {
           accessorKey: 'additional_info',
@@ -585,7 +636,7 @@ const AssetListTable = ({ apiUrl, tableData, setTableData, loading, isAdmin, get
           }),
         },
         {
-          accessorKey: 'condition2',
+          accessorKey: 'caste',
           header: 'If MSE, Whether belong to SC/ST?',
           size: 200,
           editVariant: 'select',
@@ -610,7 +661,7 @@ const AssetListTable = ({ apiUrl, tableData, setTableData, loading, isAdmin, get
           }),
         },
         {
-          accessorKey: 'condition5',
+          accessorKey: 'gender',
           header: 'If MSE, Whether Women or Not?',
           size: 100,
           editVariant: 'select',
@@ -648,7 +699,7 @@ const AssetListTable = ({ apiUrl, tableData, setTableData, loading, isAdmin, get
         },
         {
           accessorKey: 'order_no',
-          header: 'Contract No.',
+          header: 'PO Number',
           size: 200,
           enableSorting: false,
           filtering: true,
@@ -668,8 +719,8 @@ const AssetListTable = ({ apiUrl, tableData, setTableData, loading, isAdmin, get
         {
           accessorFn: (row) => moment(row.order_dt).format("YYYY-MM-DD"),
           id: 'order_dt',
-          header: 'Contract Dated (yyyy-mm-dd)',
-          size: 180,
+          header: 'PO Date (yyyy-mm-dd)',
+          size: 150,
           enableSorting: false,
           muiEditTextFieldProps: ({ cell }) => ({
             ...getCommonEditTextFieldProps(cell),
@@ -681,7 +732,7 @@ const AssetListTable = ({ apiUrl, tableData, setTableData, loading, isAdmin, get
         },
         {
           accessorKey: 'price',
-          header: 'Contract Price (INR)',
+          header: 'Total PO Value (INR)',
           size: 180,
           Cell: ({ cell }) =>
             <Box
@@ -755,7 +806,7 @@ const AssetListTable = ({ apiUrl, tableData, setTableData, loading, isAdmin, get
         },
         {
           accessorKey: 'itemUser',
-          header: 'Name of the User (if applicable)',
+          header: 'Name of the User',
           size: 160,
           enableSorting: false,
           muiEditTextFieldProps: ({ cell }) => ({
@@ -773,7 +824,7 @@ const AssetListTable = ({ apiUrl, tableData, setTableData, loading, isAdmin, get
         },
         {
           accessorKey: 'itemLoc',
-          header: 'Item Physical Location',
+          header: 'Item Location',
           size: 160,
           enableSorting: false,
           muiEditTextFieldProps: ({ cell }) => ({
@@ -905,36 +956,41 @@ const AssetListTable = ({ apiUrl, tableData, setTableData, loading, isAdmin, get
               wordWrap: 'break-word',
             }}
           >
-            <Typography style={{ fontFamily: 'monospace' }}><strong>Description:</strong>&nbsp; {row.original.description}</Typography>
+            <Typography className='mb-3' style={{ fontFamily: 'monospace' }}><strong>Description:</strong>&nbsp; {row.original.description}</Typography>
             <Typography></Typography>
+            <Typography style={{ fontFamily: 'monospace' }}><strong>Product Category:&nbsp;</strong> {row.original.category}</Typography>
+            <Typography style={{ fontFamily: 'monospace' }}><strong>Category Name (if Select Others):&nbsp;</strong> {row.original.cate_others}</Typography>
             <Typography style={{ fontFamily: 'monospace' }}><strong>Product Warranty:&nbsp;</strong> {row.original.warranty}</Typography>
             <Typography style={{ fontFamily: 'monospace' }}><strong>Product Installation Date:&nbsp;</strong> {row.original.installation_dt}</Typography>
+            <Typography style={{ fontFamily: 'monospace' }}><strong>&nbsp;</strong></Typography>
+            <Typography style={{ fontFamily: 'monospace' }}><strong>License Start Date:&nbsp;</strong> {row.original.licenseStartDate}</Typography>
+            <Typography style={{ fontFamily: 'monospace' }}><strong>&nbsp;</strong></Typography>
+            <Typography style={{ fontFamily: 'monospace' }}><strong>License End Date:&nbsp;</strong> {row.original.licenseEndDate}</Typography>
             <Typography style={{ fontFamily: 'monospace' }}><strong>Product Model Number:&nbsp;</strong> {row.original.model}</Typography>
             <Typography style={{ fontFamily: 'monospace' }}><strong>Product Serial Number:&nbsp;</strong> {row.original.serial}</Typography>
             <Typography style={{ fontFamily: 'monospace' }}><strong>Product Part Number:&nbsp;</strong> {row.original.part_no}</Typography>
             <Typography style={{ fontFamily: 'monospace' }}><strong>Product Asset ID :&nbsp;</strong> {row.original.asset_id}</Typography>
+            <Typography style={{ fontFamily: 'monospace' }}><strong>Unit Price (in &#x20b9;) :&nbsp;</strong> {row.original.unitPrice}.00/-</Typography>
             <Typography style={{ fontFamily: 'monospace' }}><strong>Additional Info:&nbsp;</strong> {row.original.additional_info}</Typography>
             <Typography style={{ fontFamily: 'monospace' }}><strong>Vendor Name:&nbsp;</strong> {row.original.supplier}</Typography>
             <Typography style={{ fontFamily: 'monospace' }}><strong>Vendor Address:&nbsp;</strong> {row.original.vendoradd}</Typography>
             <Typography style={{ fontFamily: 'monospace' }}><strong>Vendor Category:&nbsp;</strong> {row.original.vendor_category}</Typography>
             <Typography style={{ fontFamily: 'monospace' }}><strong>If MSE, Registration Number:&nbsp;</strong> {row.original.reg_no}</Typography>
-            <Typography style={{ fontFamily: 'monospace' }}><strong>If MSE, Whether belong to SC/ST?:&nbsp;</strong> {row.original.condition2}</Typography>
-            <Typography style={{ fontFamily: 'monospace' }}><strong>If MSE, Whether Women or Not?:&nbsp;</strong> {row.original.condition5}</Typography>
+            <Typography style={{ fontFamily: 'monospace' }}><strong>If MSE, Whether belong to SC/ST?:&nbsp;</strong> {row.original.caste}</Typography>
+            <Typography style={{ fontFamily: 'monospace' }}><strong>If MSE, Whether Women or Not?:&nbsp;</strong> {row.original.gender}</Typography>
             <Typography style={{ fontFamily: 'monospace' }}><strong>Vendor GSTIN:&nbsp;</strong> {row.original.gstin}</Typography>
-            <Typography style={{ fontFamily: 'monospace' }}><strong>Contract Number:&nbsp;</strong> {row.original.order_no}</Typography>
-            <Typography style={{ fontFamily: 'monospace' }}><strong>Contract Dated (yyyy-mm-dd):&nbsp;</strong> {row.original.order_dt}</Typography>
-            <Typography style={{ fontFamily: 'monospace' }}><strong>Contract Price (INR):&nbsp;</strong> {row.original.price}/-</Typography>
-            <Typography style={{ fontFamily: 'monospace' }}><strong>Contract Work Category:&nbsp;</strong> {row.original.category}</Typography>
-            <Typography style={{ fontFamily: 'monospace' }}><strong>Work Category (if Select Others):&nbsp;</strong> {row.original.cate_others}</Typography>
+            <Typography style={{ fontFamily: 'monospace' }}><strong>PO Number:&nbsp;</strong> {row.original.order_no}</Typography>
+            <Typography style={{ fontFamily: 'monospace' }}><strong>PO Dated (yyyy-mm-dd):&nbsp;</strong> {row.original.order_dt}</Typography>
+            <Typography style={{ fontFamily: 'monospace' }}><strong>Total PO Value (in &#x20b9;):&nbsp;</strong> {row.original.price}.00/-</Typography>
             <Typography style={{ fontFamily: 'monospace' }}><strong>Mode of purchase:&nbsp;</strong> {row.original.mode}</Typography>
             <Typography style={{ fontFamily: 'monospace' }}><strong>Reason of purchase outside GEM?:&nbsp;</strong> {row.original.reason}</Typography>
             <Typography style={{ fontFamily: 'monospace' }}><strong>Name of the User (if applicable):&nbsp;</strong> {row.original.itemUser}</Typography>
-            <Typography style={{ fontFamily: 'monospace' }}><strong>Product Physical Location:&nbsp;</strong> {row.original.itemLoc}</Typography>
+            <Typography style={{ fontFamily: 'monospace' }}><strong>Location:&nbsp;</strong> {row.original.itemLoc}</Typography>
             <Typography style={{ fontFamily: 'monospace' }}><strong>Remarks (if any):&nbsp;</strong> {row.original.remarks}</Typography>
-            <Typography></Typography>
+            <Typography></Typography><Typography></Typography>
             <Typography className='mt-3' style={{ fontFamily: 'monospace' }}><strong>Created By:&nbsp;</strong> {row.original.created_by}</Typography>
             <Typography></Typography>
-            <Typography style={{ fontFamily: 'monospace' }}><strong>Time:&nbsp;</strong> {moment(row.original.createdAt).format("DD-MM-YYYY hh:mm:ss")}</Typography>
+            <Typography className='mb-3' style={{ fontFamily: 'monospace' }}><strong>Time:&nbsp;</strong> {moment(row.original.createdAt).format("DD-MM-YYYY hh:mm:ss")}</Typography>
           </Box>
         )}
         renderRowActionMenuItems={({ closeMenu, row, table }) => [

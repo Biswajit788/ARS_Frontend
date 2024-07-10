@@ -69,11 +69,11 @@ export const conditions = [
 ];
 
 export const categories = [
+  'General',
   'SC',
   'ST',
   'OBC',
   'None',
-  'NA',
 ];
 
 export const modes = [

@@ -6,10 +6,12 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './Navbar.css';
 import Swal from 'sweetalert2';
 import ProfileModal from './profileModal';
+import ChangePasswordModal from "./ChangePasswordModal";
 
 const Navbar = () => {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
+  const [isPasswordChangeModal, setIsPasswordChangeModal] = useState(false);
   const [user, setUser] = useState([]);
   const [isAdmin, setIsAdmin] = useState(false)
 
@@ -72,6 +74,10 @@ const Navbar = () => {
 
   const openModal = () => setIsOpen(true);
   const closeModal = () => setIsOpen(false);
+  const openPasswordModal = () => {
+    setIsPasswordChangeModal(true);
+  }
+  const closePasswordModal = () => setIsPasswordChangeModal(false);
 
   return (
     <div>
@@ -175,7 +181,7 @@ const Navbar = () => {
               </li>
               <li className="nav-item">
                 <NavLink to="/sop" className="nav-link text-decoration-none">
-                  SOP
+                  ERP
                 </NavLink>
               </li>
             </ul>
@@ -210,7 +216,7 @@ const Navbar = () => {
                   <a className="dropdown-item" href="#dropdown-item" onClick={openModal}><i className="fa fa-user fa-xs" aria-hidden="true"></i>&nbsp;&nbsp;My profile</a>
                 </li>
                 <li>
-                  <a className="dropdown-item" href="#dropdown-item"><i className="fa fa-cog fa-xs" aria-hidden="true"></i>&nbsp;&nbsp;Settings</a>
+                  <a className="dropdown-item" href="#dropdown-item" onClick={openPasswordModal}><i className="fa fa-cog fa-xs" aria-hidden="true"></i>&nbsp;&nbsp;Change Password</a>
                 </li>
                 <li>
                   <a className="dropdown-item" href="#dropdown-item" onClick={logout}>
@@ -224,6 +230,7 @@ const Navbar = () => {
         </div>
       </nav>
       <ProfileModal isOpen={isOpen} closeModal={closeModal} user={user} />
+      <ChangePasswordModal isPasswordChangeModal={isPasswordChangeModal} closePasswordModal={closePasswordModal} user={user}/>
     </div>
   );
 };

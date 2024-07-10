@@ -5,8 +5,8 @@ import Login from "./components/Login";
 import SignUp from "./components/signup_component";
 import Home from "./components/pages/Home";
 import Dashboard from "./components/pages/Dashboard";
-import AddItem from "./components/pages/ProcurementForm";
-import Report from "./components/pages/ReportHome";
+import AddItem from "./components/pages/AssetForm/CreateAssetMain"
+import Report from "./components/pages/Report/ReportHome";
 import Action from './components/pages/Pending';
 import Error from "./components/pages/Error";
 import VendorList from "./components/admin/vendor/Vendor";
@@ -59,6 +59,7 @@ const AppRoutes = () => {
               <Route path="/additem" element={<PrivateRoute><AddItem /></PrivateRoute>} />
               <Route path="/report" element={<PrivateRoute><Report /></PrivateRoute>} />
               <Route path="/sop" element={<PrivateRoute><Sop /></PrivateRoute>} />
+
               {/* Admin Pages */}
               <Route path="/admin/userlist" element={<AdminRoute><UserList /></AdminRoute>} />
               <Route path="/admin/supplier" element={<AdminRoute><VendorList /></AdminRoute>} />

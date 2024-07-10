@@ -1,9 +1,12 @@
-
 @media (max-width: 768px){
     .rowstyle {
         display: flex;
         flex-direction: row !important;
     }
+}
+
+.container {
+    width: 90%;
 }
 
 .form-title{
@@ -48,7 +51,7 @@
 .form-error{
     color: red;
     padding: 5px;
-    font-size: 14;
+    font-size: 12px;
 }
 
 button:disabled{
@@ -78,3 +81,7 @@ label{
     color: blue;
     width: 600px;
   }
+
+span .custom-label-user-details {
+    margin-left: 10px;
+}

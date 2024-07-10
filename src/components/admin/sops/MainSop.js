@@ -134,6 +134,7 @@ const App = () => {
                     fileList={fileList}
                     handleViewFile={handleViewFile}
                     handleDownloadFile={handleDownloadFile}
+                    userRole = {userRole}
                 />
                 <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
                     <Modal.Header closeButton>

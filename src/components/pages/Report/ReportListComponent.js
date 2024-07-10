@@ -5,10 +5,10 @@ import { Box, Button } from '@mui/material';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { mkConfig, generateCsv, download } from 'export-to-csv';
 import moment from 'moment';
-import { projects, departments, work_categories } from './data';
+import { projects, departments, work_categories } from '../data';
 import ClipLoader from 'react-spinners/ClipLoader';
 import { css } from '@emotion/react';
-import DateRangeFilter from './DateRangeFilter'; // Make sure to import the DateRangeFilter component
+import DateRangeFilter from '../DateRangeFilter'; // Make sure to import the DateRangeFilter component
 
 const override = css`
   display: block;
@@ -32,34 +32,34 @@ function ReportListComponent() {
         const getTableData = async () => {
             setLoading(true);
             try {
-              const token = localStorage.getItem("authToken");
-              if (!token) throw new Error("Authentication token not found");
-        
-              const decodedToken = parseJwt(token);
-              const project = decodedToken.project;
-              const dept = decodedToken.dept;
-              const role = decodedToken.role;
-    
-              const endpoint = role === "Admin" ? "admin/items" : "user/items";
-        
-              const response = await axios.post(`${apiUrl}/${endpoint}`, null, {
-                params: {
-                  project,
-                  dept,
-                  role,
-                },
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                },
-              });
-        
-              setTableData(response.data);
+                const token = localStorage.getItem("authToken");
+                if (!token) throw new Error("Authentication token not found");
+
+                const decodedToken = parseJwt(token);
+                const project = decodedToken.project;
+                const dept = decodedToken.dept;
+                const role = decodedToken.role;
+
+                const endpoint = role === "Admin" ? "admin/items" : "user/items";
+
+                const response = await axios.post(`${apiUrl}/${endpoint}`, null, {
+                    params: {
+                        project,
+                        dept,
+                        role,
+                    },
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+
+                setTableData(response.data);
             } catch (error) {
-              console.log(`Error fetching data`, error);
+                console.log(`Error fetching data`, error);
             } finally {
                 setLoading(false);
             }
-          }
+        }
 
         getTableData();
     }, [apiUrl]);
@@ -136,7 +136,7 @@ function ReportListComponent() {
                 },
                 {
                     accessorKey: 'category',
-                    header: 'Category',
+                    header: 'Product Category',
                     size: 80,
                     enableSorting: false,
                     filterVariant: 'select',
@@ -144,20 +144,46 @@ function ReportListComponent() {
                 },
                 {
                     accessorKey: 'cate_others',
-                    header: 'Category (if Select Others)',
+                    header: 'Product Category (if Select Others)',
                     size: 80,
                     enableSorting: false,
                 },
                 {
                     accessorKey: 'warranty',
-                    header: 'Warranty (in Yrs)',
+                    header: 'Product Warranty (in Yrs)',
                     size: 80,
                     enableSorting: false,
                 },
                 {
                     accessorKey: 'installation_dt',
-                    header: 'Item Installation Date (dd-mm-yyyy)',
-                    size: 200,
+                    header: 'Product Installation Date',
+                    size: 180,
+                    enableSorting: true,
+                    Cell: ({ cell }) => {
+                        return <Box sx={{
+                            whiteSpace: 'pre-wrap',
+                            wordWrap: 'break-word',
+                        }}>
+                            {cell.getValue()}</Box>
+                    }
+                },
+                {
+                    accessorKey: 'licenseStartDate',
+                    header: 'If Category is Software, License Start date',
+                    size: 180,
+                    enableSorting: true,
+                    Cell: ({ cell }) => {
+                        return <Box sx={{
+                            whiteSpace: 'pre-wrap',
+                            wordWrap: 'break-word',
+                        }}>
+                            {cell.getValue()}</Box>
+                    }
+                },
+                {
+                    accessorKey: 'licenseEndDate',
+                    header: 'If Category is Software, License End date',
+                    size: 180,
                     enableSorting: true,
                     Cell: ({ cell }) => {
                         return <Box sx={{
@@ -201,7 +227,7 @@ function ReportListComponent() {
                 },
                 {
                     accessorKey: 'asset_id',
-                    header: 'Item Asset ID',
+                    header: 'Asset Identification Number',
                     size: 80,
                     enableSorting: false,
                     Cell: ({ cell }) => {
@@ -213,8 +239,36 @@ function ReportListComponent() {
                     }
                 },
                 {
+                    accessorKey: 'unitPrice',
+                    header: 'Unit Price (INR)',
+                    size: 180,
+                    Cell: ({ cell }) =>
+                        <Box
+                            component="span"
+                            sx={(theme) => ({
+                                backgroundColor:
+                                    cell.getValue() <= 50_000
+                                        ? theme.palette.success.dark
+                                        : cell.getValue() > 50_000 && cell.getValue() < 100_000
+                                            ? theme.palette.warning.dark
+                                            : theme.palette.error.dark,
+                                borderRadius: '0.25rem',
+                                color: '#fff',
+                                maxWidth: '9ch',
+                                p: '0.20rem',
+                            })}
+                        >
+                            {cell.getValue()?.toLocaleString?.('en-IN', {
+                                style: 'currency',
+                                currency: 'INR',
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                            })}
+                        </Box>,
+                },
+                {
                     accessorKey: 'additional_info',
-                    header: 'Additional Info',
+                    header: 'Product Additional Info',
                     size: 250,
                     enableSorting: false,
                     Cell: ({ cell }) => {
@@ -258,20 +312,20 @@ function ReportListComponent() {
                     enableSorting: false,
                 },
                 {
-                    accessorKey: 'condition2',
+                    accessorKey: 'caste',
                     header: 'If MSE Whether belong to SC/ST?',
                     size: 160,
                     enableSorting: false,
                 },
                 {
-                    accessorKey: 'condition5',
+                    accessorKey: 'gender',
                     header: 'If MSE Whether Women or Not?',
                     size: 160,
                     enableSorting: false,
                 },
                 {
                     accessorKey: 'reg_no',
-                    header: 'Registration No',
+                    header: 'MSE Registration No',
                     size: 80,
                     enableSorting: false,
                 },

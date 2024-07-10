@@ -107,9 +107,13 @@ export default function PendingActionList() {
 
     const getDataList = async () => {
       try {
+        const token = window.localStorage.getItem('authToken');
         const collection = await axios({
           method: "get",
-          url: `${apiUrl}/admin/items/pendingTransfer`
+          url: `${apiUrl}/admin/items/pendingTransfer`,
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         });
         setTableData(collection.data);
       } catch (error) {
@@ -126,12 +130,14 @@ export default function PendingActionList() {
         autoHeight
         rows={tableData}
         columns={[
-          { field: '_id', headerName: 'ID', width: 90 },
-          { field: 'description', headerName: 'Item Description', width: 300 },
-          { field: 'project', headerName: 'Project Name', width: 150 },
-          { field: 'dept', headerName: 'Department', width: 150 },
-          { field: 'order_no', headerName: 'Contract Order No.', width: 200 },
-          { field: 'order_dt', headerName: 'Order Dated', width: 130 },
+          { field: '_id', headerName: 'SystemID', width: 90 },
+          { field: 'asset_id', headerName: 'Asset Id', width: 180 },
+          { field: 'description', headerName: 'Asset Description', width: 250 },
+          { field: 'model', headerName: 'Model Number', width: 150 },
+          { field: 'serial', headerName: 'Serial Number', width: 150 },
+          { field: 'project', headerName: 'Current Location', width: 250 },
+          { field: 'order_no', headerName: 'PO Number', width: 200 },
+          { field: 'order_dt', headerName: 'PO Date', width: 150 },
           {
             field: 'action',
             headerName: 'Action',
@@ -144,7 +150,12 @@ export default function PendingActionList() {
               };
               const onClickDel = (e) => {
                 const currentRow = params.row
-                axios.get(`${apiUrl}/items/removeTransferItemList/` + currentRow._id)
+                const token = window.localStorage.getItem('authToken');
+                axios.get(`${apiUrl}/items/removeTransferItemList/` + currentRow._id, {
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                  },
+                })
                   .then(res => {
                     if (res.status === 200) {
                       //alert('Item deleted successfully.');
