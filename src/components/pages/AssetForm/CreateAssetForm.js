@@ -5,7 +5,7 @@ import { Modal, Button, Form, Row, Col, FloatingLabel } from 'react-bootstrap';
 import axios from 'axios';
 import { Formik, Field, FieldArray, ErrorMessage } from 'formik';
 import { formInputSchema } from '../../schemas/index';
-import { projects, departments, work_categories, modes } from '../data';
+import { projects, departments, work_categories, item_categories, modes } from '../data';
 import { ToastContainer } from 'react-toastify';
 import Swal from 'sweetalert2';
 import 'react-toastify/dist/ReactToastify.css';
@@ -106,6 +106,8 @@ function WorkOrderModal() {
         description: "",
         category: "",
         cate_others: "",
+        itemCategory: "",
+        item_cate_others: "",
         installation_dt: "0",
         assets: [{
             serial: '', model: '', part_no: '', asset_id: '',
@@ -132,7 +134,9 @@ function WorkOrderModal() {
     };
 
     const handleSubmit = async (values, { setSubmitting }) => {
-        const { project, dept, description, category, cate_others, installation_dt, supplier, order_no, order_dt, price, vendor_category,
+        const category = values.category === 'Others' ? values.cate_others : values.category;
+        const itemCategory = values.itemCategory === 'Others' ? values.item_cate_others : values.itemCategory;
+        const { project, dept, description, installation_dt, supplier, order_no, order_dt, price, vendor_category,
             caste, reg_no, gstin, reason, remarks, licenseStartDate, licenseEndDate,
             assets, additional_info, vendoradd, gender, mode, status, } = values;
         try {
@@ -140,7 +144,7 @@ function WorkOrderModal() {
             const token = window.localStorage.getItem('authToken');
             setErrorMessage(null);
             axios.post(`${apiUrl}/items/createItem`, {
-                project, dept, description, category, cate_others, installation_dt, licenseStartDate, licenseEndDate,
+                project, dept, description, category, itemCategory, installation_dt, licenseStartDate, licenseEndDate,
                 assets, additional_info, supplier, vendoradd, vendor_category, reg_no, caste, gender,
                 gstin, reason, order_no, order_dt, price, mode, remarks, status,
                 created_by: usrData.uid
@@ -323,7 +327,7 @@ function WorkOrderModal() {
                                     role="tab"
                                     aria-controls="ex3-tabs-3"
                                     aria-selected="false"
-                                >Vendor / Contractor Details</a>
+                                >Vendor Details</a>
                             </li>
                             <li className="nav-item" role="presentation">
                                 <a
@@ -334,7 +338,7 @@ function WorkOrderModal() {
                                     role="tab"
                                     aria-controls="ex3-tabs-4"
                                     aria-selected="false"
-                                >More Details</a>
+                                >Contract Details</a>
                             </li>
                         </ul>
 
@@ -425,29 +429,9 @@ function WorkOrderModal() {
                                 aria-labelledby="ex3-tab-2"
                             >
                                 <br />
-                                <span className='fst-italic mb-4 text-warning bg-dark font-monospace'>&nbsp;&nbsp;Enter Title of the Item:&nbsp;</span>
-                                <Row className='mb-3 smaller-input'>
-                                    <Col sm={9}>
-                                        <FloatingLabel className='custom-label text-muted' controlId="description" label="Title *">
-                                            <Form.Control
-                                                as="textarea"
-                                                name="description"
-                                                style={{ height: '50px ' }}
-                                                values={values.description}
-                                                onChange={handleChange}
-                                                onBlur={handleBlur}
-                                                isValid={touched.description && !errors.description}
-
-                                            />
-                                        </FloatingLabel>
-                                        {errors.description && touched.description ? (
-                                            <span className='form-error'>{errors.description}</span>
-                                        ) : null}
-                                    </Col>
-                                </Row>
                                 <Row className='mb-4 smaller-input'>
                                     <Col sm={3}>
-                                        <FloatingLabel controlId="category" label="Item Category *">
+                                        <FloatingLabel controlId="category" label="Category *">
                                             <Form.Select
                                                 name="category"
                                                 aria-label="Floating label select"
@@ -485,6 +469,51 @@ function WorkOrderModal() {
                                             </FloatingLabel>
                                             {errors.cate_others && touched.cate_others ? (
                                                 <span className='form-error'>{errors.cate_others}</span>
+                                            ) : null}
+                                        </Col>
+                                    )}
+                                    {values.category === "Hardware" && (
+                                        <Col sm={3}>
+                                            <FloatingLabel controlId="itemCategory" label="Sub-Category *">
+                                                <Form.Select
+                                                    name="itemCategory"
+                                                    aria-label="Floating label select"
+                                                    values={values.itemCategory}
+                                                    onChange={handleChange}
+                                                    onBlur={handleBlur}
+                                                    isValid={touched.itemCategory && !errors.itemCategory}
+                                                    required
+                                                >
+                                                    <option key="" value="">Please select</option>
+                                                    {item_categories.map((item_category) =>
+                                                        <option key={item_category} value={item_category}>{item_category}</option>
+                                                    )}
+                                                    <option key="Others" value="Others">Others</option>
+                                                </Form.Select>
+                                            </FloatingLabel>
+                                            {errors.itemCategory && touched.itemCategory ? (
+                                                <span className='form-error'>{errors.itemCategory}</span>
+                                            ) : null}
+                                        </Col>
+                                    )}
+                                    {values.itemCategory === "Others" && (
+                                        <Col sm={3}>
+                                            <FloatingLabel
+                                                className='text-muted'
+                                                controlId="item_cate_others"
+                                                label="Enter Sub-Category Name"
+                                            >
+                                                <Form.Control
+                                                    name="item_cate_others"
+                                                    values={values.item_cate_others}
+                                                    onChange={handleChange}
+                                                    onBlur={handleBlur}
+                                                    isValid={touched.item_cate_others && !errors.item_cate_others}
+                                                    required
+                                                />
+                                            </FloatingLabel>
+                                            {errors.item_cate_others && touched.item_cate_others ? (
+                                                <span className='form-error'>{errors.item_cate_others}</span>
                                             ) : null}
                                         </Col>
                                     )}
@@ -551,7 +580,7 @@ function WorkOrderModal() {
                                                         <Col sm={1} className="d-flex align-items-center justify-content-center px-0">
                                                             {index > 0 && (
                                                                 <Button variant="link" onClick={() => remove(index)} className="p-0">
-                                                                    <CiCircleMinus color='red'/>
+                                                                    <CiCircleMinus color='red' />
                                                                 </Button>
                                                             )}
                                                         </Col>
@@ -938,7 +967,27 @@ function WorkOrderModal() {
                                 role="tabpanel"
                                 aria-labelledby="ex3-tab-4"
                             >
-                                <Row className='mt-5 mb-3 smaller-input'>
+                                <span className='fst-italic text-warning bg-dark font-monospace'>&nbsp;&nbsp;Enter Work Title:&nbsp;</span>
+                                <Row className='mb-2 smaller-input'>
+                                    <Col sm={9}>
+                                        <FloatingLabel className='custom-label text-muted' controlId="description" label="Title *">
+                                            <Form.Control
+                                                as="textarea"
+                                                name="description"
+                                                style={{ height: '50px ' }}
+                                                values={values.description}
+                                                onChange={handleChange}
+                                                onBlur={handleBlur}
+                                                isValid={touched.description && !errors.description}
+
+                                            />
+                                        </FloatingLabel>
+                                        {errors.description && touched.description ? (
+                                            <span className='form-error'>{errors.description}</span>
+                                        ) : null}
+                                    </Col>
+                                </Row>
+                                <Row className='mb-3 smaller-input'>
                                     <Col sm={4}>
                                         <FloatingLabel
                                             className='text-muted'

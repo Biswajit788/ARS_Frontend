@@ -94,29 +94,29 @@ function ReportListComponent() {
         setDateRange(range);
     };
 
+    // Helper function to extract unique categories and Sub-categories from tableData
+    const getUniqueCategories = (data) => {
+        const category = data.map(item => item.category);
+        return [...new Set(category)];
+    };
+
+    const getUniqueSubCategories = (data) => {
+        const subcategory = data.map(item => item.itemCategory);
+        return [...new Set(subcategory)];
+    };
+    const uniqueCategories = useMemo(() => getUniqueCategories(tableData), [tableData]);
+    const uniqueSubCategories = useMemo(() => getUniqueSubCategories(tableData), [tableData]);
+
     const columns = useMemo(
         () => {
             return [
                 {
                     accessorKey: '_id',
-                    header: 'Sys ID',
+                    header: 'System ID',
                     enableColumnOrdering: false,
                     enableEditing: false, //disable editing on this column
                     enableSorting: false,
                     size: 200,
-                },
-                {
-                    accessorKey: 'description',
-                    header: 'Item Description',
-                    size: 240,
-                    enableSorting: false,
-                    Cell: ({ cell }) => {
-                        return <Box sx={{
-                            whiteSpace: 'pre-wrap',
-                            wordWrap: 'break-word',
-                        }}>
-                            {cell.getValue()}</Box>
-                    }
                 },
                 {
                     accessorKey: 'project',
@@ -135,18 +135,33 @@ function ReportListComponent() {
                     filterSelectOptions: departments,
                 },
                 {
+                    accessorKey: 'asset_id',
+                    header: 'Product Asset Id',
+                    size: 80,
+                    enableSorting: false,
+                    Cell: ({ cell }) => {
+                        return <Box sx={{
+                            whiteSpace: 'pre-wrap',
+                            wordWrap: 'break-word',
+                        }}>
+                            {cell.getValue()}</Box>
+                    }
+                },
+                {
                     accessorKey: 'category',
-                    header: 'Product Category',
+                    header: 'Category',
                     size: 80,
                     enableSorting: false,
                     filterVariant: 'select',
-                    filterSelectOptions: work_categories,
+                    filterSelectOptions: uniqueCategories,
                 },
                 {
-                    accessorKey: 'cate_others',
-                    header: 'Product Category (if Select Others)',
+                    accessorKey: 'itemCategory',
+                    header: 'Sub-Category',
                     size: 80,
                     enableSorting: false,
+                    filterVariant: 'select',
+                    filterSelectOptions: uniqueSubCategories,
                 },
                 {
                     accessorKey: 'warranty',
@@ -195,7 +210,7 @@ function ReportListComponent() {
                 },
                 {
                     accessorKey: 'model',
-                    header: 'Model No.',
+                    header: 'Product Model No.',
                     size: 240,
                     enableSorting: false,
                     Cell: ({ cell }) => {
@@ -208,7 +223,7 @@ function ReportListComponent() {
                 },
                 {
                     accessorKey: 'serial',
-                    header: 'Serial No.',
+                    header: 'Product Serial No.',
                     size: 150,
                     enableSorting: false,
                     Cell: ({ cell }) => {
@@ -221,22 +236,9 @@ function ReportListComponent() {
                 },
                 {
                     accessorKey: 'part_no',
-                    header: 'Part No.',
+                    header: 'Product Part No.',
                     size: 80,
                     enableSorting: false,
-                },
-                {
-                    accessorKey: 'asset_id',
-                    header: 'Asset Identification Number',
-                    size: 80,
-                    enableSorting: false,
-                    Cell: ({ cell }) => {
-                        return <Box sx={{
-                            whiteSpace: 'pre-wrap',
-                            wordWrap: 'break-word',
-                        }}>
-                            {cell.getValue()}</Box>
-                    }
                 },
                 {
                     accessorKey: 'unitPrice',
@@ -268,7 +270,7 @@ function ReportListComponent() {
                 },
                 {
                     accessorKey: 'additional_info',
-                    header: 'Product Additional Info',
+                    header: 'Additional Info',
                     size: 250,
                     enableSorting: false,
                     Cell: ({ cell }) => {
@@ -312,6 +314,12 @@ function ReportListComponent() {
                     enableSorting: false,
                 },
                 {
+                    accessorKey: 'reg_no',
+                    header: 'MSE Registration No',
+                    size: 80,
+                    enableSorting: false,
+                },
+                {
                     accessorKey: 'caste',
                     header: 'If MSE Whether belong to SC/ST?',
                     size: 160,
@@ -324,27 +332,33 @@ function ReportListComponent() {
                     enableSorting: false,
                 },
                 {
-                    accessorKey: 'reg_no',
-                    header: 'MSE Registration No',
-                    size: 80,
-                    enableSorting: false,
-                },
-
-                {
                     accessorKey: 'gstin',
                     header: 'Vendor GSTIN',
                     size: 80,
                     enableSorting: false,
                 },
                 {
+                    accessorKey: 'description',
+                    header: 'PO/Contract Title',
+                    size: 300,
+                    enableSorting: false,
+                    Cell: ({ cell }) => {
+                        return <Box sx={{
+                            whiteSpace: 'pre-wrap',
+                            wordWrap: 'break-word',
+                        }}>
+                            {cell.getValue()}</Box>
+                    }
+                },
+                {
                     accessorKey: 'order_no',
-                    header: 'WO/PO Number',
+                    header: 'PO Number',
                     size: 80,
                     enableSorting: false,
                 },
                 {
                     accessorKey: 'order_dt',
-                    header: 'WO/PO Date (yyyy-mm-dd)',
+                    header: 'PO Date (yyyy-mm-dd)',
                     size: 180,
                     enableSorting: true,
                     Cell: ({ cell }) => {
@@ -357,8 +371,8 @@ function ReportListComponent() {
                 },
                 {
                     accessorKey: 'price',
-                    header: 'Contract Price (INR)',
-                    size: 80,
+                    header: 'Total PO Value (INR)',
+                    size: 150,
                     Cell: ({ cell }) =>
                         <Box
                             component="span"
@@ -391,7 +405,7 @@ function ReportListComponent() {
                 },
                 {
                     accessorKey: 'reason',
-                    header: 'Reason of purchase outside GEM',
+                    header: 'Reason of purchase outside GEM/GepNIC?',
                     size: 250,
                     enableSorting: false,
                     Cell: ({ cell }) => {
@@ -404,13 +418,13 @@ function ReportListComponent() {
                 },
                 {
                     accessorKey: 'itemUser',
-                    header: 'Alloted to Username',
+                    header: 'Alloted to User',
                     size: 80,
                     enableSorting: false,
                 },
                 {
                     accessorKey: 'itemLoc',
-                    header: 'Item Installed Location',
+                    header: 'Item Location',
                     size: 160,
                     enableSorting: false,
                     Cell: ({ cell }) => {
@@ -462,7 +476,7 @@ function ReportListComponent() {
                 },
             ];
         },
-        [],
+        [uniqueCategories],
     );
 
     const csvConfig = mkConfig({

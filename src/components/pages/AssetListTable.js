@@ -8,7 +8,7 @@ import {
   Typography,
   Button,
 } from '@mui/material';
-import { projects, departments, conditions, categories, work_categories, vendor_categories, modes } from './data';
+import { projects, departments, conditions, categories, work_categories, item_categories, vendor_categories, modes } from './data';
 import { ToastContainer, toast } from 'react-toastify';
 import Swal from 'sweetalert2';
 import moment from 'moment';
@@ -47,7 +47,7 @@ const AssetListTable = ({ apiUrl, tableData, setTableData, loading, isAdmin, get
   };
 
   const handleSaveRowEdits = async ({ exitEditingMode, row, values }) => {
-    const mandatoryFields = ['project', 'dept', 'description', 'model', 'serial', 'asset_id', 'supplier', 'vendoradd', 'order_no', 'order_dt', 'price', 'mode']; // Add other mandatory fields here
+    const mandatoryFields = ['project', 'dept', 'description', 'category', 'itemCategory', 'model', 'serial', 'asset_id', 'supplier', 'vendoradd', 'order_no', 'order_dt', 'price', 'mode']; // Add other mandatory fields here
     let valid = true;
 
     mandatoryFields.forEach((field) => {
@@ -103,10 +103,17 @@ const AssetListTable = ({ apiUrl, tableData, setTableData, loading, isAdmin, get
         project: values.project,
         dept: values.dept,
         description: values.description,
+        category: values.category,
+        itemCategory: values.itemCategory,
+        warranty: values.warranty,
+        installation_dt: values.installation_dt,
+        licenseStartDate: values.licenseStartDate,
+        licenseEndDate: values.licenseEndDate,
         model: values.model,
         serial: values.serial,
         part_no: values.part_no,
         asset_id: values.asset_id,
+        unitPrice: values.unitPrice,
         additional_info: values.additional_info,
         supplier: values.supplier,
         vendoradd: values.vendoradd,
@@ -119,10 +126,6 @@ const AssetListTable = ({ apiUrl, tableData, setTableData, loading, isAdmin, get
         order_no: values.order_no,
         order_dt: values.order_dt,
         price: values.price,
-        category: values.category,
-        cate_others: values.cate_others,
-        warranty: values.warranty,
-        installation_dt: values.installation_dt,
         mode: values.mode,
         itemUser: values.itemUser,
         itemLoc: values.itemLoc,
@@ -145,7 +148,6 @@ const AssetListTable = ({ apiUrl, tableData, setTableData, loading, isAdmin, get
               getTableData();
             });
 
-            //window.location.reload(true);
           } else {
             Swal.fire({
               icon: 'error',
@@ -209,7 +211,7 @@ const AssetListTable = ({ apiUrl, tableData, setTableData, loading, isAdmin, get
         }
       })
     },
-    [tableData, apiUrl, setTableData],
+    [tableData, apiUrl, setTableData, token],
   );
 
   const handleMarkRowUpdate = useCallback(
@@ -234,14 +236,14 @@ const AssetListTable = ({ apiUrl, tableData, setTableData, loading, isAdmin, get
               if (res.status === 201) {
                 Swal.fire(
                   'Error',
-                  'Item already marked for transfer.',
+                  'Item already marked for transfer action.',
                   'error'
                 )
               } else {
                 if (res.status === 200) {
                   Swal.fire(
                     'Success',
-                    'Item marked for transfer successfull.',
+                    'Item marked for transfer action successfull.',
                     'success'
                   )
                   setTableData([...tableData]);
@@ -266,7 +268,7 @@ const AssetListTable = ({ apiUrl, tableData, setTableData, loading, isAdmin, get
         }
       })
     },
-    [tableData, apiUrl, setTableData],
+    [tableData, apiUrl, setTableData, token],
   );
 
   const columns = useMemo(
@@ -289,34 +291,15 @@ const AssetListTable = ({ apiUrl, tableData, setTableData, loading, isAdmin, get
           accessorKey: '_id',
           header: 'Sys ID',
           enableColumnOrdering: false,
-          enableEditing: false, //disable editing on this column
           enableSorting: false,
           size: 200,
-        },
-        {
-          accessorKey: 'description',
-          header: 'Item Description',
-          size: 240,
-          enableSorting: false,
-          muiEditTextFieldProps: ({ cell }) => ({
-            ...getCommonEditTextFieldProps(cell),
-            label: 'Enter Item Description',
-            required: true,
-
-          }),
-          Cell: ({ cell }) => {
-            return <Box sx={{
-              whiteSpace: 'pre-wrap',
-              wordWrap: 'break-word',
-            }}>
-              {cell.getValue()}</Box>
-          }
         },
         {
           accessorKey: 'project',
           header: 'Project',
           size: 100,
           enableSorting: false,
+          Edit: () => null,
           editVariant: 'select',
           filterSelectOptions: projects,
           muiEditTextFieldProps: ({ cell }) => ({
@@ -335,7 +318,6 @@ const AssetListTable = ({ apiUrl, tableData, setTableData, loading, isAdmin, get
             label: 'Select Project',
             fullWidth: false,
             required: true,
-            disabled: false,
           }),
         },
         {
@@ -362,44 +344,110 @@ const AssetListTable = ({ apiUrl, tableData, setTableData, loading, isAdmin, get
             label: 'Select Department',
             fullWidth: false,
             required: true,
-            disabled: false,
+            disabled: !isAdmin,
           }),
+        },
+        {
+          accessorKey: 'asset_id',
+          header: 'Product Asset ID',
+          size: 80,
+          enableSorting: false,
+          muiEditTextFieldProps: ({ cell }) => ({
+            ...getCommonEditTextFieldProps(cell),
+            label: 'Asset Identification Number',
+            required: true,
+          }),
+          Cell: ({ cell }) => {
+            return <Box sx={{
+              whiteSpace: 'pre-wrap',
+              wordWrap: 'break-word',
+            }}>
+              {cell.getValue()}</Box>
+          }
         },
         {
           accessorKey: 'category',
-          header: 'Product Category',
+          header: 'Category',
           size: 80,
           enableSorting: false,
-          editVariant: 'select',
           filterSelectOptions: work_categories,
-          muiEditTextFieldProps: ({ cell }) => ({
-            ...getCommonEditTextFieldProps(cell),
-            select: true,
-            children: [
-              <MenuItem key="please-select" value="">
-                Please select
-              </MenuItem>,
-              ...work_categories.map((work_category) => (
-                <MenuItem key={work_category} value={work_category}>
-                  {work_category}
-                </MenuItem>
-              )),
-            ],
-            label: 'Select Category',
-            fullWidth: false,
-            required: true,
-          }),
+          muiEditTextFieldProps: ({ cell }) => {
+            const value = cell.getValue();
+            // Common properties
+            const commonProps = {
+              ...getCommonEditTextFieldProps(cell),
+              label: 'Select Category',
+              fullWidth: false,
+              required: true,
+            };
+
+            // Conditional properties
+            if (!work_categories.includes(value) && value !== '') {
+              return {
+                ...commonProps,
+              };
+            } else {
+              return {
+                ...commonProps,
+                select: true,
+                children: [
+                  <MenuItem key="please-select" value="">
+                    Please select
+                  </MenuItem>,
+                  ...work_categories.map((work_category) => (
+                    <MenuItem key={work_category} value={work_category}>
+                      {work_category}
+                    </MenuItem>
+                  )),
+                  <MenuItem key="Others" value="Others">
+                    Others
+                  </MenuItem>,
+                ],
+              };
+            }
+          },
         },
         {
-          accessorKey: 'cate_others',
-          header: 'Product Category (if Select Others)',
+          accessorKey: 'itemCategory',
+          header: 'Sub-Category',
           size: 80,
           enableSorting: false,
-          muiEditTextFieldProps: ({ cell }) => ({
-            ...getCommonEditTextFieldProps(cell),
-            label: 'Enter Category (If selected Others)',
-            required: false,
-          }),
+          filterSelectOptions: item_categories,
+          muiEditTextFieldProps: ({ cell }) => {
+            const value = cell.getValue();
+            // Common properties
+            const commonProps = {
+              ...getCommonEditTextFieldProps(cell),
+              label: 'Select Sub-Category',
+              fullWidth: false,
+              required: true,
+            };
+
+            // Conditional properties
+            if (!item_categories.includes(value) && value !== '') {
+              return {
+                ...commonProps,
+              };
+            } else {
+              return {
+                ...commonProps,
+                select: true,
+                children: [
+                  <MenuItem key="please-select" value="">
+                    Please select
+                  </MenuItem>,
+                  ...item_categories.map((item_category) => (
+                    <MenuItem key={item_category} value={item_category}>
+                      {item_category}
+                    </MenuItem>
+                  )),
+                  <MenuItem key="Others" value="Others">
+                    Others
+                  </MenuItem>,
+                ],
+              };
+            }
+          },
         },
         {
           accessorKey: 'warranty',
@@ -430,8 +478,12 @@ const AssetListTable = ({ apiUrl, tableData, setTableData, loading, isAdmin, get
           enableSorting: false,
           muiEditTextFieldProps: ({ cell }) => ({
             ...getCommonEditTextFieldProps(cell),
-            label: 'License Start Date (YYYY-MM-DD):',
+            type: 'date',
+            label: 'License Start Date:',
             required: true,
+            InputLabelProps: {
+              shrink: true,
+            },
           }),
         },
         {
@@ -441,8 +493,12 @@ const AssetListTable = ({ apiUrl, tableData, setTableData, loading, isAdmin, get
           enableSorting: false,
           muiEditTextFieldProps: ({ cell }) => ({
             ...getCommonEditTextFieldProps(cell),
-            label: 'License End Date (YYYY-MM-DD):',
+            type: 'date',
+            label: 'License End Date:',
             required: true,
+            InputLabelProps: {
+              shrink: true,
+            },
           }),
         },
         {
@@ -493,26 +549,8 @@ const AssetListTable = ({ apiUrl, tableData, setTableData, loading, isAdmin, get
           }),
         },
         {
-          accessorKey: 'asset_id',
-          header: 'Product Asset ID',
-          size: 80,
-          enableSorting: false,
-          muiEditTextFieldProps: ({ cell }) => ({
-            ...getCommonEditTextFieldProps(cell),
-            label: 'Asset Identification Number',
-            required: true,
-          }),
-          Cell: ({ cell }) => {
-            return <Box sx={{
-              whiteSpace: 'pre-wrap',
-              wordWrap: 'break-word',
-            }}>
-              {cell.getValue()}</Box>
-          }
-        },
-        {
           accessorKey: 'unitPrice',
-          header: 'Unit Price (INR)',
+          header: 'Product Unit Price (INR)',
           size: 180,
           Cell: ({ cell }) =>
             <Box
@@ -565,6 +603,7 @@ const AssetListTable = ({ apiUrl, tableData, setTableData, loading, isAdmin, get
           header: 'Vendor Name',
           size: 250,
           enableSorting: false,
+          Edit: () => null,
           muiEditTextFieldProps: ({ cell }) => ({
             ...getCommonEditTextFieldProps(cell),
             label: 'Vendor Name',
@@ -584,6 +623,7 @@ const AssetListTable = ({ apiUrl, tableData, setTableData, loading, isAdmin, get
           header: 'Vendor Address',
           size: 350,
           enableSorting: false,
+          Edit: () => null,
           muiEditTextFieldProps: ({ cell }) => ({
             ...getCommonEditTextFieldProps(cell),
             label: 'Vendor/Supplier Address',
@@ -603,13 +643,14 @@ const AssetListTable = ({ apiUrl, tableData, setTableData, loading, isAdmin, get
           header: 'Vendor Category',
           size: 200,
           enableSorting: false,
+          Edit: () => null,
           editVariant: 'select',
           muiEditTextFieldProps: ({ cell }) => ({
             ...getCommonEditTextFieldProps(cell),
             select: true,
             children: [
               <MenuItem key="please-select" value="">
-                Please elect
+                Please select
               </MenuItem>,
               ...vendor_categories.map((vendor_category) => (
                 <MenuItem key={vendor_category} value={vendor_category}>
@@ -628,6 +669,7 @@ const AssetListTable = ({ apiUrl, tableData, setTableData, loading, isAdmin, get
           header: 'MSE Registration No.',
           size: 80,
           enableSorting: false,
+          Edit: () => null,
           muiEditTextFieldProps: ({ cell }) => ({
             ...getCommonEditTextFieldProps(cell),
             label: 'MSE Registration Number',
@@ -639,8 +681,9 @@ const AssetListTable = ({ apiUrl, tableData, setTableData, loading, isAdmin, get
           accessorKey: 'caste',
           header: 'If MSE, Whether belong to SC/ST?',
           size: 200,
-          editVariant: 'select',
           enableSorting: false,
+          Edit: () => null,
+          editVariant: 'select',
           muiEditTextFieldProps: ({ cell }) => ({
             ...getCommonEditTextFieldProps(cell),
             select: true,
@@ -664,8 +707,9 @@ const AssetListTable = ({ apiUrl, tableData, setTableData, loading, isAdmin, get
           accessorKey: 'gender',
           header: 'If MSE, Whether Women or Not?',
           size: 100,
-          editVariant: 'select',
           enableSorting: false,
+          Edit: () => null,
+          editVariant: 'select',
           muiEditTextFieldProps: ({ cell }) => ({
             ...getCommonEditTextFieldProps(cell),
             select: true,
@@ -690,12 +734,32 @@ const AssetListTable = ({ apiUrl, tableData, setTableData, loading, isAdmin, get
           header: 'Vendor GSTIN',
           size: 100,
           enableSorting: false,
+          Edit: () => null,
           muiEditTextFieldProps: ({ cell }) => ({
             ...getCommonEditTextFieldProps(cell),
             label: 'Vendors/Supplier PAN Number',
             required: true,
             disabled: true,
           }),
+        },
+        {
+          accessorKey: 'description',
+          header: 'PO/Contract Title',
+          size: 300,
+          enableSorting: false,
+          muiEditTextFieldProps: ({ cell }) => ({
+            ...getCommonEditTextFieldProps(cell),
+            label: 'Contract/PO Title:',
+            required: true,
+
+          }),
+          Cell: ({ cell }) => {
+            return <Box sx={{
+              whiteSpace: 'pre-wrap',
+              wordWrap: 'break-word',
+            }}>
+              {cell.getValue()}</Box>
+          }
         },
         {
           accessorKey: 'order_no',
@@ -793,7 +857,7 @@ const AssetListTable = ({ apiUrl, tableData, setTableData, loading, isAdmin, get
           enableSorting: false,
           muiEditTextFieldProps: ({ cell }) => ({
             ...getCommonEditTextFieldProps(cell),
-            label: 'Reason',
+            label: 'Reason (if Applicable)',
             required: false,
           }),
           Cell: ({ cell }) => {
@@ -860,8 +924,9 @@ const AssetListTable = ({ apiUrl, tableData, setTableData, loading, isAdmin, get
         {
           accessorFn: (row) => moment(row.createdAt).format("YYYY-MM-DD hh:mm:ss"),
           id: 'createdAt',
-          header: 'Item Created on (yyyy-mm-dd)',
+          header: 'Created on (yyyy-mm-dd)',
           enableColumnOrdering: false,
+          Edit: () => null,
           enableEditing: false, //disable editing on this column
           size: 180,
           enableSorting: false,
@@ -871,12 +936,13 @@ const AssetListTable = ({ apiUrl, tableData, setTableData, loading, isAdmin, get
           header: 'Creator ID',
           enableSorting: false,
           enableColumnOrdering: false,
+          Edit: () => null,
           enableEditing: false, //disable editing on this column
           size: 80,
         },
       ];
     },
-    [errors],
+    [errors, isAdmin],
   );
 
   return (
@@ -949,19 +1015,19 @@ const AssetListTable = ({ apiUrl, tableData, setTableData, loading, isAdmin, get
               display: 'inline-grid',
               margin: '0',
               float: 'left',
-              gridTemplateColumns: '1fr 1fr',
-              width: '22%',
+              gridTemplateColumns: '0.5fr 0.5fr',
+              width: '20%',
               background: '#e0e0eb',
               color: '#000',
               wordWrap: 'break-word',
             }}
           >
-            <Typography className='mb-3' style={{ fontFamily: 'monospace' }}><strong>Description:</strong>&nbsp; {row.original.description}</Typography>
+            <Typography className='mb-3' style={{ fontFamily: 'monospace' }}><strong>PO/Contract Title:</strong>&nbsp; {row.original.description}</Typography>
             <Typography></Typography>
-            <Typography style={{ fontFamily: 'monospace' }}><strong>Product Category:&nbsp;</strong> {row.original.category}</Typography>
-            <Typography style={{ fontFamily: 'monospace' }}><strong>Category Name (if Select Others):&nbsp;</strong> {row.original.cate_others}</Typography>
+            <Typography style={{ fontFamily: 'monospace' }}><strong>Category:&nbsp;</strong> {row.original.category}</Typography>
+            <Typography style={{ fontFamily: 'monospace' }}><strong>Sub-Category:&nbsp;</strong> {row.original.itemCategory}</Typography>
             <Typography style={{ fontFamily: 'monospace' }}><strong>Product Warranty:&nbsp;</strong> {row.original.warranty}</Typography>
-            <Typography style={{ fontFamily: 'monospace' }}><strong>Product Installation Date:&nbsp;</strong> {row.original.installation_dt}</Typography>
+            <Typography style={{ fontFamily: 'monospace' }}><strong>Installation Date:&nbsp;</strong> {row.original.installation_dt}</Typography>
             <Typography style={{ fontFamily: 'monospace' }}><strong>&nbsp;</strong></Typography>
             <Typography style={{ fontFamily: 'monospace' }}><strong>License Start Date:&nbsp;</strong> {row.original.licenseStartDate}</Typography>
             <Typography style={{ fontFamily: 'monospace' }}><strong>&nbsp;</strong></Typography>

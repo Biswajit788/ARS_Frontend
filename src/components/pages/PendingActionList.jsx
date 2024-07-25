@@ -1,19 +1,25 @@
 import * as React from 'react';
-import Box from '@mui/material/Box';
+import { useNavigate } from 'react-router-dom';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { styled } from '@mui/material/styles';
 import axios from 'axios';
-import { Stack, Button } from '@mui/material'
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
-
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  Stack,
+  TextField,
+  Typography
+} from '@mui/material';
+import { projects, transferTypes, transferCases } from './data';
 
 const StyledGridOverlay = styled('div')(({ theme }) => ({
   display: 'flex',
@@ -90,39 +96,90 @@ function CustomNoRowsOverlay() {
 export default function PendingActionList() {
 
   const apiUrl = process.env.REACT_APP_API_URL;
+  const navigate = useNavigate();
   const [tableData, setTableData] = React.useState([]);
   const [open, setOpen] = React.useState(false);
   const [location, setLocation] = React.useState('');
+  const [transferType, setTransferType] = React.useState('');
+  const [transferCase, setTransferCase] = React.useState('');
+  const [transferRemarks, setTransferRemarks] = React.useState('');
+  const [currentItem, setCurrentItem] = React.useState(null);
 
   const handleChange = (event) => {
-    setLocation(event.target.value);
+    const { name, value } = event.target;
+    if (name === 'transferType') {
+      setTransferType(value);
+    } else if (name === 'transferCase') {
+      setTransferCase(value);
+    } else if (name === 'location') {
+      setLocation(value);
+    } else if (name === 'transferRemarks') {
+      setTransferRemarks(value);
+    }
   };
+
 
   const handleClose = () => {
     setOpen(false);
+    setCurrentItem(null);
+    setTransferType('');
+    setTransferCase('');
+    setLocation('');
+    setTransferRemarks('');
   };
 
+  const handleClickOpen = async (id) => {
+    try {
+      const token = window.localStorage.getItem('authToken');
+      const response = await axios.get(`${apiUrl}/admin/items/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setCurrentItem(response.data);
+      setLocation(response.data.project);
+      setOpen(true);
+    } catch (error) {
+      console.error('Error fetching item data:', error);
+      alert('An error occurred while fetching item data');
+    }
+  };
 
   React.useEffect(() => {
-
     const getDataList = async () => {
       try {
         const token = window.localStorage.getItem('authToken');
+        const decodedToken = parseJwt(token);
+        const project = decodedToken.project;
+        //const dept = decodedToken.dept;
+
         const collection = await axios({
-          method: "get",
+          method: 'get',
           url: `${apiUrl}/admin/items/pendingTransfer`,
           headers: {
             Authorization: `Bearer ${token}`,
+          },
+          params: {
+            project,
+            //dept,
           },
         });
         setTableData(collection.data);
       } catch (error) {
         console.log(error);
       }
-    }
+    };
 
     getDataList();
-  }, [apiUrl])
+  }, [apiUrl]);
+
+  const parseJwt = (token) => {
+    try {
+      return JSON.parse(atob(token.split('.')[1]));
+    } catch (e) {
+      return {};
+    }
+  };
 
   return (
     <Box>
@@ -130,14 +187,19 @@ export default function PendingActionList() {
         autoHeight
         rows={tableData}
         columns={[
-          { field: '_id', headerName: 'SystemID', width: 90 },
-          { field: 'asset_id', headerName: 'Asset Id', width: 180 },
-          { field: 'description', headerName: 'Asset Description', width: 250 },
-          { field: 'model', headerName: 'Model Number', width: 150 },
-          { field: 'serial', headerName: 'Serial Number', width: 150 },
-          { field: 'project', headerName: 'Current Location', width: 250 },
-          { field: 'order_no', headerName: 'PO Number', width: 200 },
-          { field: 'order_dt', headerName: 'PO Date', width: 150 },
+          //{ field: '_id', headerName: 'System Id', width: 150 },
+          {
+            field: 'sl_no',
+            headerName: 'Sl.No.',
+            width: 80,
+            valueGetter: (params) => params.api.getSortedRowIds().indexOf(params.id) + 1,
+        },
+          { field: 'asset_id', headerName: 'Asset Id', width: 150 },
+          { field: 'itemCategory', headerName: 'Asset Description', width: 200 },
+          { field: 'model', headerName: 'Model Number', width: 130 },
+          { field: 'serial', headerName: 'Serial Number', width: 130 },
+          { field: 'project', headerName: 'Current Location', width: 200 },
+          { field: 'dept', headerName: 'Current Department', width: 200 },
           {
             field: 'action',
             headerName: 'Action',
@@ -145,9 +207,10 @@ export default function PendingActionList() {
             sortable: false,
             disableClickEventBubbling: true,
             renderCell: (params) => {
-              const handleClickOpen = (e) => {
-                setOpen(true);
+              const onClickEdit = () => {
+                handleClickOpen(params.row._id);
               };
+
               const onClickDel = (e) => {
                 const currentRow = params.row
                 const token = window.localStorage.getItem('authToken');
@@ -158,9 +221,9 @@ export default function PendingActionList() {
                 })
                   .then(res => {
                     if (res.status === 200) {
-                      //alert('Item deleted successfully.');
+                      alert('Bookmarked Transfer action cancelled');
                       //tableData.splice(currentRow, 1);
-                      window.location.reload();
+                      navigate(0);
                       setTableData([...tableData]);
                     } else {
                       alert('Unable to remove item. Try again!');
@@ -171,61 +234,176 @@ export default function PendingActionList() {
               return (
                 <>
                   <Stack direction="row" spacing={1}>
-                    <Button variant="outlined" color="warning" size="small" onClick={handleClickOpen}>Edit</Button>
-                    <Button variant="outlined" color="error" size="small" onClick={onClickDel}>Remove</Button>
+                    <Button variant="outlined" color="warning" size="small" onClick={onClickEdit}>
+                      Edit
+                    </Button>
+                    <Button variant="outlined" color="error" size="small" onClick={onClickDel}>
+                      Revert
+                    </Button>
                   </Stack>
                   <Dialog
                     open={open}
                     onClose={handleClose}
                     PaperProps={{
                       component: 'form',
-                      onSubmit: (event) => {
+                      onSubmit: async (event) => {
                         event.preventDefault();
+                        if (!window.confirm('Are you sure you want to transfer asset?')) {
+                          return;
+                        }
                         const formData = new FormData(event.currentTarget);
                         const formJson = Object.fromEntries(formData.entries());
-                        const location = formJson.location;
-                        console.log(location);
-                        handleClose();
+                        const transferType = formJson.transferType;
+                        const transferCase = formJson.transferCase;
+                        const newLocation = formJson.location;
+                        const transferRemarks = formJson.transferRemarks;
+
+                        try {
+                          const token = window.localStorage.getItem('authToken');
+                          const response = await fetch(`${apiUrl}/items/transferAsset/${currentItem._id}`, {
+                            method: 'POST',
+                            headers: {
+                              'Content-Type': 'application/json',
+                              'Authorization': `Bearer ${token}`,
+                            },
+                            body: JSON.stringify({
+                              ...currentItem,
+                              transferType: transferType,
+                              transferCase: transferCase,
+                              project: newLocation,
+                              transferRemarks: transferRemarks,
+                            }),
+                          });
+                          const result = await response.json();
+
+                          if (response.ok) {
+                            alert(result);
+                            handleClose();
+                            navigate(0);
+                          } else {
+                            alert(`Error: ${result.error}`);
+                          }
+                        } catch (error) {
+                          console.error('Error updating item:', error);
+                          alert('An error occurred while updating item');
+                        }
                       },
                     }}
                   >
-                    <DialogTitle>Item Transfer</DialogTitle>
+                    <DialogTitle>Asset Transfer</DialogTitle>
                     <DialogContent>
-                      <DialogContentText className='text-primary' sx={{ fontStyle: 'italic', fontSize: '13px' }}>
-                        To Transfer the Item, please select the Project from the list.
+                      <DialogContentText
+                        className="text-primary"
+                        sx={{ fontStyle: 'italic', fontSize: '13px' }}
+                      >
+                        Transfer Process Form.
                       </DialogContentText>
-                      <FormControl variant="standard" sx={{ m: 1, minWidth: 300 }}>
-                        <InputLabel id="demo-simple-select-standard-label">Select Location</InputLabel>
+                      <FormControl variant="standard" sx={{ m: 1, minWidth: 500, marginTop: 3 }}>
+                        <InputLabel id="demo-simple-select-standard-label">Select Transfer Type *</InputLabel>
                         <Select
-                          labelId="demo-simple-select-standard-label"
-                          id="demo-simple-select-standard"
-                          name="location"
-                          value={location}
+                          labelId="demo-simple-select-transferType-label"
+                          id="demo-simple-select-transferType"
+                          name="transferType"
+                          value={transferType}
                           onChange={handleChange}
-                          label="Location"
+                          label="Transfer Type"
                         >
-                          <MenuItem value="">
-                            <em>None</em>
-                          </MenuItem>
-                          <MenuItem value={10}>KHPS</MenuItem>
-                          <MenuItem value={20}>PLHPS</MenuItem>
-                          <MenuItem value={30}>DHPS</MenuItem>
+                          <MenuItem value="" >Please select</MenuItem>
+                          {transferTypes.map((transferType) => (
+                            <MenuItem key={transferType} value={transferType}>
+                              {transferType}
+                            </MenuItem>
+                          ))}
+
                         </Select>
                       </FormControl>
+                      {transferType === "Inter Project Transfer" && (
+                        <FormControl variant="standard" sx={{ m: 1, minWidth: 500, marginTop: 3 }}>
+                          <InputLabel id="demo-simple-select-location-label">Select Location *</InputLabel>
+                          <Select
+                            labelId="demo-simple-select-location-label"
+                            id="demo-simple-select-location"
+                            name="location"
+                            value={location}
+                            onChange={handleChange}
+                            label="Location"
+                            SelectDisplayProps={{
+                              displayEmpty: true,
+                            }}
+                          >
+                            <MenuItem value="">Please select</MenuItem>
+                            {projects.map((project) => (
+                              <MenuItem key={project} value={project}>
+                                {project}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+                      )}
+                      {transferType === "Asset Handover as per IT Policy" && (
+                        <FormControl variant="standard" sx={{ m: 1, minWidth: 500, marginTop: 3 }}>
+                          <InputLabel id="demo-simple-select-location-label">Select Cases *</InputLabel>
+                          <Select
+                            labelId="demo-simple-select-location-label"
+                            id="demo-simple-select-location"
+                            name="transferCase"
+                            value={transferCase}
+                            onChange={handleChange}
+                            label="Case"
+                            SelectDisplayProps={{
+                              displayEmpty: true,
+                            }}
+                          >
+                            <MenuItem value="">Please select</MenuItem>
+                            {transferCases.map((transferCase) => (
+                              <MenuItem key={transferCase} value={transferCase}>
+                                {transferCase}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+                      )}
+                      <FormControl className='mt-4' variant="standard" sx={{ m: 1, minWidth: 500 }}>
+                        <TextField
+                          label="Remarks *"
+                          variant="standard"
+                          name="transferRemarks"
+                          value={transferRemarks}
+                          onChange={handleChange}
+                          multiline
+                          rows={3} // Adjust the number of rows as needed
+                          sx={{ m: 1, minWidth: 500, marginTop: 3 }}
+                        />
+                      </FormControl>
                     </DialogContent>
-                    <DialogActions>
+                    <DialogActions className='mb-3'>
+                      <Typography color="red" sx={{ fontStyle: 'italic', fontSize: '12px' }}>
+                        Fields marked with * are mandatory
+                      </Typography>
                       <Button onClick={handleClose}>Cancel</Button>
-                      <Button type="submit">Submit</Button>
+                      <Button
+                        type="submit"
+                        disabled={
+                          transferType === '' ||
+                          transferRemarks === '' ||
+                          (transferType === 'Inter Project Transfer' && (location === '' || location === currentItem.project)) ||
+                          (transferType === 'Asset Handover as per IT Policy' && transferCase === '')
+                        }
+                      >
+                        Submit
+                      </Button>
                     </DialogActions>
                   </Dialog>
                 </>
               );
             },
-          }
+          },
         ]}
         getRowId={(row) => row._id}
+        pageSize={tableData.length || 50}
+        rowsPerPageOptions={[tableData.length || 50]}
         slots={{ noRowsOverlay: CustomNoRowsOverlay, toolbar: GridToolbar }}
-        sx={{ '--DataGrid-overlayHeight': '350px' }}
+        sx={{ '--DataGrid-overlayHeight': '280px' }}
       />
     </Box>
   );

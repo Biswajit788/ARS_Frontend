@@ -7,7 +7,7 @@ function PendingAction() {
     <>
       <div className="container">
         <div className='card-title mb-2'>
-            <span>Pending Transfer List</span>
+            <span>Asset Transfer Action</span>
         </div>
         <Content />
       </div>

@@ -157,17 +157,17 @@ const Navbar = () => {
                     <li className="dropdown-divider"></li>
                     <li>
                       <a className="dropdown-item" href="#dropdownSubmenuLink">
-                        Transfer Item &raquo;
+                        Transfer &raquo;
                       </a>
                       <ul className="dropdown-menu dropdown-submenu dropdown-menu-dark">
                         <li>
-                          <NavLink to="/admin/pendingActionList" className="dropdown-item">Pending Action</NavLink>
+                          <NavLink to="/admin/pendingActionList" className="dropdown-item">Asset Transfer Action</NavLink>
                         </li>
                         <li>
-                          <NavLink to="/admin/transHistoryList" className="dropdown-item" onClick={alertMessage}>Item Transfer History</NavLink>
+                          <NavLink to="/admin/assetLogList" className="dropdown-item">Asset Transfer Logs</NavLink>
                         </li>
                         <li>
-                          <NavLink to="/admin/itemLogs" className="dropdown-item" onClick={alertMessage}>Logs</NavLink>
+                          <NavLink to="/admin/disposedAssetList" className="dropdown-item">Damaged/ E-Waste/ Asset Handover</NavLink>
                         </li>
                       </ul>
                     </li>

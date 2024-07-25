@@ -45,7 +45,7 @@ const TableComponent = ({ fileList, handleViewFile, handleDownloadFile, userRole
               <td>{item.title}</td>
               <td>{item.module}</td>
               <td>
-                <a href={`/sops/${item.filePath}`} target="_blank" rel="noopener noreferrer">
+                <a href={`${item.filePath}`} target="_blank" rel="noopener noreferrer">
                   {item.fileName}
                 </a>
               </td>

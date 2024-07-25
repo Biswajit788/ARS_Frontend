@@ -17,7 +17,7 @@ export const projects = [
 ];
 
 export const suppliers = [
-  { vid: "0001", vname: "Aargus Infotec Pvt. Ltd" }, 
+  { vid: "0001", vname: "Aargus Infotec Pvt. Ltd" },
   { vid: "0002", vname: "Bahuchar Traders" },
   { vid: "0003", vname: "BMG Informatics Private Limited" },
   { vid: "0004", vname: "CIDERMATICS PRIVATE LIMITED" },
@@ -88,7 +88,32 @@ export const work_categories = [
   'Consumable',
   'Hardware',
   'Software',
-  'Others',
+];
+
+export const item_categories = [
+  'Accessories',
+  'Camera',
+  'Cartridge',
+  'Cctv',
+  'Desktop',
+  'Display Unit',
+  'Keyboard',
+  'Laptop',
+  'Microphone',
+  'Mouse',
+  'NVR',
+  'Printer',
+  'Projector',
+  'Router',
+  'Server',
+  'Scanner',
+  'Security Device',
+  'Speaker',
+  'Storage',
+  'Switch',
+  'UPS',
+  'VC Equipment',
+  'Wireless Access Point',
 ];
 
 export const vendor_categories = [
@@ -114,4 +139,20 @@ export const genders = [
 export const userFlags = [
   '0',
   '1'
+];
+
+export const transferTypes = [
+  'Asset Handover as per IT Policy',
+  'Damage/E-Waste',
+  'Inter Project Transfer',
+];
+
+export const assetDiposedTypes = [
+  'Asset Handover as per IT Policy',
+  'Damage/E-Waste',
+];
+
+export const transferCases = [
+  'Buyback',
+  'Retirement',
 ];

@@ -8,6 +8,8 @@ import Dashboard from "./components/pages/Dashboard";
 import AddItem from "./components/pages/AssetForm/CreateAssetMain"
 import Report from "./components/pages/Report/ReportHome";
 import Action from './components/pages/Pending';
+import TransHistory from './components/pages/AssetLogs/Logs';
+import DisposedLogs from "./components/pages/AssetLogs/DisposedLogs";
 import Error from "./components/pages/Error";
 import VendorList from "./components/admin/vendor/Vendor";
 import UserList from './components/admin/user/User';
@@ -65,6 +67,8 @@ const AppRoutes = () => {
               <Route path="/admin/supplier" element={<AdminRoute><VendorList /></AdminRoute>} />
               <Route path="/admin/itemlist" element={<AdminRoute><Dashboard /></AdminRoute>} />
               <Route path="/admin/pendingActionList" element={<AdminRoute><Action /></AdminRoute>} />
+              <Route path="/admin/assetLogList" element={<AdminRoute><TransHistory /></AdminRoute>} />
+              <Route path="/admin/disposedAssetList" element={<AdminRoute><DisposedLogs /></AdminRoute>} />
 
               <Route path="*" element={<PrivateRoute><Error /></PrivateRoute>} />
             </Routes>

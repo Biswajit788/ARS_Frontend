@@ -12,6 +12,16 @@ export const formInputSchema = Yup.object({
         then: Yup.string().required('Category name is required'),
         otherwise: Yup.string().notRequired()
     }),
+    itemCategory: Yup.string().when('category', {
+        is: (val) => val === 'Hardware',
+        then: Yup.string().required('Please select sub-category'),
+        otherwise: Yup.string().notRequired()
+    }),
+    item_cate_others: Yup.string().when('itemCategory', {
+        is: (val) => val === 'Others',
+        then: Yup.string().required('Sub-Category name is required'),
+        otherwise: Yup.string().notRequired()
+    }),
     licenseStartDate: Yup.date().when('category', {
         is: (val) => val === 'Software',
         then: Yup.date().required('Enter license start date'),
