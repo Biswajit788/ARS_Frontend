@@ -260,7 +260,7 @@ export default function PendingActionList() {
 
                         try {
                           const token = window.localStorage.getItem('authToken');
-                          const response = await fetch(`${apiUrl}/items/transferAsset/${currentItem._id}`, {
+                          const response = await fetch(`${apiUrl}/items/transferRequest/${currentItem._id}`, {
                             method: 'POST',
                             headers: {
                               'Content-Type': 'application/json',
@@ -270,14 +270,14 @@ export default function PendingActionList() {
                               ...currentItem,
                               transferType: transferType,
                               transferCase: transferCase,
-                              project: newLocation,
+                              newLocation: newLocation,
                               transferRemarks: transferRemarks,
                             }),
                           });
                           const result = await response.json();
 
                           if (response.ok) {
-                            alert(result);
+                            alert(result.message);
                             handleClose();
                             navigate(0);
                           } else {

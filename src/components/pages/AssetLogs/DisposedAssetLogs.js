@@ -81,6 +81,7 @@ function CustomNoRowsOverlay() {
 }
 
 const DisposedAssetLogs = () => {
+    const apiUrl = process.env.REACT_APP_API_URL;
     const [logs, setLogs] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -91,7 +92,7 @@ const DisposedAssetLogs = () => {
         setError('');
         try {
             const token = window.localStorage.getItem('authToken');
-            const response = await axios.get(`${process.env.REACT_APP_API_URL}/logs/disposedassetlogs`, {
+            const response = await axios.get(`${apiUrl}/logs/disposedassetlogs`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },

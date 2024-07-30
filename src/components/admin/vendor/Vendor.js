@@ -198,7 +198,7 @@ const Vendor = () => {
                     console.log(err);
                 })
         },
-        [tableData],
+        [apiUrl, tableData],
     );
 
     const getCommonEditTextFieldProps = useCallback(
@@ -387,7 +387,7 @@ const Vendor = () => {
                         variant: 'outlined',
                     }}
                     paginationDisplayMode="pages"
-                    initialState={{ columnVisibility: { _id: false }, density: 'compact', pagination: { pageSize: 10, pageIndex: 0 } }}
+                    initialState={{ columnVisibility: { _id: false }, density: 'compact', pagination: { pageSize: 20, pageIndex: 0 } }}
                     enableRowNumbers={true}
                     editingMode="modal" //default
                     enableColumnOrdering

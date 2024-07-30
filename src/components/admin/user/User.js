@@ -425,7 +425,7 @@ const User = () => {
                         variant: 'outlined',
                     }}
                     paginationDisplayMode="pages"
-                    initialState={{ columnVisibility: { _id: false }, density: 'compact', pagination: { pageSize: 5, pageIndex: 0 } }}
+                    initialState={{ columnVisibility: { _id: false }, density: 'compact', pagination: { pageSize: 20, pageIndex: 0 } }}
                     enableRowNumbers={true}
                     editingMode="modal" //default
                     enableColumnOrdering

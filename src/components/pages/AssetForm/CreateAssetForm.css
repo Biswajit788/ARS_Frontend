@@ -1,4 +1,4 @@
-@media (max-width: 768px){
+@media (max-width: 768px) {
     .rowstyle {
         display: flex;
         flex-direction: row !important;
@@ -9,7 +9,7 @@
     width: 90%;
 }
 
-.form-title{
+.form-title {
     color: blue;
     font-weight: 400;
 }
@@ -31,37 +31,40 @@
     text-align: center;
 }
 
-.smaller-input{
+.smaller-input {
     font-size: 15px;
 }
 
-.left-btn{
+.left-btn {
     display: flex;
     justify-content: space-around;
 }
 
 
-.button{
+.button {
     margin: auto;
     width: 200px;
     display: flex;
     justify-content: space-between;
 }
 
-.form-error{
+.form-error {
     color: red;
+    display: block;
     padding: 5px;
     font-size: 12px;
+    white-space: pre-wrap;
+    word-break: break-word;
 }
 
-button:disabled{
+button:disabled {
     opacity: 0.35;
 }
 
-label{
+label {
     font-size: 15px;
     white-space: normal;
-    text-wrap:pretty;
+    text-wrap: pretty;
     font-family: 'Roboto', sans-serif;
     color: #333;
 }
@@ -70,17 +73,18 @@ label{
     content: "*";
     color: red;
 }
-.required:after {
-    content:" *";
-    color: red;
-  }
 
-  .wordinNum{
+.required:after {
+    content: " *";
+    color: red;
+}
+
+.wordinNum {
     margin-top: -20rem;
     background-color: aliceblue;
     color: blue;
     width: 600px;
-  }
+}
 
 span .custom-label-user-details {
     margin-left: 10px;

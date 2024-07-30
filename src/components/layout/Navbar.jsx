@@ -7,6 +7,18 @@ import './Navbar.css';
 import Swal from 'sweetalert2';
 import ProfileModal from './profileModal';
 import ChangePasswordModal from "./ChangePasswordModal";
+import axios from "axios";
+import { Badge } from "@mui/material";
+import { styled } from '@mui/material/styles';
+
+const StyledBadge = styled(Badge)(({ theme }) => ({
+  '& .MuiBadge-badge': {
+    right: -20,
+    top: 10,
+    border: `2px solid ${theme.palette.background.paper}`,
+    padding: '0 4px',
+  },
+}));
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -14,6 +26,7 @@ const Navbar = () => {
   const [isPasswordChangeModal, setIsPasswordChangeModal] = useState(false);
   const [user, setUser] = useState([]);
   const [isAdmin, setIsAdmin] = useState(false)
+  const [transferRequestCount, setTransferRequestCount] = useState(0);
 
   useEffect(() => {
     const fetchUserName = async () => {
@@ -35,7 +48,47 @@ const Navbar = () => {
       }
     };
 
+    const fetchTransferRequestCount = async () => {
+      try {
+        const token = window.localStorage.getItem("authToken");
+        const decodedToken = parseJwt(token);
+        const location = decodedToken.project;
+        if (!token) {
+          throw new Error('No auth token found');
+        }
+
+        const response = await axios({
+          method: 'get',
+          url: `${process.env.REACT_APP_API_URL}/admin/items/transferRequestCount`,
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          params: {
+            location,
+          },
+        });
+
+        if (response.status !== 200) {
+          throw new Error(`Unexpected response code: ${response.status}`);
+        }
+
+        setTransferRequestCount(response.data.count);
+      } catch (error) {
+        if (error.response) {
+          // Server responded with a status other than 200 range
+          console.error('Server Error:', error.response.data);
+        } else if (error.request) {
+          // Request was made but no response was received
+          console.error('Network Error:', error.request);
+        } else {
+          // Something else happened
+          console.error('Error:', error.message);
+        }
+      }
+    };
+
     fetchUserName();
+    fetchTransferRequestCount();
   }, []);
 
   const parseJwt = (token) => {
@@ -164,6 +217,16 @@ const Navbar = () => {
                           <NavLink to="/admin/pendingActionList" className="dropdown-item">Asset Transfer Action</NavLink>
                         </li>
                         <li>
+                          <NavLink to="/admin/transferRequestList" className="dropdown-item">
+                            <StyledBadge
+                              badgeContent={transferRequestCount}
+                              color="secondary"
+                            >
+                              Asset Transfer Request
+                            </StyledBadge>
+                          </NavLink>
+                        </li>
+                        <li>
                           <NavLink to="/admin/assetLogList" className="dropdown-item">Asset Transfer Logs</NavLink>
                         </li>
                         <li>
@@ -230,7 +293,7 @@ const Navbar = () => {
         </div>
       </nav>
       <ProfileModal isOpen={isOpen} closeModal={closeModal} user={user} />
-      <ChangePasswordModal isPasswordChangeModal={isPasswordChangeModal} closePasswordModal={closePasswordModal} user={user}/>
+      <ChangePasswordModal isPasswordChangeModal={isPasswordChangeModal} closePasswordModal={closePasswordModal} user={user} />
     </div>
   );
 };

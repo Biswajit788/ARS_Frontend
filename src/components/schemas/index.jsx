@@ -52,7 +52,10 @@ export const formInputSchema = Yup.object({
                 serial: Yup.string().required('Serial Number is required'),
                 model: Yup.string().required('Model Number is required'),
                 part_no: Yup.string().required('Part Number is required'),
-                asset_id: Yup.string().max(20, 'Asset ID cannot be more than 20 digits').required('Asset ID is required'),
+                asset_id: Yup.string()
+                    .matches(/^\d+$/, 'Asset ID must be an integer')
+                    .length(12, 'Asset ID must be exactly 12 digits')
+                    .required('Asset ID is required'),
                 unitPrice: Yup.number().integer('Allowed Integer value only').nullable().required("Unit price is required")
                     .test('Digits only', 'Contract Price should be in digits', digitsOnly).typeError('Only numbers are allowed'),
                 warranty: Yup.number().typeError('Warranty must be a number').required('Warranty is required'),

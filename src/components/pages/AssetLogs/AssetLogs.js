@@ -5,8 +5,8 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import { DataGrid } from '@mui/x-data-grid';
 import { styled } from '@mui/material/styles';
-import { format } from 'date-fns';
 import { FaPrint } from 'react-icons/fa';
+import { format } from 'date-fns';
 
 const StyledGridOverlay = styled('div')(({ theme }) => ({
     display: 'flex',
@@ -81,6 +81,7 @@ function CustomNoRowsOverlay() {
 }
 
 const AssetLogs = () => {
+    const apiUrl = process.env.REACT_APP_API_URL;
     const [logs, setLogs] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -91,20 +92,16 @@ const AssetLogs = () => {
         setError('');
         try {
             const token = window.localStorage.getItem('authToken');
-            const response = await axios.get(`${process.env.REACT_APP_API_URL}/logs/assetlogs`, {
+            const response = await axios.get(`${apiUrl}/logs/assetlogs`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
                 params: { assetId: assetId },
             });
 
-            // Format the date
-            const formattedData = response.data.map((log) => ({
-                ...log,
-                changeTimestamp: format(new Date(log.changeTimestamp), 'yyyy-MM-dd HH:mm:ss'),
-            }));
 
-            setLogs(formattedData);
+
+            setLogs(response.data);
         } catch (err) {
             setError('An error occurred while fetching logs.');
             console.error(err);
@@ -124,18 +121,21 @@ const AssetLogs = () => {
 
     const columns = [
         {
-            field: 'serial',
+            field: 'SlNo',
             headerName: 'S.No.',
             width: 80,
             valueGetter: (params) => params.api.getSortedRowIds().indexOf(params.id) + 1,
         },
         { field: 'assetId', headerName: 'Asset Id', width: 150 },
         { field: 'asset_description', headerName: 'Asset Description', width: 200 },
+        { field: 'serial', headerName: 'Serial No.', width: 200 },
+        { field: 'model', headerName: 'Model No.', width: 200 },
         { field: 'oldLocation', headerName: 'Location From', width: 200 },
+        { field: 'transferType', headerName: 'Transfer Type', width: 200 },
         { field: 'newLocation', headerName: 'Location To', width: 200 },
-        { 
-            field: 'transfer_remarks', 
-            headerName: 'Remarks', 
+        {
+            field: 'transfer_remarks',
+            headerName: 'Remarks',
             width: 250,
             renderCell: (params) => (
                 <div style={{ whiteSpace: 'normal', wordWrap: 'break-word' }}>
@@ -143,7 +143,58 @@ const AssetLogs = () => {
                 </div>
             ),
         },
-        { field: 'changeTimestamp', headerName: 'Date of Transfer', width: 180 },
+        {
+            field: 'status',
+            headerName: 'Status',
+            width: 150,
+            renderCell: (params) => {
+                // Define styles for different statuses
+                const getStatusStyle = (status) => {
+                    switch (status) {
+                        case 'Accepted':
+                            return { backgroundColor: 'green', color: 'white' };
+                        case 'Rejected':
+                            return { backgroundColor: 'red', color: 'white' };
+                        default:
+                            return { backgroundColor: 'transparent' };
+                    }
+                };
+
+                return (
+                    <div
+                        style={{
+                            whiteSpace: 'normal',
+                            wordWrap: 'break-word',
+                            padding: '4px', // Adding some padding for better appearance
+                            borderRadius: '4px', // Optional: Add some border-radius for rounded corners
+                            ...getStatusStyle(params.value), // Apply the status style
+                        }}
+                    >
+                        {params.value}
+                    </div>
+                );
+            },
+        },
+        {
+            field: 'rejection_remarks',
+            headerName: 'Rejection Remarks (if any)',
+            width: 250,
+            renderCell: (params) => (
+                <div style={{ whiteSpace: 'normal', wordWrap: 'break-word' }}>
+                    {params.value}
+                </div>
+            ),
+        },
+        {
+            field: 'changeTimestamp',
+            headerName: 'Date of Transfer',
+            width: 180,
+            renderCell: (params) => (
+                <div style={{ whiteSpace: 'normal', wordWrap: 'break-word' }}>
+                    {format(new Date(params.value), 'dd-MM-yyyy hh:mm:ss')}
+                </div>
+            ),
+        },
     ];
 
     return (

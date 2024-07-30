@@ -219,14 +219,14 @@ const AssetListTable = ({ apiUrl, tableData, setTableData, loading, isAdmin, get
       Swal.fire({
         icon: 'warning',
         title: 'Confirm Marking?',
-        text: `Item will be bookmark for transfer action`,
+        text: `Item will be bookmarked for transfer action`,
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
         cancelButtonColor: '#d33',
         confirmButtonText: 'Confirm'
       }).then((result) => {
         if (result.isConfirmed) {
-          //send api delete request here, then refetch or update local table data for re-render
+          // Send API request here, then refetch or update local table data for re-render
           axios.get(`${apiUrl}/items/markItem/` + row.getValue('_id'), {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -238,38 +238,62 @@ const AssetListTable = ({ apiUrl, tableData, setTableData, loading, isAdmin, get
                   'Error',
                   'Item already marked for transfer action.',
                   'error'
-                )
+                );
+              } else if (res.status === 601) {
+                Swal.fire(
+                  'Info',
+                  res.data.message || 'Transfer action in process.',
+                  'info'
+                );
+              } else if (res.status === 200) {
+                Swal.fire(
+                  'Success',
+                  'Item marked for transfer action successfully.',
+                  'success'
+                );
+                setTableData(prevTableData => {
+                  const updatedTableData = prevTableData.map(item =>
+                    item._id === row.getValue('_id') ? { ...item, status: '1' } : item
+                  );
+                  return updatedTableData;
+                });
               } else {
-                if (res.status === 200) {
-                  Swal.fire(
-                    'Success',
-                    'Item marked for transfer action successfull.',
-                    'success'
-                  )
-                  setTableData([...tableData]);
-                } else {
-                  Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: `Unable to marked item. Try again!`,
-                  })
-                }
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Oops...',
+                  text: `Unable to mark item. Try again!`,
+                });
               }
             })
             .catch((err) => {
-              console.log(err);
-            })
+              console.error(err);
+              if (err.response && err.response.status === 601) {
+                // Handle the custom status code 601
+                Swal.fire(
+                  'Info',
+                  err.response.data.message || 'Transfer action in process.',
+                  'info'
+                );
+              } else {
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Error',
+                  text: `An unexpected error occurred. Please try again later.`,
+                });
+              }
+            });
         } else if (result.dismiss === Swal.DismissReason.cancel) {
           Swal.fire(
             'Cancelled',
-            'You have cancelled transfer action :)',
+            'You have cancelled the transfer action :)',
             'error'
-          )
+          );
         }
-      })
+      });
     },
-    [tableData, apiUrl, setTableData, token],
+    [apiUrl, setTableData, token],
   );
+
 
   const columns = useMemo(
     () => {
