@@ -25,6 +25,7 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isPasswordChangeModal, setIsPasswordChangeModal] = useState(false);
   const [user, setUser] = useState([]);
+  const [isSuperAdmin, setSuperAdmin] = useState([]);
   const [isAdmin, setIsAdmin] = useState(false)
   const [transferRequestCount, setTransferRequestCount] = useState(0);
 
@@ -37,10 +38,15 @@ const Navbar = () => {
         const decodedToken = parseJwt(token);
         setUser(decodedToken);
 
-        if (decodedToken.role !== "Admin") {
-          setIsAdmin(false);
-        } else {
+        if (decodedToken.role === "Super Admin") {
+          setSuperAdmin(true);
           setIsAdmin(true);
+        } else if (decodedToken.role === "Admin") {
+          setSuperAdmin(false);
+          setIsAdmin(true);
+        } else {
+          setSuperAdmin(false);
+          setIsAdmin(false);
         }
 
       } catch (error) {
@@ -187,27 +193,32 @@ const Navbar = () => {
                     Admin Panel
                   </a>
                   <ul className="dropdown-menu dropdown-submenu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
-                    <li>
-                      <NavLink to="/admin/userlist" className="dropdown-item text-decoration-none">
-                        Users
-                      </NavLink>
-                    </li>
-                    <li>
-                      <NavLink to="/admin/projectlist" className="dropdown-item text-decoration-none" onClick={alertMessage}>
-                        Projects
-                      </NavLink>
-                    </li>
-                    <li>
-                      <NavLink to="/admin/deptlist" className="dropdown-item text-decoration-none" onClick={alertMessage}>
-                        Departments
-                      </NavLink>
-                    </li>
-                    <li>
-                      <NavLink to="/admin/supplier" className="dropdown-item text-decoration-none">
-                        Vendors
-                      </NavLink>
-                    </li>
-                    <li className="dropdown-divider"></li>
+                    {isSuperAdmin &&
+                      <>
+                        <li>
+                          <NavLink to="/admin/userlist" className="dropdown-item text-decoration-none">
+                            Users
+                          </NavLink>
+                        </li>
+
+                        <li>
+                          <NavLink to="/admin/projectlist" className="dropdown-item text-decoration-none" onClick={alertMessage}>
+                            Projects
+                          </NavLink>
+                        </li>
+                        <li>
+                          <NavLink to="/admin/deptlist" className="dropdown-item text-decoration-none" onClick={alertMessage}>
+                            Departments
+                          </NavLink>
+                        </li>
+                        <li>
+                          <NavLink to="/admin/supplier" className="dropdown-item text-decoration-none">
+                            Vendors
+                          </NavLink>
+                        </li>
+                        <li className="dropdown-divider"></li>
+                      </>
+                    }
                     <li>
                       <a className="dropdown-item" href="#dropdownSubmenuLink">
                         Transfer &raquo;

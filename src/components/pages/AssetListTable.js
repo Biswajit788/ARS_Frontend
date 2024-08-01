@@ -25,7 +25,7 @@ const override = css`
   border-color: red;
 `;
 
-const AssetListTable = ({ apiUrl, tableData, setTableData, loading, isAdmin, getTableData }) => {
+const AssetListTable = ({ apiUrl, tableData, setTableData, loading, isAdmin, isSuperAdmin, getTableData }) => {
 
   const navigate = useNavigate();
   const [errors, setErrors] = useState({});
@@ -1099,14 +1099,15 @@ const AssetListTable = ({ apiUrl, tableData, setTableData, loading, isAdmin, get
               className='text-danger'
               key={2}
               onClick={() => {
-                isAdmin ?
+                if (isAdmin || isSuperAdmin) {
                   handleDeleteRow(row)
-                  :
+                } else {
                   toast.error("You are not Authorized to Delete.", {
                     position: "top-center",
                     autoClose: 1000,
                     theme: "colored"
                   })
+                }
                 closeMenu();
               }}
             >
@@ -1116,14 +1117,15 @@ const AssetListTable = ({ apiUrl, tableData, setTableData, loading, isAdmin, get
               className='text-success'
               key={3}
               onClick={() => {
-                isAdmin ?
+                if(isAdmin || isSuperAdmin){
                   handleMarkRowUpdate(row)
-                  :
+                }else{
                   toast.error("You are not Authorized for Posting.", {
                     position: "top-center",
                     autoClose: 1000,
                     theme: "colored"
                   })
+                }     
                 closeMenu();
               }}
             >

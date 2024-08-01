@@ -1,8 +1,8 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 // Define the idle timeout period (10 minutes)
-const IDLE_TIMEOUT = 1 * 60 * 1000;
+const IDLE_TIMEOUT = 10 * 60 * 1000;
 
 const IdleTimer = () => {
     const navigate = useNavigate();

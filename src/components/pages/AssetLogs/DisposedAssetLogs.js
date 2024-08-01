@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import Box from '@mui/material/Box';
-import { Select, MenuItem, FormControl, InputLabel } from '@mui/material';
+import { Select, MenuItem, FormControl, InputLabel, useMediaQuery, useTheme } from '@mui/material';
 import Button from '@mui/material/Button';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { styled } from '@mui/material/styles';
@@ -86,6 +86,8 @@ const DisposedAssetLogs = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [transferCode, setTransferCode] = useState('');
+    const theme = useTheme();
+    const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
     const fetchLogs = async () => {
         setLoading(true);
@@ -194,8 +196,8 @@ const DisposedAssetLogs = () => {
     return (
         <Box>
             <Box sx={{ display: 'flex', alignItems: 'center', marginTop: 3, marginBottom: 2 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', flex: 2 }}>
-                    <FormControl variant="outlined" sx={{ m: 1, minWidth: 300, marginTop: 3 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: isSmallScreen ? 'column' : 'row', width: '100%' }}>
+                    <FormControl variant="outlined" sx={{minWidth: 300, width: isSmallScreen ? '100%' : 'auto' }}>
                         <InputLabel id="demo-simple-select-standard-label">Filter with Type</InputLabel>
                         <Select
                             labelId="demo-simple-select-transferType-label"
@@ -203,15 +205,14 @@ const DisposedAssetLogs = () => {
                             value={transferCode}
                             onChange={(e) => setTransferCode(e.target.value)}
                             label="Filter with Type"
-                            sx={{ marginRight: 2 }}
+                            sx={{ marginRight: isSmallScreen ? 0 : 2 }}
                         >
-                            <MenuItem value="" >Please select</MenuItem>
+                            <MenuItem value="">Please select</MenuItem>
                             {assetDiposedTypes.map((assetDiposedType, index) => (
                                 <MenuItem key={assetDiposedType} value={index * 100 + 100}>
                                     {assetDiposedType}
                                 </MenuItem>
                             ))}
-
                         </Select>
                     </FormControl>
                     <Button
@@ -220,7 +221,7 @@ const DisposedAssetLogs = () => {
                         color="primary"
                         onClick={fetchLogs}
                         disabled={loading}
-                        sx={{ minWidth: '100px', height: '36px' }}
+                        sx={{ minWidth: '100px', height: '36px', marginTop: isSmallScreen ? 1 : 0 }}
                     >
                         {loading ? 'Loading...' : 'Fetch Logs'}
                     </Button>
@@ -229,7 +230,7 @@ const DisposedAssetLogs = () => {
                         variant="contained"
                         color="warning"
                         onClick={resetLogs}
-                        sx={{ minWidth: '80px', height: '36px', marginLeft: 2 }}
+                        sx={{ minWidth: '80px', height: '36px', marginLeft: isSmallScreen ? 0 : 1, marginTop: isSmallScreen ? 1 : 0 }}
                     >
                         Reset
                     </Button>

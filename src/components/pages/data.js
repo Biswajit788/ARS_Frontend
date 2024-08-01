@@ -92,6 +92,7 @@ export const work_categories = [
 
 export const item_categories = [
   'Accessories',
+  'Attendance Machine',
   'Camera',
   'Cartridge',
   'Cctv',
@@ -102,6 +103,7 @@ export const item_categories = [
   'Microphone',
   'Mouse',
   'NVR',
+  'Photocopier Machine',
   'Printer',
   'Projector',
   'Router',
@@ -125,6 +127,7 @@ export const vendor_categories = [
 ];
 
 export const roles = [
+  'Super Admin',
   'Admin',
   'User'
 ];

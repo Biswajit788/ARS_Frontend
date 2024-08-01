@@ -18,6 +18,7 @@ import PrivateRoute from './utils/PrivateRoute';
 import AdminRoute from './utils/AdminRoute';
 import Layout from "./components/layout/Layout";
 import Sop from "./components/admin/sops/MainSop";
+import IdleTimer from './components/pages/IdleTimer';
 
 const App = () => {
   return (
@@ -43,41 +44,44 @@ const AppRoutes = () => {
   const lastVisitedPage = localStorage.getItem('lastVisitedPage') || '/homepage';
 
   return (
-    <Routes>
-      <Route
-        exact
-        path="/"
-        element={isAuthenticated() ? <Navigate to={lastVisitedPage} /> : <Navigate to="/sign-in" />}
-      />
-      <Route path="/sign-in" element={<Login />} />
-      <Route path="/sign-up" element={<SignUp />} />
-      <Route
-        path="*"
-        element={
-          <Layout>
-            <Routes>
-              {/* User Pages */}
-              <Route path="/homepage" element={<PrivateRoute><Home /></PrivateRoute>} />
-              <Route path="/itemlist" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-              <Route path="/additem" element={<PrivateRoute><AddItem /></PrivateRoute>} />
-              <Route path="/report" element={<PrivateRoute><Report /></PrivateRoute>} />
-              <Route path="/sop" element={<PrivateRoute><Sop /></PrivateRoute>} />
+    <>
+      {isAuthenticated() && !location.pathname.startsWith('/sign-in') && !location.pathname.startsWith('/sign-up') && <IdleTimer />}
+      <Routes>
+        <Route
+          exact
+          path="/"
+          element={isAuthenticated() ? <Navigate to={lastVisitedPage} /> : <Navigate to="/sign-in" />}
+        />
+        <Route path="/sign-in" element={<Login />} />
+        <Route path="/sign-up" element={<SignUp />} />
+        <Route
+          path="*"
+          element={
+            <Layout>
+              <Routes>
+                {/* User Pages */}
+                <Route path="/homepage" element={<PrivateRoute><Home /></PrivateRoute>} />
+                <Route path="/itemlist" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+                <Route path="/additem" element={<PrivateRoute><AddItem /></PrivateRoute>} />
+                <Route path="/report" element={<PrivateRoute><Report /></PrivateRoute>} />
+                <Route path="/sop" element={<PrivateRoute><Sop /></PrivateRoute>} />
 
-              {/* Admin Pages */}
-              <Route path="/admin/userlist" element={<AdminRoute><UserList /></AdminRoute>} />
-              <Route path="/admin/supplier" element={<AdminRoute><VendorList /></AdminRoute>} />
-              <Route path="/admin/itemlist" element={<AdminRoute><Dashboard /></AdminRoute>} />
-              <Route path="/admin/pendingActionList" element={<AdminRoute><Action /></AdminRoute>} />
-              <Route path="/admin/transferRequestList" element={<AdminRoute><TransferRequest /></AdminRoute>} />
-              <Route path="/admin/assetLogList" element={<AdminRoute><TransHistory /></AdminRoute>} />
-              <Route path="/admin/disposedAssetList" element={<AdminRoute><DisposedLogs /></AdminRoute>} />
+                {/* Admin Pages */}
+                <Route path="/admin/userlist" element={<AdminRoute><UserList /></AdminRoute>} />
+                <Route path="/admin/supplier" element={<AdminRoute><VendorList /></AdminRoute>} />
+                <Route path="/admin/itemlist" element={<AdminRoute><Dashboard /></AdminRoute>} />
+                <Route path="/admin/pendingActionList" element={<AdminRoute><Action /></AdminRoute>} />
+                <Route path="/admin/transferRequestList" element={<AdminRoute><TransferRequest /></AdminRoute>} />
+                <Route path="/admin/assetLogList" element={<AdminRoute><TransHistory /></AdminRoute>} />
+                <Route path="/admin/disposedAssetList" element={<AdminRoute><DisposedLogs /></AdminRoute>} />
 
-              <Route path="*" element={<PrivateRoute><Error /></PrivateRoute>} />
-            </Routes>
-          </Layout>
-        }
-      />
-    </Routes>
+                <Route path="*" element={<PrivateRoute><Error /></PrivateRoute>} />
+              </Routes>
+            </Layout>
+          }
+        />
+      </Routes>
+    </>
   );
 };
 

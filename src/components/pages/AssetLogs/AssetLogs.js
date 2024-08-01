@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import Box from '@mui/material/Box';
-import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
+import { Box, Button, TextField, useMediaQuery, useTheme } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import { styled } from '@mui/material/styles';
 import { FaPrint } from 'react-icons/fa';
 import { format } from 'date-fns';
+
 
 const StyledGridOverlay = styled('div')(({ theme }) => ({
     display: 'flex',
@@ -86,6 +85,8 @@ const AssetLogs = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [assetId, setAssetId] = useState('');
+    const theme = useTheme();
+    const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
     const fetchLogs = async () => {
         setLoading(true);
@@ -218,40 +219,43 @@ const AssetLogs = () => {
                 }
                 `}
             </style>
-            <Box sx={{ display: 'flex', alignItems: 'center', marginTop: 3, marginBottom: 2 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', flex: 2 }}>
+            <Box sx={{ display: 'flex', flexDirection: isSmallScreen ? 'column' : 'row', alignItems: 'center', marginTop: 3, marginBottom: 2 }}>
+                <Box sx={{ display: 'flex', flexDirection: isSmallScreen ? 'column' : 'row', alignItems: 'center', flex: 2, width: '100%' }}>
                     <TextField
                         label="Asset Id"
                         variant="outlined"
                         value={assetId}
                         onChange={(e) => setAssetId(e.target.value)}
-                        sx={{ marginRight: 2 }}
+                        fullWidth={isSmallScreen}
+                        sx={{ marginRight: isSmallScreen ? 0 : 2, marginBottom: isSmallScreen ? 2 : 0 }}
                     />
-                    <Button
-                        size="small"
-                        variant="contained"
-                        color="primary"
-                        onClick={fetchLogs}
-                        disabled={loading || assetId.trim() === ''}
-                        sx={{ minWidth: '100px', height: '36px' }}
-                    >
-                        {loading ? 'Loading...' : 'Fetch Logs'}
-                    </Button>
-                    <Button
-                        size="small"
-                        variant="contained"
-                        color="warning"
-                        onClick={resetLogs}
-                        sx={{ minWidth: '80px', height: '36px', marginLeft: 2 }}
-                    >
-                        Reset
-                    </Button>
+                    <Box sx={{ display: 'flex', flexDirection: isSmallScreen ? 'column' : 'row', alignItems: 'center', width: '100%' }}>
+                        <Button
+                            size="small"
+                            variant="contained"
+                            color="primary"
+                            onClick={fetchLogs}
+                            disabled={loading || assetId.trim() === ''}
+                            sx={{ minWidth: '100px', height: '36px', marginBottom: isSmallScreen ? 1 : 0, marginRight: isSmallScreen ? 0 : 2 }}
+                        >
+                            {loading ? 'Loading...' : 'Fetch Logs'}
+                        </Button>
+                        <Button
+                            size="small"
+                            variant="contained"
+                            color="warning"
+                            onClick={resetLogs}
+                            sx={{ minWidth: '80px', height: '36px', marginBottom: isSmallScreen ? 1 : 0, marginRight: isSmallScreen ? 0 : 2 }}
+                        >
+                            Reset
+                        </Button>
+                    </Box>
                 </Box>
                 <Button
                     variant="outlined"
                     onClick={handlePrint}
                     startIcon={<FaPrint />}
-                    sx={{ marginLeft: 2 }}
+                    sx={{ marginLeft: isSmallScreen ? 0 : 2, alignSelf: isSmallScreen ? 'center' : 'flex-start' }}
                 >
                     Print
                 </Button>

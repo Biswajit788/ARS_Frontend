@@ -17,7 +17,8 @@ import {
   Select,
   Stack,
   TextField,
-  Typography
+  Typography,
+  useMediaQuery, useTheme
 } from '@mui/material';
 import { projects, transferTypes, transferCases } from './data';
 
@@ -104,6 +105,8 @@ export default function PendingActionList() {
   const [transferCase, setTransferCase] = React.useState('');
   const [transferRemarks, setTransferRemarks] = React.useState('');
   const [currentItem, setCurrentItem] = React.useState(null);
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -193,7 +196,7 @@ export default function PendingActionList() {
             headerName: 'Sl.No.',
             width: 80,
             valueGetter: (params) => params.api.getSortedRowIds().indexOf(params.id) + 1,
-        },
+          },
           { field: 'asset_id', headerName: 'Asset Id', width: 150 },
           { field: 'itemCategory', headerName: 'Asset Description', width: 200 },
           { field: 'model', headerName: 'Model Number', width: 130 },
@@ -298,7 +301,7 @@ export default function PendingActionList() {
                       >
                         Transfer Process Form.
                       </DialogContentText>
-                      <FormControl variant="standard" sx={{ m: 1, minWidth: 500, marginTop: 3 }}>
+                      <FormControl variant="standard" sx={{ m: 1, minWidth: isSmallScreen ? '100%' : 500, marginTop: 3 }}>
                         <InputLabel id="demo-simple-select-standard-label">Select Transfer Type *</InputLabel>
                         <Select
                           labelId="demo-simple-select-transferType-label"
@@ -308,17 +311,16 @@ export default function PendingActionList() {
                           onChange={handleChange}
                           label="Transfer Type"
                         >
-                          <MenuItem value="" >Please select</MenuItem>
+                          <MenuItem value="">Please select</MenuItem>
                           {transferTypes.map((transferType) => (
                             <MenuItem key={transferType} value={transferType}>
                               {transferType}
                             </MenuItem>
                           ))}
-
                         </Select>
                       </FormControl>
                       {transferType === "Inter Project Transfer" && (
-                        <FormControl variant="standard" sx={{ m: 1, minWidth: 500, marginTop: 3 }}>
+                        <FormControl variant="standard" sx={{ m: 1, minWidth: isSmallScreen ? '100%' : 500, marginTop: 3 }}>
                           <InputLabel id="demo-simple-select-location-label">Select Location *</InputLabel>
                           <Select
                             labelId="demo-simple-select-location-label"
@@ -341,7 +343,7 @@ export default function PendingActionList() {
                         </FormControl>
                       )}
                       {transferType === "Asset Handover as per IT Policy" && (
-                        <FormControl variant="standard" sx={{ m: 1, minWidth: 500, marginTop: 3 }}>
+                        <FormControl variant="standard" sx={{ m: 1, minWidth: isSmallScreen ? '100%' : 500, marginTop: 3 }}>
                           <InputLabel id="demo-simple-select-location-label">Select Cases *</InputLabel>
                           <Select
                             labelId="demo-simple-select-location-label"
@@ -363,7 +365,7 @@ export default function PendingActionList() {
                           </Select>
                         </FormControl>
                       )}
-                      <FormControl className='mt-4' variant="standard" sx={{ m: 1, minWidth: 500 }}>
+                      <FormControl className="mt-4" variant="standard" sx={{ m: 1, minWidth: isSmallScreen ? '100%' : 500 }}>
                         <TextField
                           label="Remarks *"
                           variant="standard"
@@ -372,7 +374,7 @@ export default function PendingActionList() {
                           onChange={handleChange}
                           multiline
                           rows={3} // Adjust the number of rows as needed
-                          sx={{ m: 1, minWidth: 500, marginTop: 3 }}
+                          sx={{ m: 1, minWidth: isSmallScreen ? '100%' : 500, marginTop: 3 }}
                         />
                       </FormControl>
                     </DialogContent>

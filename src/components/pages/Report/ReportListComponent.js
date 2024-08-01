@@ -40,7 +40,9 @@ function ReportListComponent() {
                 const dept = decodedToken.dept;
                 const role = decodedToken.role;
 
-                const endpoint = role === "Admin" ? "admin/items" : "user/items";
+                const endpoint = role === "Super Admin" ? "superadmin/items"
+                                : role === "Admin" ? "admin/items"
+                                : "user/items";
 
                 const response = await axios.post(`${apiUrl}/${endpoint}`, null, {
                     params: {

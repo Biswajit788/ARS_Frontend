@@ -12,10 +12,10 @@ import CustMarquee from '../marquee/CustomMarquee';
 const Home = () => {
     return (
         <>
-            
+         
             <Container fluid="md">
                 <Row className='one'>
-                    <Col xs={6} md={4}>
+                    <Col xs={12} md={4}>
                         <Card />
                     </Col>
                     <Col xs={12} md={8}>

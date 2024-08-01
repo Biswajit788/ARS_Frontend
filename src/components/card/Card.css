@@ -1,18 +1,20 @@
-.card{
+.card {
     margin-top: 10px;
     margin-bottom: 10px;
     margin-right: 0rem;
     margin-left: 0rem;
-    height: 450px;
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
 }
-.card-header{
-    color: rgba(56, 2, 83, 0.884);
+
+.custom-card-header {
     font-family: Roboto, Helvetica, Arial, sans-serif;
-    font-size: 16px;
-    font-weight: 400;
+    background-color: #007bff; /* Blue background */
+    color: white; /* White text */
+    padding: 12px; /* Padding for spacing */
+    font-size: 1rem; /* Larger font size */
+    font-weight: bold; /* Bold text */
+    border-bottom: 2px solid #0056b3; /* Bottom border */
 }
+
 .card-body p,a{
     font-size: 13px;
     font-family: Roboto, Helvetica, Arial, sans-serif;

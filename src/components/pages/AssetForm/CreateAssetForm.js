@@ -18,6 +18,7 @@ function WorkOrderModal() {
 
     const apiUrl = process.env.REACT_APP_API_URL;
     const navigate = useNavigate();
+    const [isSuperAdmin, setSuperAdmin] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false);
     const [usrData, setUsrData] = useState([]);
     const [errorMessage, setErrorMessage] = useState(null);
@@ -32,11 +33,17 @@ function WorkOrderModal() {
             const decodedToken = parseJwt(token);
             setUsrData(decodedToken);
 
-            if (decodedToken.role !== "Admin") {
-                setIsAdmin(false);
-            } else {
+            if (decodedToken.role === "Super Admin") {
+                setSuperAdmin(true);
                 setIsAdmin(true);
+            } else if (decodedToken.role === "Admin") {
+                setSuperAdmin(false);
+                setIsAdmin(true);
+            } else {
+                setSuperAdmin(false);
+                setIsAdmin(false);
             }
+            
 
         } catch (error) {
             console.log(error);
@@ -353,7 +360,7 @@ function WorkOrderModal() {
                                 <Row className='mt-5 mb-3 smaller-input'>
                                     <Col sm={4}>
                                         <FloatingLabel controlId="project" label="Enter Project Name *">
-                                            {isAdmin ?
+                                            {isSuperAdmin ?
                                                 <Form.Select
                                                     name="project"
                                                     aria-label="Floating label select"

@@ -126,7 +126,7 @@ const App = () => {
                 <div className='page-title mb-4'>
                     <span>Standard Operating Procedure Manual</span>
                 </div>
-                {userRole === "Admin" && (
+                {userRole === "Super Admin" && (
                     <FormComponent fetchFiles={fetchFiles} />
                 )}
 

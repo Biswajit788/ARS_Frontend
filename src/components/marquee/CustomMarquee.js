@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 
 import khep from '../../assets/KHEP.png';
 import dhep from '../../assets/DHEP.png';
-import kahep from '../../assets/KaHEP.png';
+import kahep from '../../assets/KaHEP.jpeg';
 import phep from '../../assets/PHEP.png';
 import plhps from '../../assets/PLHPS.png';
 import trhep from '../../assets/TrHEP.png';

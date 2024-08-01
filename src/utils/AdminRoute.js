@@ -9,7 +9,7 @@ const AdminRoute = ({ children }) => {
     if (localStorage.getItem("authToken")) {
         var accessToken = localStorage.getItem("authToken");
         var decoded = jwtDecode(accessToken);
-        if(decoded.role === "Admin"){
+        if(decoded.role === "Admin" || "Super Admin"){
             return (
                 <>
                     {children}

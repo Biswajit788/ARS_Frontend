@@ -8,8 +8,8 @@ function Dashboard() {
 
   const [tableData, setTableData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isSuperAdmin, setSuperAdmin] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [userData, setUserData] = useState([]);
 
   const getTableData = useCallback(async () => {
     try {
@@ -21,12 +21,19 @@ function Dashboard() {
       const dept = decodedToken.dept;
       const role = decodedToken.role;
 
-      if (role === "Admin") {
+      if (role === "Super Admin") {
+        setSuperAdmin(true);
+        setIsAdmin(true);
+      } else if (role === "Admin") {
+        setSuperAdmin(false);
         setIsAdmin(true);
       } else {
+        setSuperAdmin(false);
         setIsAdmin(false);
       }
-      const endpoint = role === "Admin" ? "admin/items" : "user/items";
+      const endpoint = role === "Super Admin" ? "superadmin/items"
+                      : role === "Admin" ? "admin/items"
+                      : "user/items";
 
       const response = await axios.post(`${apiUrl}/${endpoint}`, null, {
         params: {
@@ -75,6 +82,7 @@ function Dashboard() {
           setTableData={setTableData}
           apiUrl={apiUrl}
           loading={loading}
+          isSuperAdmin={isSuperAdmin}
           isAdmin={isAdmin}
           getTableData={getTableData}
         />

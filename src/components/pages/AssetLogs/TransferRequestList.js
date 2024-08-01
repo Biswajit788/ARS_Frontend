@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useState } from 'react';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { styled } from '@mui/material/styles';
-
+import { format } from 'date-fns';
 import axios from 'axios';
 import {
   Box,
@@ -336,6 +336,16 @@ export default function TransferRequestList() {
                 </div>
               );
             },
+          },
+          {
+            field: 'createdAt',
+            headerName: 'Request Date',
+            width: 180,
+            renderCell: (params) => (
+              <div style={{ whiteSpace: 'normal', wordWrap: 'break-word' }}>
+                {format(new Date(params.value), 'dd-MM-yyyy hh:mm:ss')}
+              </div>
+            ),
           },
           {
             field: 'action',
